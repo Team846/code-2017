@@ -3,7 +3,7 @@ enablePlugins(FRCPlugin)
 organization := "com.lynbrookrobotics"
 teamNumber := 846
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.1"
 
 name := "workshops-2016"
 
