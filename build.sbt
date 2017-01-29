@@ -9,8 +9,6 @@ name := "code-2017"
 
 version := "0.1.0-SNAPSHOT"
 
-coverageEnabled := true
-
 resolvers += "Funky-Repo" at "http://team846.github.io/repo"
 resolvers += "WPILib-Maven" at "http://team846.github.io/wpilib-maven"
 resolvers += "opencv-maven" at "https://github.com/WPIRoboticsProjects/opencv-maven/raw/mvn-repo"
