@@ -1,3 +1,3 @@
 package com.lynbrookrobotics.seventeen.config
 
-case class RobotConfig(driver: DriverConfig)
+case class RobotConfig(driver: DriverConfig, drivetrain: DrivetrainConfig)

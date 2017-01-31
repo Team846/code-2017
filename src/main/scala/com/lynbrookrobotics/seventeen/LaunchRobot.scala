@@ -1,28 +1,51 @@
 package com.lynbrookrobotics.seventeen
 
+import com.lynbrookrobotics.potassium.events.ImpulseEventSource
 import com.lynbrookrobotics.seventeen.config._
-import edu.wpi.first.wpilibj.{DriverStation, RobotBase}
-import com.lynbrookrobotics.potassium.frc.Implicits._
+import com.lynbrookrobotics.seventeen.hardware.RobotHardware
+import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.hal.HAL
+import squants.motion.FeetPerSecond
+import com.lynbrookrobotics.potassium.frc.Implicits.clock
 
 class LaunchRobot extends RobotBase {
-  implicit val config = RobotConfig(
+  private implicit val config = RobotConfig(
     DriverConfig(
-      operatorPort = 1
+      driverPort = 0,
+      operatorPort = 1,
+      driverWheelPort = 2
+    ),
+    DrivetrainConfig(
+      ports = DrivetrainPorts(
+        leftBack = 4,
+        leftFront = 3,
+        rightBack = 0,
+        rightFront = 1
+      ),
+      properties = DrivetrainProperties(
+        maxLeftVelocity = FeetPerSecond(22.9),
+        maxRightVelocity = FeetPerSecond(27)
+      )
     )
   )
 
+  private implicit val hardware = RobotHardware(config)
+
   private var coreRobot: CoreRobot = null
 
-  val ds = DriverStation.getInstance()
+  private val ds = m_ds
+
+  val eventPollingSource = new ImpulseEventSource
+  private implicit val eventPolling = eventPollingSource.event
 
   override def startCompetition(): Unit = {
-    HAL.observeUserProgramStarting()
-
     coreRobot = new CoreRobot
+
+    HAL.observeUserProgramStarting()
 
     while (true) {
       ds.waitForData()
+      eventPollingSource.fire()
     }
   }
 }
