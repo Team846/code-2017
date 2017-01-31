@@ -1,17 +1,15 @@
-package com.lynbrookrobotics.seventeen.component
+package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.potassium.clock.Clock
-import com.lynbrookrobotics.potassium.commons.drivetrain._
+import com.lynbrookrobotics.potassium.commons.drivetrain.{ArcadeControlsClosed, NoOperation, TwoSidedDrive, UnicycleControlMode}
 import com.lynbrookrobotics.potassium.frc.WPIClock
-import com.lynbrookrobotics.seventeen.hardware
-import com.lynbrookrobotics.seventeen.config
 import com.lynbrookrobotics.potassium.frc.Implicits._
 import squants.Time
 import squants.time.Milliseconds
 
 package object drivetrain extends TwoSidedDrive {
-  type DrivetrainHardware = hardware.DrivetrainHardware
-  type DrivetrainProperties = config.DrivetrainProperties
+  type Hardware = DrivetrainHardware
+  type Properties = DrivetrainProperties
 
   override protected implicit val clock: Clock = WPIClock
   override protected val updatePeriod: Time = Milliseconds(5)

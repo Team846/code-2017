@@ -3,7 +3,7 @@ branches:
   only:
     - master
 script:
-  - sbt test coverageReport
+  - sbt coverage test coverageReport
 jdk: oraclejdk8
 after_success:
   - 'bash <(curl -s https://codecov.io/bash)'

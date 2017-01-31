@@ -1,6 +1,7 @@
-package com.lynbrookrobotics.seventeen.hardware
+package com.lynbrookrobotics.seventeen
 
-import com.lynbrookrobotics.seventeen.config.RobotConfig
+import com.lynbrookrobotics.seventeen.driver.DriverHardware
+import com.lynbrookrobotics.seventeen.drivetrain.DrivetrainHardware
 
 case class RobotHardware(driver: DriverHardware, drivetrain: DrivetrainHardware)
 

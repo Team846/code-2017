@@ -1,6 +1,5 @@
-package com.lynbrookrobotics.seventeen.hardware
+package com.lynbrookrobotics.seventeen.driver
 
-import com.lynbrookrobotics.seventeen.config.DriverConfig
 import edu.wpi.first.wpilibj.{DriverStation, Joystick}
 
 case class DriverHardware(driverJoystick: Joystick, operatorJoystick: Joystick, driverWheel: Joystick, station: DriverStation)

@@ -1,3 +1,3 @@
-package com.lynbrookrobotics.seventeen.config
+package com.lynbrookrobotics.seventeen.drivetrain
 
 case class DrivetrainConfig(ports: DrivetrainPorts, properties: DrivetrainProperties)
