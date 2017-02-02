@@ -1,15 +1,17 @@
 package com.lynbrookrobotics.seventeen
 
+import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.events.ImpulseEventSource
 import com.lynbrookrobotics.seventeen.config._
 import com.lynbrookrobotics.seventeen.hardware.RobotHardware
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.hal.HAL
 import squants.motion.FeetPerSecond
+
 import com.lynbrookrobotics.potassium.frc.Implicits.clock
 
 class LaunchRobot extends RobotBase {
-  private implicit val config = RobotConfig(
+  private implicit val config = Signal.constant(RobotConfig(
     DriverConfig(
       driverPort = 0,
       operatorPort = 1,
@@ -27,15 +29,15 @@ class LaunchRobot extends RobotBase {
         maxRightVelocity = FeetPerSecond(27)
       )
     )
-  )
+  ))
 
-  private implicit val hardware = RobotHardware(config)
+  private implicit val hardware = RobotHardware(config.get)
 
   private var coreRobot: CoreRobot = null
 
   private val ds = m_ds
 
-  val eventPollingSource = new ImpulseEventSource
+  private val eventPollingSource = new ImpulseEventSource
   private implicit val eventPolling = eventPollingSource.event
 
   override def startCompetition(): Unit = {

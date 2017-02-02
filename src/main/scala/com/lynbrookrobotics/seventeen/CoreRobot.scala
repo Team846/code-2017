@@ -1,32 +1,35 @@
 package com.lynbrookrobotics.seventeen
 
-import java.util.concurrent.Executors
-
 import com.lynbrookrobotics.seventeen.config.RobotConfig
 import com.lynbrookrobotics.seventeen.hardware.RobotHardware
 import com.lynbrookrobotics.seventeen.component.drivetrain.Drivetrain
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, TimeSeriesNumeric}
+import com.lynbrookrobotics.potassium.events.ImpulseEvent
+
+import com.lynbrookrobotics.seventeen.component.drivetrain.unicycleTasks
+
+import edu.wpi.first.wpilibj.DriverStation
+
+import squants.space.{Degrees, Feet, Inches}
+
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import com.lynbrookrobotics.potassium.events.ImpulseEvent
-import edu.wpi.first.wpilibj.DriverStation
-import com.lynbrookrobotics.seventeen.component.drivetrain.unicycleTasks
-import squants.space.{Degrees, Feet, Inches}
 
-import scala.concurrent.{ExecutionContext, Future}
+
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class CoreRobot(implicit config: RobotConfig, hardware: RobotHardware, clock: Clock, polling: ImpulseEvent) {
+class CoreRobot(implicit config: Signal[RobotConfig], hardware: RobotHardware, clock: Clock, polling: ImpulseEvent) {
   val ds = DriverStation.getInstance()
 
   implicit val driverHardware = hardware.driver
   implicit val drivetrainHardware = hardware.drivetrain
 
-  implicit val drivetrainProps = config.drivetrain.properties
+  implicit val drivetrainProps = config.map(_.drivetrain.properties)
 
   implicit val drivetrain = new Drivetrain
 
