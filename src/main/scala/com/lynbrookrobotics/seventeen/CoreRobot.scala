@@ -50,7 +50,7 @@ class CoreRobot(implicit config: Signal[RobotConfig], hardware: RobotHardware, c
     Inches(2)
   )).toContinuous)
 
-  val dashboard: = Future {
+  val dashboard = Future {
     implicit val system = ActorSystem("funky-dashboard")
 
     implicit val materializer = ActorMaterializer()
