@@ -1,37 +1,31 @@
 package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.seventeen.config.RobotConfig
-import com.lynbrookrobotics.seventeen.hardware.RobotHardware
-import com.lynbrookrobotics.seventeen.component.drivetrain.Drivetrain
+import com.lynbrookrobotics.seventeen.hardware.{DriverHardware, RobotHardware}
+import com.lynbrookrobotics.seventeen.component.drivetrain.{Drivetrain, DrivetrainHardware, DrivetrainProperties, unicycleTasks}
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, TimeSeriesNumeric}
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
-
-import com.lynbrookrobotics.seventeen.component.drivetrain.unicycleTasks
-
 import edu.wpi.first.wpilibj.DriverStation
-
 import squants.space.{Degrees, Feet, Inches}
-
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 
-
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class CoreRobot(implicit config: Signal[RobotConfig], hardware: RobotHardware, clock: Clock, polling: ImpulseEvent) {
-  val ds = DriverStation.getInstance()
+  val ds: DriverStation = DriverStation.getInstance()
 
-  implicit val driverHardware = hardware.driver
-  implicit val drivetrainHardware = hardware.drivetrain
+  implicit val driverHardware: DriverHardware = hardware.driver
+  implicit val drivetrainHardware: DrivetrainHardware = hardware.drivetrain
 
-  implicit val drivetrainProps = config.map(_.drivetrain.properties)
+  implicit val drivetrainProps: Signal[DrivetrainProperties] = config.map(_.drivetrain.properties)
 
-  implicit val drivetrain = new Drivetrain
+  implicit val drivetrain: Drivetrain = new Drivetrain
 
   val components = List(drivetrain)
 
