@@ -2,13 +2,12 @@ package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.events.ImpulseEventSource
-import com.lynbrookrobotics.seventeen.config._
-import com.lynbrookrobotics.seventeen.hardware.RobotHardware
+import com.lynbrookrobotics.seventeen.driver._
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.hal.HAL
 import squants.motion.FeetPerSecond
-
 import com.lynbrookrobotics.potassium.frc.Implicits.clock
+import com.lynbrookrobotics.seventeen.drivetrain.{DrivetrainConfig, DrivetrainPorts, DrivetrainProperties}
 
 class LaunchRobot extends RobotBase {
   private implicit val config = Signal.constant(RobotConfig(
