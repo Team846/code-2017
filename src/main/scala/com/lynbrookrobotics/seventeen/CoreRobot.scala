@@ -28,12 +28,12 @@ class CoreRobot(implicit config: Signal[RobotConfig], hardware: RobotHardware, c
 
   val components = List(drivetrain)
 
-  val teleop = Signal(ds.isEnabled && ds.isOperatorControl).filter(identity)
-  teleop.onStart.foreach { () =>
+  val enabled = Signal(ds.isEnabled).filter(identity)
+  enabled.onStart.foreach { () =>
     components.foreach(_.resetToDefault())
   }
 
-  teleop.onEnd.foreach { () =>
+  enabled.onEnd.foreach { () =>
     components.foreach(_.resetToDefault())
   }
 
