@@ -6,9 +6,7 @@ import com.lynbrookrobotics.potassium.commons.drivetrain.TwoSidedDriveHardware
 import com.lynbrookrobotics.potassium.frc.TalonEncoder
 import com.lynbrookrobotics.potassium.units._
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
-
 import com.ctre.CANTalon
-
 import squants.motion.{AngularVelocity, FeetPerSecond, RadiansPerSecond}
 import squants.space.{Degrees, Inches, Radians}
 import squants.time.Seconds

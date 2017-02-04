@@ -1,10 +1,10 @@
 language: scala
+scala:
+   - 2.12.1
 branches:
   only:
     - master
 script:
-  - sbt coverage test coverageReport
+  - sbt test
 jdk: oraclejdk8
 after_success:
-  - 'bash <(curl -s https://codecov.io/bash)'
-  - 'if [[ $TRAVIS_PULL_REQUEST == "false" ]]; then bash ./deploy.sh; fi'
