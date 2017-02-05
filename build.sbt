@@ -27,3 +27,6 @@ libraryDependencies += "edu.wpi.first" % "wpilib" % "2017.2.1"
 libraryDependencies += "edu.wpi.first" % "networktables" % "2017.2.1"
 libraryDependencies += "com.ctre" % "ctrlib" % "4.4.1.9"
 libraryDependencies += "org.opencv" % "opencv-java" % "3.1.0"
+
+lazy val vision = project.enablePlugins(AssemblyPlugin)
+
