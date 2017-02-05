@@ -7,12 +7,9 @@ import com.lynbrookrobotics.potassium.frc.Implicits._
 import squants.Time
 import squants.time.Milliseconds
 
-package object drivetrain extends TwoSidedDrive {
+package object drivetrain extends TwoSidedDrive(Milliseconds(5)) {
   type Hardware = DrivetrainHardware
   type Properties = DrivetrainProperties
-
-  override protected implicit val clock: Clock = WPIClock
-  override protected val updatePeriod: Time = Milliseconds(5)
 
   override protected def output(hardware: DrivetrainHardware, signal: TwoSidedSignal): Unit = {
     hardware.leftBack.set(signal.left.toEach)
