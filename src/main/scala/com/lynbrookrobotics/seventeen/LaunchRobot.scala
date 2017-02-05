@@ -1,34 +1,23 @@
 package com.lynbrookrobotics.seventeen
 
+import java.io.File
+
 import com.lynbrookrobotics.potassium.Signal
+import com.lynbrookrobotics.potassium.config.TwoWayFile
 import com.lynbrookrobotics.potassium.events.ImpulseEventSource
-import com.lynbrookrobotics.seventeen.driver._
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.hal.HAL
-import squants.motion.FeetPerSecond
-import com.lynbrookrobotics.potassium.frc.Implicits.clock
-import com.lynbrookrobotics.seventeen.drivetrain.{DrivetrainConfig, DrivetrainPorts, DrivetrainProperties}
+import com.lynbrookrobotics.potassium.frc.Implicits._
+import upickle.default._
+import com.lynbrookrobotics.potassium.config.SquantsPickling._
 
 class LaunchRobot extends RobotBase {
-  private implicit val config = Signal.constant(RobotConfig(
-    DriverConfig(
-      driverPort = 0,
-      operatorPort = 1,
-      driverWheelPort = 2
-    ),
-    DrivetrainConfig(
-      ports = DrivetrainPorts(
-        leftBack = 4,
-        leftFront = 3,
-        rightBack = 0,
-        rightFront = 1
-      ),
-      properties = DrivetrainProperties(
-        maxLeftVelocity = FeetPerSecond(22.9),
-        maxRightVelocity = FeetPerSecond(27)
-      )
-    )
-  ))
+  protected val configFile = new TwoWayFile(new File("/home/lvuser/robot-config.json"))
+  protected val parsedConfig = configFile.map(string => read[RobotConfig](string))(
+    (_, newValue) => write(newValue)
+  )
+
+  private implicit val config = Signal(parsedConfig.value)
 
   private implicit val hardware = RobotHardware(config.get)
 
@@ -40,7 +29,17 @@ class LaunchRobot extends RobotBase {
   private implicit val eventPolling = eventPollingSource.event
 
   override def startCompetition(): Unit = {
-    coreRobot = new CoreRobot
+    coreRobot = new CoreRobot(
+      Signal(configFile.value),
+      newS => {
+        val oldS = configFile.value
+        try {
+          configFile.value = newS
+        } catch {
+          case _ => configFile.value = oldS
+        }
+      }
+    )
 
     HAL.observeUserProgramStarting()
 
