@@ -13,15 +13,9 @@ case class DrivetrainProperties(maxLeftVelocity: Velocity, maxRightVelocity: Vel
   override val maxTurnVelocity: AngularVelocity =
     RadiansPerSecond((((maxLeftVelocity + maxRightVelocity) * Seconds(1)) / Inches(21.75)) / 2)
 
-  override def turnControlGains: PIDFConfig[AngularVelocity,
-    GenericValue[AngularVelocity],
-    GenericValue[AngularVelocity],
-    GenericDerivative[AngularVelocity],
-    GenericIntegral[AngularVelocity],
-    Dimensionless
-  ] = PIDFConfig(
+  override def turnControlGains = PIDFConfig(
     Percent(0) / DegreesPerSecond(1),
-    Percent(0) / (DegreesPerSecond(1).toGeneric * Seconds(1)),
+    Percent(0) / Degrees(1),
     Percent(0) / (DegreesPerSecond(1).toGeneric / Seconds(1)),
     Percent(100) / maxTurnVelocity
   )
