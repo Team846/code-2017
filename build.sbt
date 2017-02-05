@@ -18,6 +18,8 @@ val potassiumVersion = "0.1.0-20c4af10"
 libraryDependencies += "com.lynbrookrobotics" %% "potassium-core" % potassiumVersion
 libraryDependencies += "com.lynbrookrobotics" %% "potassium-commons" % potassiumVersion
 libraryDependencies += "com.lynbrookrobotics" %% "potassium-frc" % potassiumVersion
+libraryDependencies += "com.lynbrookrobotics" %% "potassium-vision" % potassiumVersion
+libraryDependencies += "com.lynbrookrobotics" %% "potassium-remote" % potassiumVersion
 
 libraryDependencies += "com.lynbrookrobotics" %% "funky-dashboard" % "0.2.0-SNAPSHOT"
 
@@ -25,3 +27,6 @@ libraryDependencies += "edu.wpi.first" % "wpilib" % "2017.2.1"
 libraryDependencies += "edu.wpi.first" % "networktables" % "2017.2.1"
 libraryDependencies += "com.ctre" % "ctrlib" % "4.4.1.9"
 libraryDependencies += "org.opencv" % "opencv-java" % "3.1.0"
+
+lazy val vision = project.enablePlugins(AssemblyPlugin)
+
