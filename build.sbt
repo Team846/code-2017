@@ -13,11 +13,13 @@ resolvers += "Funky-Repo" at "http://team846.github.io/repo"
 resolvers += "WPILib-Maven" at "http://team846.github.io/wpilib-maven"
 resolvers += "opencv-maven" at "https://github.com/WPIRoboticsProjects/opencv-maven/raw/mvn-repo"
 
-val potassiumVersion = "0.1.0-20c4af10"
+libraryDependencies += "com.lynbrookrobotics" %% "potassium-core" % Versions.potassiumVersion
+libraryDependencies += "com.lynbrookrobotics" %% "potassium-control" % Versions.potassiumVersion
+libraryDependencies += "com.lynbrookrobotics" %% "potassium-commons" % Versions.potassiumVersion
+libraryDependencies += "com.lynbrookrobotics" %% "potassium-frc" % Versions.potassiumVersion
+libraryDependencies += "com.lynbrookrobotics" %% "potassium-config" % Versions.potassiumVersion
 
-libraryDependencies += "com.lynbrookrobotics" %% "potassium-core" % potassiumVersion
-libraryDependencies += "com.lynbrookrobotics" %% "potassium-commons" % potassiumVersion
-libraryDependencies += "com.lynbrookrobotics" %% "potassium-frc" % potassiumVersion
+libraryDependencies += "org.mockito" % "mockito-core" % "2.3.11" % Test
 
 libraryDependencies += "com.lynbrookrobotics" %% "funky-dashboard" % "0.2.0-SNAPSHOT"
 

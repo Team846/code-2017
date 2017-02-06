@@ -2,22 +2,20 @@ package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.clock.Clock
-import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, TimeSeriesNumeric}
+import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
-import edu.wpi.first.wpilibj.DriverStation
 import squants.space.{Degrees, Feet, Inches}
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-
 import com.lynbrookrobotics.seventeen.drivetrain._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class CoreRobot(implicit config: Signal[RobotConfig], hardware: RobotHardware, clock: Clock, polling: ImpulseEvent) {
-  val ds = DriverStation.getInstance()
+class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit)(implicit config: Signal[RobotConfig], hardware: RobotHardware, clock: Clock, polling: ImpulseEvent) {
+  lazy val ds = hardware.driver.station
 
   implicit val driverHardware = hardware.driver
   implicit val drivetrainHardware = hardware.drivetrain
@@ -63,6 +61,11 @@ class CoreRobot(implicit config: Signal[RobotConfig], hardware: RobotHardware, c
   }.flatten
 
   dashboard.foreach { board =>
+    board.datasetGroup("Config").addDataset(new JsonEditor("Robot Config")(
+      configFileValue.get,
+      updateConfigFile
+    ))
+
     board.datasetGroup("Power").addDataset(new TimeSeriesNumeric("Battery Voltage")(
       ds.getBatteryVoltage
     ))
