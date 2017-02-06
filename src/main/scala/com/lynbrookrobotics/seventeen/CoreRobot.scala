@@ -10,11 +10,10 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import com.lynbrookrobotics.potassium.lighting.{DisplayLighting, LightingComponent, TwoWayComm}
-import com.lynbrookrobotics.seventeen.drivetrain._
 import com.lynbrookrobotics.seventeen.lighting.SerialComms
 import edu.wpi.first.wpilibj.SerialPort
 import com.lynbrookrobotics.potassium.frc.Implicits._
-import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, Task}
+import com.lynbrookrobotics.seventeen.drivetrain._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -36,14 +35,22 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     case e: Exception => None
   }
 
-  val comms = new SerialComms(serialPort.get)
-  val lighting = new LightingComponent(20, comms)
+//  val comms = new SerialComms(serialPort.get)
+//  val lighting = new LightingComponent(20, comms)
 
-  val components = List(drivetrain, lighting)
+  val components = List(drivetrain/*, lighting*/)
 
-  driverHardware.operatorJoystick.buttonPressed(1).foreach(new DisplayLighting(Signal.constant(1) ,lighting))
+//  driverHardware.operatorJoystick.buttonPressed(1).foreach(new DisplayLighting(Signal.constant(1) ,lighting))
+
+  val disabled = Signal(ds.isDisabled).filter(identity)
+  disabled.foreach(() => {
+    drivetrainHardware.imu.calibrateUpdate()
+  })
 
   val enabled = Signal(ds.isEnabled).filter(identity)
+
+  enabled.foreach(() => drivetrainHardware.imu.angleUpdate())
+
   enabled.onStart.foreach { () =>
     components.foreach(_.resetToDefault())
   }
@@ -65,16 +72,16 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   )).toContinuous)
 
   val dashboard = Future {
-    implicit val system = ActorSystem("funky-dashboard")
+      implicit val system = ActorSystem("funky-dashboard")
 
-    implicit val materializer = ActorMaterializer()
+      implicit val materializer = ActorMaterializer()
 
-    val dashboard = new FunkyDashboard
+      val dashboard = new FunkyDashboard
 
-    Http().bindAndHandle(Route.handlerFlow(dashboard.route), "0.0.0.0", 8080).map { _ =>
-      println("Funky Dashboard is up!")
-      dashboard
-    }
+      Http().bindAndHandle(Route.handlerFlow(dashboard.route), "0.0.0.0", 8080).map { _ =>
+        println("Funky Dashboard is up!")
+        dashboard
+      }
   }.flatten
 
   dashboard.foreach { board =>
@@ -100,7 +107,19 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     ))
 
     board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Rotational Position")(
-      drivetrainHardware.turnPosition.get.toDegrees
+        drivetrainHardware.turnPosition.get.toDegrees
+    ))
+
+    board.datasetGroup("Gyro").addDataset(new TimeSeriesNumeric("Gyro-X") (
+        drivetrainHardware.pose.get.map(_.x.toDegrees).getOrElse(0)
+    ))
+
+    board.datasetGroup("Gyro").addDataset(new TimeSeriesNumeric("Gyro-Y") (
+        drivetrainHardware.pose.get.map(_.y.toDegrees).getOrElse(0)
+    ))
+
+    board.datasetGroup("Gyro").addDataset(new TimeSeriesNumeric("Gyro-Z") (
+        drivetrainHardware.pose.get.map(_.z.toDegrees).getOrElse(0)
     ))
   }
 }
