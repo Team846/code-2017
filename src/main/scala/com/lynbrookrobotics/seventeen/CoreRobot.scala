@@ -10,11 +10,14 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import com.lynbrookrobotics.potassium.lighting.{DisplayLighting, LightingComponent, TwoWayComm}
-import com.lynbrookrobotics.seventeen.drivetrain._
 import com.lynbrookrobotics.seventeen.lighting.SerialComms
 import edu.wpi.first.wpilibj.SerialPort
 import com.lynbrookrobotics.potassium.frc.Implicits._
-import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, Task}
+import com.lynbrookrobotics.potassium.frc.SPIWrapper
+import com.lynbrookrobotics.potassium.sensors.imu.{ADIS16448}
+import com.lynbrookrobotics.seventeen.drivetrain._
+import edu.wpi.first.wpilibj.SPI
+import squants.time.Milliseconds
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -36,14 +39,26 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     case e: Exception => None
   }
 
-  val comms = new SerialComms(serialPort.get)
-  val lighting = new LightingComponent(20, comms)
+//  val comms = new SerialComms(serialPort.get)
+//  val lighting = new LightingComponent(20, comms)
 
-  val components = List(drivetrain, lighting)
+  val components = List(drivetrain/*, lighting*/)
 
-  driverHardware.operatorJoystick.buttonPressed(1).foreach(new DisplayLighting(Signal.constant(1) ,lighting))
+    val imu = new ADIS16448(new SPIWrapper(new SPI(SPI.Port.kMXP)), Milliseconds(5))
+    val pose = imu.position.toPollingSignal(Milliseconds(20))
+
+//  driverHardware.operatorJoystick.buttonPressed(1).foreach(new DisplayLighting(Signal.constant(1) ,lighting))
+
+  val disabled = Signal(ds.isDisabled).filter(identity)
+  disabled.foreach(() => {
+    imu.calibrateUpdate()
+    print("in disabled!\n")
+  })
 
   val enabled = Signal(ds.isEnabled).filter(identity)
+
+  enabled.foreach(() => imu.angleUpdate())
+
   enabled.onStart.foreach { () =>
     components.foreach(_.resetToDefault())
   }
@@ -101,6 +116,18 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
     board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Rotational Position")(
       drivetrainHardware.turnPosition.get.toDegrees
+    ))
+
+    board.datasetGroup("Gyro").addDataset(new TimeSeriesNumeric("Gyro-X") (
+      pose.get.map(_.x.toDegrees).getOrElse(0)
+    ))
+
+    board.datasetGroup("Gyro").addDataset(new TimeSeriesNumeric("Gyro-Y") (
+      pose.get.map(_.y.toDegrees).getOrElse(0)
+    ))
+
+    board.datasetGroup("Gyro").addDataset(new TimeSeriesNumeric("Gyro-Z") (
+      pose.get.map(_.z.toDegrees).getOrElse(0)
     ))
   }
 }

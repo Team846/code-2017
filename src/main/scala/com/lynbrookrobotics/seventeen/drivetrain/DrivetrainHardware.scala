@@ -3,13 +3,15 @@ package com.lynbrookrobotics.seventeen.drivetrain
 
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.commons.drivetrain.TwoSidedDriveHardware
-import com.lynbrookrobotics.potassium.frc.TalonEncoder
+import com.lynbrookrobotics.potassium.frc.{SPIWrapper, TalonEncoder}
 import com.lynbrookrobotics.potassium.units._
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
 import com.ctre.CANTalon
+import com.lynbrookrobotics.potassium.sensors.imu.ADIS16448
+import edu.wpi.first.wpilibj.SPI
 import squants.motion.{AngularVelocity, FeetPerSecond, RadiansPerSecond}
 import squants.space.{Degrees, Inches, Radians}
-import squants.time.Seconds
+import squants.time.{Milliseconds, Seconds}
 import squants.{Angle, Each, Length, Velocity}
 
 case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
