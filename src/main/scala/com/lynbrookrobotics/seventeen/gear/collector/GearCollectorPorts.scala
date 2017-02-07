@@ -1,3 +1,3 @@
 package com.lynbrookrobotics.seventeen.gear.collector
 
-case class GearCollectorPorts(pneumatic: Int)
+case class GearCollectorPorts(leftCylinder: Int, rightCylinder: Int)
