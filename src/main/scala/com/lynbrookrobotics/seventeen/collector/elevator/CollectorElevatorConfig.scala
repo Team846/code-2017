@@ -1,3 +1,5 @@
 package com.lynbrookrobotics.seventeen.collector.elevator
 
-case class CollectorElevatorConfig(port: CollectorElevatorPorts)
+import squants.Dimensionless
+
+case class CollectorElevatorConfig(port: CollectorElevatorPorts, collectSpeed: Dimensionless)
