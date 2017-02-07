@@ -12,7 +12,6 @@ class GearCollector(implicit hardware: GearCollectorHardware, clock: Clock) exte
   override def defaultController: PeriodicSignal[GearCollectorState] = Signal.constant(GearCollectorRetracted).toPeriodic
 
   override def applySignal(state: GearCollectorState): Unit = {
-    hardware.leftCylinder.set(state == GearCollectorExtended)
-    hardware.rightCylinder.set(state == GearCollectorExtended)
+    hardware.pneumatic.set(state == GearCollectorExtended)
   }
 }
