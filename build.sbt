@@ -1,4 +1,4 @@
-enablePlugins(FRCPlugin)
+enablePlugins(FRCPlugin, TravisScalaStylePlugin)
 
 organization := "com.lynbrookrobotics"
 teamNumber := 846
@@ -29,4 +29,3 @@ libraryDependencies += "com.ctre" % "ctrlib" % "4.4.1.9"
 libraryDependencies += "org.opencv" % "opencv-java" % "3.1.0"
 
 lazy val vision = project.enablePlugins(AssemblyPlugin)
-
