@@ -11,7 +11,8 @@ case object GearCollectorRetracted extends GearCollectorState
 class GearCollector(implicit hardware: GearCollectorHardware, clock: Clock) extends Component[GearCollectorState](Milliseconds(5)){
   override def defaultController: PeriodicSignal[GearCollectorState] = Signal.constant(GearCollectorRetracted).toPeriodic
 
-  override def applySignal(signal: GearCollectorState): Unit = {
-    hardware.pneumatic.set(signal == GearCollectorExtended)
+  override def applySignal(state: GearCollectorState): Unit = {
+    hardware.leftCylinder.set(state == GearCollectorExtended)
+    hardware.rightCylinder.set(state == GearCollectorExtended)
   }
 }
