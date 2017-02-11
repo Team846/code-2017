@@ -36,11 +36,13 @@ object RemoteMain extends App {
 
     dashboard.foreach { board =>
       board.datasetGroup("Vision").addDataset(new ImageStream("Left Vision Output")(
-        VisionPipeline.leftCamera.map(mat => VisionPipeline.matToBufferedImage(mat)).get
+        VisionPipeline.leftCamera.map(timestampedMat =>
+          VisionPipeline.matToBufferedImage(timestampedMat.mat)).get
       ))
 
       board.datasetGroup("Vision").addDataset(new ImageStream("Right Vision Output")(
-        VisionPipeline.rightCamera.map(mat => VisionPipeline.matToBufferedImage(mat)).get
+        VisionPipeline.rightCamera.map(timestampedMat =>
+          VisionPipeline.matToBufferedImage(timestampedMat.mat)).get
       ))
     }
   }

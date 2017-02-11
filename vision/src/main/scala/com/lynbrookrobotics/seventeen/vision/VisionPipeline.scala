@@ -27,29 +27,37 @@ import com.lynbrookrobotics.seventeen.commons._
 object VisionPipeline {
   System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
 
-  val leftCamera = new CameraSignal(new VideoCapture(0), 1280, 720)
-  val rightCamera = new CameraSignal(new VideoCapture(1), 1280, 720)
+  val leftCamera = new TimestampedCameraSignal(new VideoCapture(0), 1280, 720)
+  val rightCamera = new TimestampedCameraSignal(new VideoCapture(1), 1280, 720)
 
   // TODO: implicit VisionConfiguration for thresholds
-  def process(signal: CameraSignal): Signal[VisionTargets] = {
-    signal.map{ cam: Mat =>
+  def process(signal: TimestampedCameraSignal): Signal[VisionTargets] = {
+    signal.map{ timestampedCam: TimestampedMat =>
+      val cam = timestampedCam.mat
+
       val hsv = cam
       Imgproc.cvtColor(cam, hsv, Imgproc.COLOR_BGR2HSV);
       Core.inRange(hsv,
         new Scalar(58.2, 0.0, 0.0),
         new Scalar(76.0, 255.0, 255.0),
         hsv)
-      hsv
-    }.map{ hsv: Mat =>
+      (hsv, timestampedCam.timestamp)
+    }.map{ hsvWithTime: (Mat, Double) =>
+      val hsv = hsvWithTime._1
+      val timestamp = hsvWithTime._2
+
       val hierarchy = new Mat()
       val contours = new ArrayList[MatOfPoint]()
       val mode = Imgproc.RETR_LIST
       val method = Imgproc.CHAIN_APPROX_SIMPLE
 
       Imgproc.findContours(hsv, contours, hierarchy, mode, method)
-      contours
-    }.map{ contours: ArrayList[MatOfPoint] =>
-      contours.asScala.filter{ contour: MatOfPoint =>
+      (contours, timestamp)
+    }.map{ contoursWithTime: (ArrayList[MatOfPoint], Double) =>
+      val contours = contoursWithTime._1
+      val timestamp = contoursWithTime._2
+
+      (contours.asScala.filter{ contour: MatOfPoint =>
         val bb = Imgproc.boundingRect(contour)
 
         val hull = new MatOfInt();
@@ -78,11 +86,14 @@ object VisionPipeline {
         (solidity > 70.1 && solidity < 100) &&
         (vertices < 1000000) &&
         (ratio < 1000)
-      }.map{ contour: MatOfPoint => Imgproc.boundingRect(contour) }
-    }.map { rects =>
-      VisionTargets(rects.map{ rect =>
+      }.map{ contour: MatOfPoint => Imgproc.boundingRect(contour) }, timestamp)
+    }.map { openCvRectsWithTime =>
+      val openCvRects = openCvRectsWithTime._1
+      val timestamp = openCvRectsWithTime._2
+
+      VisionTargets(openCvRects.map{ rect =>
         Rectangle(rect.x, rect.y, rect.width, rect.height)
-      }.asInstanceOf[List[Rectangle]])
+      }.asInstanceOf[List[Rectangle]], timestamp)
     }
   }
 
