@@ -29,6 +29,7 @@ object ConfigGenerator extends App {
       properties = DrivetrainProperties(
         maxLeftVelocity = FeetPerSecond(22.9),
         maxRightVelocity = FeetPerSecond(27),
+        maxAcceleration = MetersPerSecondSquared(0),
         wheelDiameter = Inches(6),
         track = Inches(21.75),
         gearRatio = 1 / 2.13,
