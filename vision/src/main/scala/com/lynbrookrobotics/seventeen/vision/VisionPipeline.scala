@@ -15,12 +15,14 @@ import org.opencv.videoio._
 import com.lynbrookrobotics.potassium._
 import com.lynbrookrobotics.potassium.vision._
 
-import java.awt._;
+import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
+
+import com.lynbrookrobotics.seventeen.commons._
 
 object VisionPipeline {
   System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
@@ -29,7 +31,7 @@ object VisionPipeline {
   val rightCamera = new CameraSignal(new VideoCapture(1), 1280, 720)
 
   // TODO: implicit VisionConfiguration for thresholds
-  def process(signal: CameraSignal): Signal[Buffer[Rect]] = {
+  def process(signal: CameraSignal): Signal[VisionTargets] = {
     signal.map{ cam: Mat =>
       val hsv = cam
       Imgproc.cvtColor(cam, hsv, Imgproc.COLOR_BGR2HSV);
@@ -77,6 +79,10 @@ object VisionPipeline {
         (vertices < 1000000) &&
         (ratio < 1000)
       }.map{ contour: MatOfPoint => Imgproc.boundingRect(contour) }
+    }.map { rects =>
+      VisionTargets(rects.map{ rect =>
+        Rectangle(rect.x, rect.y, rect.width, rect.height)
+      }.asInstanceOf[List[Rectangle]])
     }
   }
 
