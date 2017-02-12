@@ -16,7 +16,7 @@ object ShooterTasks {
     val whileAtVelocity = new SpinAgitator().
       and(new RunFeeder())
 
-    val withoutSpinning = new WaitForVelocity(shooterProperties.get.flywheelSpeed, shooterProperties.get.flywheelSpeedTolerance).
-      then(whileAtVelocity.and(new SpinAtVelocity(shooterProperties.get.flywheelSpeed)))
+    val withoutSpinning = new WaitForVelocity(shooterProperties.get.flywheelSpeed, shooterProperties.get.flywheelSpeedTolerance)
+    (whileAtVelocity.and(new SpinAtVelocity(shooterProperties.get.flywheelSpeed)))
   }
 }

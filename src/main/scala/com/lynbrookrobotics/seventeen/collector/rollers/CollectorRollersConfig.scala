@@ -1,3 +1,5 @@
 package com.lynbrookrobotics.seventeen.collector.rollers
 
-case class CollectorRollersConfig(ports: CollectorRollersPorts)
+import squants.Dimensionless
+
+case class CollectorRollersConfig(ports: CollectorRollersPorts, properties: CollectorRollersProperties)
