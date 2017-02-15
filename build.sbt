@@ -18,6 +18,7 @@ libraryDependencies += "com.lynbrookrobotics" %% "potassium-control" % Versions.
 libraryDependencies += "com.lynbrookrobotics" %% "potassium-commons" % Versions.potassiumVersion
 libraryDependencies += "com.lynbrookrobotics" %% "potassium-frc" % Versions.potassiumVersion
 libraryDependencies += "com.lynbrookrobotics" %% "potassium-config" % Versions.potassiumVersion
+libraryDependencies += "com.lynbrookrobotics" %% "potassium-lighting" % Versions.potassiumVersion
 
 libraryDependencies += "org.mockito" % "mockito-core" % "2.3.11" % Test
 
