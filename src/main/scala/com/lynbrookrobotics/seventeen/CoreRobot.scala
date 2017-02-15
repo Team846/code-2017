@@ -9,12 +9,18 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
+import com.lynbrookrobotics.potassium.lighting.{DisplayLighting, LightingComponent, TwoWayComm}
 import com.lynbrookrobotics.seventeen.drivetrain._
+import com.lynbrookrobotics.seventeen.lighting.SerialComms
+import edu.wpi.first.wpilibj.SerialPort
+import com.lynbrookrobotics.potassium.frc.Implicits._
+import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, Task}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit)(implicit config: Signal[RobotConfig], hardware: RobotHardware, clock: Clock, polling: ImpulseEvent) {
+class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit)
+               (implicit config: Signal[RobotConfig], hardware: RobotHardware, clock: Clock, polling: ImpulseEvent) {
   lazy val ds = hardware.driver.station
 
   implicit val driverHardware = hardware.driver
@@ -24,7 +30,13 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
   implicit val drivetrain = new Drivetrain
 
-  val components = List(drivetrain)
+  lazy val serialPort = new SerialPort(9600, SerialPort.Port.kUSB)
+  val comms = new SerialComms(serialPort)
+  val lighting = new LightingComponent(20, comms)
+
+  val components = List(drivetrain, lighting)
+
+  driverHardware.operatorJoystick.buttonPressed(1).foreach(new DisplayLighting(Signal.constant(1) ,lighting))
 
   val enabled = Signal(ds.isEnabled).filter(identity)
   enabled.onStart.foreach { () =>
