@@ -40,7 +40,7 @@ class LaunchRobot extends RobotBase {
         }
       }
     )
-
+    coreRobot.comms.connect()
     HAL.observeUserProgramStarting()
 
     while (true) {
