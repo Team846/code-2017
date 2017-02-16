@@ -1,3 +1,5 @@
 package com.lynbrookrobotics.seventeen.gear.grabber
 
-case class GearGrabberConfig(port: GearGrabberPorts)
+import squants.Length
+
+case class GearGrabberConfig(port: GearGrabberPorts, detectingDistance: Length)
