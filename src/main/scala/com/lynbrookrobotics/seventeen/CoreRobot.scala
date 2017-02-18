@@ -30,8 +30,13 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
   implicit val drivetrain = new Drivetrain
 
-  lazy val serialPort = new SerialPort(9600, SerialPort.Port.kUSB)
-  val comms = new SerialComms(serialPort)
+  lazy val serialPort = try {
+    Option(new SerialPort(9600, SerialPort.Port.kUSB))
+  } catch {
+    case e: Exception => None
+  }
+
+  val comms = new SerialComms(serialPort.get)
   val lighting = new LightingComponent(20, comms)
 
   val components = List(drivetrain, lighting)
