@@ -17,7 +17,7 @@ class SerialComms(serialPort: SerialPort) extends TwoWayComm{
       serialPort.readString()
       serialPort.flush()
     } catch {
-      case e: Exception => ;
+      case e: Exception =>
     }
   }
 
