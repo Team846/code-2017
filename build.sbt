@@ -2,11 +2,11 @@ enablePlugins(FRCPlugin, TravisScalaStylePlugin)
 
 organization := "com.lynbrookrobotics"
 teamNumber := 846
+offline := true
 
 scalaVersion := "2.12.1"
 
 name := "code-2017"
-
 version := "0.1.0-SNAPSHOT"
 
 resolvers += "Funky-Repo" at "http://team846.github.io/repo"
@@ -22,7 +22,7 @@ libraryDependencies += "com.lynbrookrobotics" %% "potassium-lighting" % Versions
 
 libraryDependencies += "org.mockito" % "mockito-core" % "2.3.11" % Test
 
-libraryDependencies += "com.lynbrookrobotics" %% "funky-dashboard" % "0.2.0-SNAPSHOT"
+libraryDependencies += "com.lynbrookrobotics" %% "funky-dashboard" % "0.2.0"
 
 libraryDependencies += "edu.wpi.first" % "wpilib" % "2017.2.1"
 libraryDependencies += "edu.wpi.first" % "networktables" % "2017.2.1"

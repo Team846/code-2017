@@ -12,10 +12,10 @@ package object drivetrain extends TwoSidedDrive(Milliseconds(5)) {
   type Properties = DrivetrainProperties
 
   override protected def output(hardware: DrivetrainHardware, signal: TwoSidedSignal): Unit = {
-    hardware.leftBack.set(signal.left.toEach)
-    hardware.leftFront.set(signal.left.toEach)
-    hardware.rightBack.set(signal.right.toEach)
-    hardware.rightFront.set(signal.right.toEach)
+    hardware.leftBack.set(signal.left.toEach min 0.7)
+    hardware.leftFront.set(signal.left.toEach min 0.7)
+    hardware.rightBack.set(signal.right.toEach min 0.7)
+    hardware.rightFront.set(signal.right.toEach min 0.7)
   }
 
   override protected def controlMode(implicit hardware: DrivetrainHardware,
