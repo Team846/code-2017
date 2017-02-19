@@ -9,15 +9,20 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
+//import com.lynbrookrobotics.potassium.commons.Point
 import com.lynbrookrobotics.potassium.lighting.{DisplayLighting, LightingComponent, TwoWayComm}
 import com.lynbrookrobotics.seventeen.lighting.SerialComms
 import edu.wpi.first.wpilibj.SerialPort
 import com.lynbrookrobotics.potassium.frc.Implicits._
 import com.lynbrookrobotics.potassium.frc.SPIWrapper
-import com.lynbrookrobotics.potassium.sensors.imu.{ADIS16448}
+import com.lynbrookrobotics.potassium.sensors.imu.ADIS16448
+import com.lynbrookrobotics.potassium.sensors.position.xyPosition
+import com.lynbrookrobotics.potassium.units.Point
 import com.lynbrookrobotics.seventeen.drivetrain._
 import edu.wpi.first.wpilibj.SPI
+import com.lynbrookrobotics.potassium.units.Point
 import squants.time.Milliseconds
+import com.lynbrookrobotics.seventeen.drivetrain._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -44,20 +49,30 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
   val components = List(drivetrain/*, lighting*/)
 
-    val imu = new ADIS16448(new SPIWrapper(new SPI(SPI.Port.kMXP)), Milliseconds(5))
-    val pose = imu.position.toPollingSignal(Milliseconds(20))
 
 //  driverHardware.operatorJoystick.buttonPressed(1).foreach(new DisplayLighting(Signal.constant(1) ,lighting))
 
   val disabled = Signal(ds.isDisabled).filter(identity)
   disabled.foreach(() => {
-    imu.calibrateUpdate()
-    print("in disabled!\n")
+    drivetrainHardware.imu.calibrateUpdate()
   })
 
   val enabled = Signal(ds.isEnabled).filter(identity)
 
-  enabled.foreach(() => imu.angleUpdate())
+  val position = xyPosition(
+    new Point(Feet(0), Feet(0)),
+    drivetrainHardware.anglePose.map(_.z),
+    drivetrainHardware.forwardPosition.toPeriodic
+  )
+
+  val zero = new Point(Feet(0), Feet(0))
+
+  val auto = Signal(ds.isEnabled && ds.isAutonomous).filter(identity)
+
+  val target = drivetrainHardware.position.get + new Point(Feet(10), Feet(10))
+  auto.foreach(new unicycleTasks.goToPoint(target, Feet(0.1)).toContinuous)
+
+  enabled.foreach(() => drivetrainHardware.imu.angleUpdate())
 
   enabled.onStart.foreach { () =>
     components.foreach(_.resetToDefault())
@@ -67,29 +82,17 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     components.foreach(_.resetToDefault())
   }
 
-  val auto = Signal(ds.isEnabled && ds.isAutonomous).filter(identity)
-  auto.foreach(new unicycleTasks.DriveDistance(
-    Feet(2),
-    Inches(2)
-  ).then(new unicycleTasks.RotateByAngle(
-    Degrees(180),
-    Degrees(3)
-  )).then(new unicycleTasks.DriveDistance(
-    Feet(2),
-    Inches(2)
-  )).toContinuous)
-
   val dashboard = Future {
-    implicit val system = ActorSystem("funky-dashboard")
+      implicit val system = ActorSystem("funky-dashboard")
 
-    implicit val materializer = ActorMaterializer()
+      implicit val materializer = ActorMaterializer()
 
-    val dashboard = new FunkyDashboard
+      val dashboard = new FunkyDashboard
 
-    Http().bindAndHandle(Route.handlerFlow(dashboard.route), "0.0.0.0", 8080).map { _ =>
-      println("Funky Dashboard is up!")
-      dashboard
-    }
+      Http().bindAndHandle(Route.handlerFlow(dashboard.route), "0.0.0.0", 8080).map { _ =>
+        println("Funky Dashboard is up!")
+        dashboard
+      }
   }.flatten
 
   dashboard.foreach { board =>
@@ -102,32 +105,44 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
       ds.getBatteryVoltage
     ))
 
-    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Ground Speed")(
-      drivetrainHardware.leftVelocity.get.toFeetPerSecond
+//    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Ground Speed")(
+//      drivetrainHardware.leftVelocity.get.toFeetPerSecond
+//    ))
+//
+//    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Ground Speed")(
+//      drivetrainHardware.rightVelocity.get.toFeetPerSecond
+//    ))
+//
+//    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Turn Velocity")(
+//      drivetrainHardware.turnVelocity.get.toDegreesPerSecond
+//    ))
+//
+//    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Rotational Position")(
+//        drivetrainHardware.turnPosition.get.toDegrees
+//    ))
+
+//    board.datasetGroup("Gyro").addDataset(new TimeSeriesNumeric("Gyro-X") (
+//        drivetrainHardware.anglePose.get.map(_.x.toDegrees)
+//    ))
+//
+//    board.datasetGroup("Gyro").addDataset(new TimeSeriesNumeric("Gyro-Y") (
+//        drivetrainHardware.anglePose.get.map(_.y.toDegrees).getOrElse(0)
+//    ))
+//
+//    board.datasetGroup("Gyro").addDataset(new TimeSeriesNumeric("Gyro-Z") (
+//        drivetrainHardware.anglePose.get.map(_.z.toDegrees).getOrElse(0)
+//    ))
+
+    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Gyro-X") (
+      drivetrainHardware.position.get.x.toFeet
     ))
 
-    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Ground Speed")(
-      drivetrainHardware.rightVelocity.get.toFeetPerSecond
+    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Gyro-Y") (
+      drivetrainHardware.position.get.y.toFeet
     ))
 
-    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Turn Velocity")(
-      drivetrainHardware.turnVelocity.get.toDegreesPerSecond
-    ))
-
-    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Rotational Position")(
-      drivetrainHardware.turnPosition.get.toDegrees
-    ))
-
-    board.datasetGroup("Gyro").addDataset(new TimeSeriesNumeric("Gyro-X") (
-      pose.get.map(_.x.toDegrees).getOrElse(0)
-    ))
-
-    board.datasetGroup("Gyro").addDataset(new TimeSeriesNumeric("Gyro-Y") (
-      pose.get.map(_.y.toDegrees).getOrElse(0)
-    ))
-
-    board.datasetGroup("Gyro").addDataset(new TimeSeriesNumeric("Gyro-Z") (
-      pose.get.map(_.z.toDegrees).getOrElse(0)
+    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Gyro-Z") (
+      drivetrainHardware.position.get.z.toFeet
     ))
   }
 }
