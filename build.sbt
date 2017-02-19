@@ -2,6 +2,7 @@ enablePlugins(FRCPlugin, TravisScalaStylePlugin)
 
 organization := "com.lynbrookrobotics"
 teamNumber := 846
+offline := true
 
 scalaVersion := "2.12.1"
 

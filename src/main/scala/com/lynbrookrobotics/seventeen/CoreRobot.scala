@@ -57,43 +57,34 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     drivetrainHardware.imu.calibrateUpdate()
   })
 
-  val enabled = Signal(ds.isEnabled).filter(identity)
-
-  val position = xyPosition(
-    new Point(Feet(0), Feet(0)),
-    drivetrainHardware.anglePose.map(_.z),
-    drivetrainHardware.forwardPosition.toPeriodic
-  )
-
   val zero = new Point(Feet(0), Feet(0))
 
   val auto = Signal(ds.isEnabled && ds.isAutonomous).filter(identity)
 
-  val target = drivetrainHardware.position.get + new Point(Feet(10), Feet(10))
-  auto.foreach(new unicycleTasks.goToPoint(target, Feet(0.1)).toContinuous)
+  val target = drivetrainHardware.position.get + new Point(Feet(3), Feet(3))
+  auto.foreach(new unicycleTasks.GoToPoint(target, Feet(0.1)).toContinuous)
+
+  val enabled = Signal(ds.isEnabled).filter(identity)
 
   enabled.foreach(() => drivetrainHardware.imu.angleUpdate())
 
-  enabled.onStart.foreach { () =>
-    components.foreach(_.resetToDefault())
-  }
-
-  enabled.onEnd.foreach { () =>
-    components.foreach(_.resetToDefault())
-  }
 
   val dashboard = Future {
-      implicit val system = ActorSystem("funky-dashboard")
+    implicit val system = ActorSystem("funky-dashboard")
 
-      implicit val materializer = ActorMaterializer()
+    implicit val materializer = ActorMaterializer()
 
-      val dashboard = new FunkyDashboard
+    val dashboard = new FunkyDashboard
 
-      Http().bindAndHandle(Route.handlerFlow(dashboard.route), "0.0.0.0", 8080).map { _ =>
-        println("Funky Dashboard is up!")
-        dashboard
-      }
+    Http().bindAndHandle(Route.handlerFlow(dashboard.route), "0.0.0.0", 8080).map { _ =>
+      println("Funky Dashboard is up!")
+      dashboard
+    }
   }.flatten
+
+  dashboard.onFailure{
+    case  e => e.printStackTrace()
+  }
 
   dashboard.foreach { board =>
     board.datasetGroup("Config").addDataset(new JsonEditor("Robot Config")(
@@ -133,16 +124,38 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 //        drivetrainHardware.anglePose.get.map(_.z.toDegrees).getOrElse(0)
 //    ))
 
-    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Gyro-X") (
-      drivetrainHardware.position.get.x.toFeet
+    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("position-X") (
+      try {
+        drivetrainHardware.position.get.x.toFeet
+      } catch {
+        case e: Exception => -100.0
+      }
     ))
 
-    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Gyro-Y") (
-      drivetrainHardware.position.get.y.toFeet
+    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("position-Y") (
+      try {
+        drivetrainHardware.position.get.y.toFeet
+      } catch {
+        case e: Exception => -200
+      }
     ))
 
-    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Gyro-Z") (
-      drivetrainHardware.position.get.z.toFeet
+    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("position-Z") (
+      try {
+        drivetrainHardware.anglePose.get.z.toDegrees
+      } catch {
+        case e: Exception => -300.0
+      }
     ))
   }
+
+
+  enabled.onEnd.foreach { () =>
+    components.foreach(_.resetToDefault())
+  } // coment to enable telop, but disable auto
+
+  enabled.onStart.foreach { () =>
+    components.foreach(_.resetToDefault())
+  }
+
 }

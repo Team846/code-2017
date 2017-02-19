@@ -44,7 +44,7 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
     _.getOrElse(zeroPosition))
   override val periodicPosition: PeriodicSignal[Point] = xyPosition(
     new Point(Feet(0), Feet(0)),
-    anglePose.map(_.z),
+    anglePose.map(Degrees(90) - _.z),
     forwardPosition.toPeriodic
   )
   override val position: Signal[Point] = periodicPosition.toPollingSignal(Milliseconds(5)).map(
