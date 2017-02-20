@@ -22,11 +22,17 @@ libraryDependencies += "com.lynbrookrobotics" %% "potassium-lighting" % Versions
 
 libraryDependencies += "org.mockito" % "mockito-core" % "2.3.11" % Test
 
-libraryDependencies += "com.lynbrookrobotics" %% "funky-dashboard" % "0.2.0-SNAPSHOT"
+libraryDependencies += "com.lynbrookrobotics" %% "funky-dashboard" % "0.2.0"
 
 libraryDependencies += "edu.wpi.first" % "wpilib" % "2017.2.1"
 libraryDependencies += "edu.wpi.first" % "networktables" % "2017.2.1"
 libraryDependencies += "com.ctre" % "ctrlib" % "4.4.1.9"
 libraryDependencies += "org.opencv" % "opencv-java" % "3.1.0"
+
+assemblyMergeStrategy in assembly := {
+  case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.rename
+  case PathList("reference.conf") => MergeStrategy.concat
+  case _ => MergeStrategy.first
+}
 
 lazy val vision = project.enablePlugins(AssemblyPlugin)
