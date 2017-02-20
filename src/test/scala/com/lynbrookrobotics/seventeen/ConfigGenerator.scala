@@ -14,12 +14,12 @@ import squants.time.Seconds
 
 object ConfigGenerator extends App {
   val config = RobotConfig(
-    DriverConfig(
+    driver = DriverConfig(
       driverPort = 0,
       operatorPort = 1,
       driverWheelPort = 2
     ),
-    DrivetrainConfig(
+    drivetrain = DrivetrainConfig(
       ports = DrivetrainPorts(
         leftBack = 4,
         leftFront = 3,
@@ -59,7 +59,17 @@ object ConfigGenerator extends App {
           Percent(0) / MetersPerSecondSquared(1)
         )
       )
-    )
+    ),
+    agitator = null,
+    climberPuller = null,
+    collectorElevator = null,
+    collectorExtender = null,
+    collectorRollers = null,
+    gearGrabber = null,
+    gearTilter = null,
+    shooterFeeder = null,
+    shooterFlywheel = null,
+    shooterShifter = null
   )
 
   println(write(config))

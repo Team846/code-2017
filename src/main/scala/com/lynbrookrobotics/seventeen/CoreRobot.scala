@@ -1,48 +1,135 @@
 package com.lynbrookrobotics.seventeen
 
-import com.lynbrookrobotics.potassium.Signal
+import com.lynbrookrobotics.seventeen.agitator.Agitator
+import com.lynbrookrobotics.seventeen.climber.puller.ClimberPuller
+import com.lynbrookrobotics.seventeen.collector.elevator.CollectorElevator
+import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
+import com.lynbrookrobotics.seventeen.collector.rollers.CollectorRollers
+import com.lynbrookrobotics.seventeen.gear.grabber.GearGrabber
+import com.lynbrookrobotics.seventeen.gear.tilter.GearTilter
+import com.lynbrookrobotics.seventeen.shooter.feeder.ShooterFeeder
+import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
+import com.lynbrookrobotics.seventeen.shooter.shifter.ShooterShifter
+import com.lynbrookrobotics.seventeen.drivetrain._
+import com.lynbrookrobotics.seventeen.lighting.SerialComms
+import com.lynbrookrobotics.potassium.lighting.LightingComponent
+
+import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.potassium.clock.Clock
-import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
-import squants.space.{Degrees, Feet, Inches}
+
+import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
+
+import edu.wpi.first.wpilibj.SerialPort
+
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Try
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import com.lynbrookrobotics.potassium.lighting.{DisplayLighting, LightingComponent, TwoWayComm}
-import com.lynbrookrobotics.seventeen.drivetrain._
-import com.lynbrookrobotics.seventeen.lighting.SerialComms
-import edu.wpi.first.wpilibj.SerialPort
-import com.lynbrookrobotics.potassium.frc.Implicits._
-import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, Task}
+import com.lynbrookrobotics.potassium.tasks.FiniteTask
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit)
                (implicit config: Signal[RobotConfig], hardware: RobotHardware, clock: Clock, polling: ImpulseEvent) {
-  lazy val ds = hardware.driver.station
-
   implicit val driverHardware = hardware.driver
+  val ds = driverHardware.station
+
+  // Drivetrain
   implicit val drivetrainHardware = hardware.drivetrain
-
   implicit val drivetrainProps = config.map(_.drivetrain.properties)
+  lazy val drivetrain: Option[Drivetrain] =
+    if (config.get.drivetrain != null) Some(new Drivetrain) else None
 
-  implicit val drivetrain = new Drivetrain
+  // Agitator
+  implicit val agitatorHardware = hardware.agitator
+  implicit val agitatorProps = config.map(_.agitator.properties)
+  lazy val agitator: Option[Agitator] =
+    if (config.get.agitator != null) Some(new Agitator) else None
 
-  lazy val serialPort = try {
-    Option(new SerialPort(9600, SerialPort.Port.kUSB))
-  } catch {
-    case e: Exception => None
-  }
+  // Climber Puller
+  implicit val climberPullerHardware = hardware.climberPuller
+  implicit val climberPullerProps = config.map(_.climberPuller.props)
+  lazy val climberPuller: Option[ClimberPuller] =
+    if (config.get.climberPuller != null) Some(new ClimberPuller) else None
 
-  val comms = new SerialComms(serialPort.get)
-  val lighting = new LightingComponent(20, comms)
+  // Collector Elevator
+  implicit val collectorElevatorHardware = hardware.collectorElevator
+  implicit val collectorElevatorProps = config.map(_.collectorElevator.properties)
+  lazy val collectorElevator: Option[CollectorElevator] =
+    if (config.get.collectorElevator != null) Some(new CollectorElevator) else None
 
-  val components = List(drivetrain, lighting)
+  // Collector Extender
+  implicit val collectorExtenderHardware = hardware.collectorExtender
+  lazy val collectorExtender: Option[CollectorExtender] =
+    if (config.get.collectorExtender != null) {
+      implicit val gt = gearTilter
+      Some(new CollectorExtender)
+    } else None
 
-  driverHardware.operatorJoystick.buttonPressed(1).foreach(new DisplayLighting(Signal.constant(1) ,lighting))
+  // Collector Rollers
+  implicit val collectorRollersHardware = hardware.collectorRollers
+  implicit val collectorRollersProps = config.map(_.collectorRollers.properties)
+  lazy val collectorRollers: Option[CollectorRollers] =
+    if (config.get.collectorRollers != null) Some(new CollectorRollers) else None
 
+  // Gear Grabber
+  implicit val gearGrabberHardware = hardware.gearGrabber
+  implicit val gearGrabberProps = config.map(_.gearGrabber.props)
+  lazy val gearGrabber: Option[GearGrabber] =
+    if (config.get.gearGrabber != null) Some(new GearGrabber) else None
+
+  // Gear Tilter
+  implicit val gearTilterHardware = hardware.gearTilter
+  lazy val gearTilter: Option[GearTilter] =
+    if (config.get.gearTilter != null) {
+      implicit val ce = collectorExtender
+      Some(new GearTilter)
+    } else None
+
+  // Shooter Feeder
+  implicit val shooterFeederHardware = hardware.shooterFeeder
+  implicit val shooterFeederProps = config.map(_.shooterFeeder.properties)
+  lazy val shooterFeeder: Option[ShooterFeeder] =
+    if (config.get.shooterFeeder != null) Some(new ShooterFeeder) else None
+
+  // Shooter Flywheel
+  implicit val shooterFlywheelHardware = hardware.shooterFlywheel
+  implicit val shooterFlywheelProps = config.map(_.shooterFlywheel.props)
+  lazy val shooterFlywheel: Option[ShooterFlywheel] =
+    if (config.get.shooterFlywheel != null) Some(new ShooterFlywheel) else None
+
+  // Shooter Shifter
+  implicit val shooterShifterHardware = hardware.shooterShifter
+  lazy val shooterShifter: Option[ShooterShifter] =
+    if (config.get.shooterShifter != null) Some(new ShooterShifter) else None
+
+  // Lighting
+  val serialPort = Try(new SerialPort(9600, SerialPort.Port.kUSB)).toOption
+  val comms: Option[SerialComms] = serialPort.map(new SerialComms(_))
+  val lighting: Option[LightingComponent] = comms.map(c => new LightingComponent(20, c))
+
+  val components: List[Component[_]] = List(
+    drivetrain,
+    agitator,
+    climberPuller,
+    collectorElevator,
+    collectorExtender,
+    collectorRollers,
+    gearGrabber,
+    gearTilter,
+    shooterFeeder,
+    shooterFlywheel,
+    shooterShifter,
+    lighting
+  ).flatten
+
+  val auto = Signal(ds.isEnabled && ds.isAutonomous).filter(identity)
+  auto.foreach(FiniteTask.empty.toContinuous)
+
+  // Needs to go last because component resets have highest priority
   val enabled = Signal(ds.isEnabled).filter(identity)
   enabled.onStart.foreach { () =>
     components.foreach(_.resetToDefault())
@@ -51,18 +138,6 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   enabled.onEnd.foreach { () =>
     components.foreach(_.resetToDefault())
   }
-
-  val auto = Signal(ds.isEnabled && ds.isAutonomous).filter(identity)
-  auto.foreach(new unicycleTasks.DriveDistance(
-    Feet(2),
-    Inches(2)
-  ).then(new unicycleTasks.RotateByAngle(
-    Degrees(180),
-    Degrees(3)
-  )).then(new unicycleTasks.DriveDistance(
-    Feet(2),
-    Inches(2)
-  )).toContinuous)
 
   val dashboard = Future {
     implicit val system = ActorSystem("funky-dashboard")
@@ -77,6 +152,8 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     }
   }.flatten
 
+  dashboard.failed.foreach(_.printStackTrace())
+
   dashboard.foreach { board =>
     board.datasetGroup("Config").addDataset(new JsonEditor("Robot Config")(
       configFileValue.get,
@@ -87,20 +164,22 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
       ds.getBatteryVoltage
     ))
 
-    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Ground Speed")(
-      drivetrainHardware.leftVelocity.get.toFeetPerSecond
-    ))
+    drivetrain.foreach { d =>
+      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Ground Speed")(
+        drivetrainHardware.leftVelocity.get.toFeetPerSecond
+      ))
 
-    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Ground Speed")(
-      drivetrainHardware.rightVelocity.get.toFeetPerSecond
-    ))
+      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Ground Speed")(
+        drivetrainHardware.rightVelocity.get.toFeetPerSecond
+      ))
 
-    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Turn Velocity")(
-      drivetrainHardware.turnVelocity.get.toDegreesPerSecond
-    ))
+      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Turn Velocity")(
+        drivetrainHardware.turnVelocity.get.toDegreesPerSecond
+      ))
 
-    board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Rotational Position")(
-      drivetrainHardware.turnPosition.get.toDegrees
-    ))
+      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Rotational Position")(
+        drivetrainHardware.turnPosition.get.toDegrees
+      ))
+    }
   }
 }
