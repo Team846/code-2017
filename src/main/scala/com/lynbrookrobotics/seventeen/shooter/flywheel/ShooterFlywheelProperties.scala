@@ -11,4 +11,6 @@ case class ShooterFlywheelProperties(velocityGains: PIDFConfig[AngularVelocity,
                                                     AngularVelocity,
                                                     GenericDerivative[AngularVelocity],
                                                     Angle,
-                                                    Dimensionless]) extends DoubleFlywheelProperties
+                                                    Dimensionless],
+                                     shootSpeed: AngularVelocity,
+                                     speedTolerance: AngularVelocity) extends DoubleFlywheelProperties

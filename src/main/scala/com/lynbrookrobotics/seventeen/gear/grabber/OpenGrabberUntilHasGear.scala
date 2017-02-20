@@ -5,11 +5,11 @@ import com.lynbrookrobotics.potassium.frc.ProximitySensor
 import com.lynbrookrobotics.potassium.tasks.FiniteTask
 
 class OpenGrabberUntilHasGear(implicit hardware: GearGrabberHardware, grabber: GearGrabber,
-                              config: GearGrabberConfig) extends FiniteTask {
-  val proximitySensor = new ProximitySensor(config.port.proximitySensor)
+                              props: Signal[GearGrabberProperties]) extends FiniteTask {
+  val proximitySensor = hardware.proximitySensor
   override protected def onStart(): Unit = {
     grabber.setController(Signal.constant(GearGrabberOpen).toPeriodic.withCheck { _ =>
-      if(proximitySensor.isCloserThan(config.detectingDistance)) {
+      if (proximitySensor.isCloserThan(props.get.detectingDistance)) {
         finished()
       }
     })
