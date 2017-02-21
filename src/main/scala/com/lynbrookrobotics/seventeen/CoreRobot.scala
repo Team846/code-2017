@@ -10,14 +10,10 @@ import com.lynbrookrobotics.seventeen.gear.tilter.GearTilter
 import com.lynbrookrobotics.seventeen.shooter.feeder.ShooterFeeder
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
 import com.lynbrookrobotics.seventeen.shooter.shifter.ShooterShifter
-import com.lynbrookrobotics.seventeen.drivetrain._
-import com.lynbrookrobotics.seventeen.lighting.SerialComms
-import com.lynbrookrobotics.potassium.lighting.LightingComponent
 import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
 import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
-import edu.wpi.first.wpilibj.SerialPort
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -26,11 +22,15 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import com.lynbrookrobotics.potassium.tasks.FiniteTask
 import com.typesafe.config.ConfigFactory
+import com.lynbrookrobotics.potassium.lighting.LightingComponent
+import com.lynbrookrobotics.potassium.tasks.FiniteTask
+import com.lynbrookrobotics.seventeen.drivetrain._
+import com.lynbrookrobotics.seventeen.lighting.SerialComms
+import edu.wpi.first.wpilibj.SerialPort
 
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit)
-               (implicit config: Signal[RobotConfig], hardware: RobotHardware, clock: Clock, polling: ImpulseEvent) {
+               (implicit config: Signal[RobotConfig], hardware: RobotHardware, clock: Clock, val polling: ImpulseEvent) {
   implicit val driverHardware = hardware.driver
   val ds = driverHardware.station
 
@@ -122,6 +122,8 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     shooterShifter,
     lighting
   ).flatten
+
+  new ButtonMappings(this)
 
   val auto = Signal(ds.isEnabled && ds.isAutonomous).filter(identity)
   auto.foreach(FiniteTask.empty.toContinuous)
