@@ -17,7 +17,8 @@ object ConfigGenerator extends App {
     driver = DriverConfig(
       driverPort = 0,
       operatorPort = 1,
-      driverWheelPort = 2
+      driverWheelPort = 2,
+      launchpadPort = -1
     ),
     drivetrain = DrivetrainConfig(
       ports = DrivetrainPorts(
