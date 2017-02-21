@@ -3,17 +3,16 @@ package com.lynbrookrobotics.seventeen.drivetrain
 
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.commons.drivetrain.TwoSidedDriveHardware
-import com.lynbrookrobotics.potassium.frc.TalonEncoder
+import com.lynbrookrobotics.potassium.frc.{TalonEncoder, WPIClock}
 import com.lynbrookrobotics.potassium.units._
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
 import com.ctre.CANTalon
 import com.lynbrookrobotics.potassium.sensors.imu.{ADIS16448, DigitalGyro}
 import edu.wpi.first.wpilibj.SPI
-import squants.motion.{AngularVelocity, FeetPerSecond, RadiansPerSecond}
+import squants.motion.{AngularVelocity, DegreesPerSecond, FeetPerSecond, RadiansPerSecond}
 import squants.space.{Degrees, Inches, Radians}
-import squants.time.Seconds
+import squants.time.{Milliseconds, Seconds}
 import squants.{Angle, Each, Length, Velocity}
-
 import com.lynbrookrobotics.potassium.frc.Implicits._
 
 case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
@@ -37,6 +36,11 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
     a.toRadians * props.gearRatio * wheelRadius)
   val rightPosition: Signal[Length] = rightEncoder.angle.map(a =>
     a.toRadians * props.gearRatio * wheelRadius)
+
+  val pos = gyro.position.toPollingSignal(Milliseconds(5))
+
+  override lazy val turnVelocity: Signal[AngularVelocity] = gyro.velocityZ.peek.map(_.getOrElse(DegreesPerSecond(0)))
+  override lazy val turnPosition: Signal[Angle] = pos.map(_.map(_.z).getOrElse(Degrees(0)))
 }
 
 object DrivetrainHardware {

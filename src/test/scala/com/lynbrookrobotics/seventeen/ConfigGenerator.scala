@@ -57,7 +57,8 @@ object ConfigGenerator extends App {
           Percent(10) / FeetPerSecond(1),
           Percent(0) / Meters(1),
           Percent(0) / MetersPerSecondSquared(1)
-        )
+        ),
+        defaultLookAheadDistance = Feet(0.5)
       )
     ),
     agitator = null,

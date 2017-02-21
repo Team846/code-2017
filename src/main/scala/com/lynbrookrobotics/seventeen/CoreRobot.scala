@@ -13,13 +13,10 @@ import com.lynbrookrobotics.seventeen.shooter.shifter.ShooterShifter
 import com.lynbrookrobotics.seventeen.drivetrain._
 import com.lynbrookrobotics.seventeen.lighting.SerialComms
 import com.lynbrookrobotics.potassium.lighting.LightingComponent
-
 import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
-
 import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
-
 import edu.wpi.first.wpilibj.SerialPort
 
 import scala.concurrent.Future
@@ -29,7 +26,12 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import com.lynbrookrobotics.potassium.tasks.FiniteTask
+import com.lynbrookrobotics.potassium.commons.cartesianPosition.XYPosition
+import com.lynbrookrobotics.potassium.tasks.{FiniteTask, WaitTask}
+import com.lynbrookrobotics.potassium.units.Point
+import com.typesafe.config.ConfigFactory
+import squants.space.{Degrees, Feet}
+import squants.time.{Milliseconds, Seconds}
 
 
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit)
@@ -111,6 +113,11 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   val comms: Option[SerialComms] = serialPort.map(new SerialComms(_))
   val lighting: Option[LightingComponent] = comms.map(c => new LightingComponent(20, c))
 
+  val origin = new Point(
+    Feet(0),
+    Feet(0)
+  )
+
   val components: List[Component[_]] = List(
     drivetrain,
     agitator,
@@ -127,17 +134,60 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   ).flatten
 
   val auto = Signal(ds.isEnabled && ds.isAutonomous).filter(identity)
-  auto.foreach(FiniteTask.empty.toContinuous)
+
+//  drivetrain.foreach { implicit d =>
+//    import unicycleTasks._
+//    auto.foreach(new Follow2WayPoints(List(new Point(
+//      Feet(0.000000000000001),
+//      Feet(3)
+//    ), new Point(
+//      Feet(3),
+//      Feet(3.000000000000001)
+//    )), Feet(0.0)).toContinuous)
+//  }
+
+  drivetrain.foreach { implicit d =>
+    import unicycleTasks._
+    auto.foreach(new FollowWayPoints(List(new Point(
+      Feet(0),
+      Feet(6)
+    ), new Point(
+      Feet(6),
+      Feet(0)
+    ), new Point(
+      Feet(0),
+      Feet(0)
+    ))).toContinuous)
+  }
+
+//  drivetrain.foreach { implicit d =>
+//    import unicycleTasks._
+//    auto.foreach(new GoToPoint(new Point(
+//      Feet(3),
+//      Feet(0.000000000000001)
+//    ), Feet(0.0)).toContinuous)
+//  }
 
   // Needs to go last because component resets have highest priority
   val enabled = Signal(ds.isEnabled).filter(identity)
   enabled.onStart.foreach { () =>
+    drivetrainHardware.gyro.endCalibration()
     components.foreach(_.resetToDefault())
   }
 
   enabled.onEnd.foreach { () =>
     components.foreach(_.resetToDefault())
   }
+
+  val position = XYPosition(
+    hardware.drivetrain.turnPosition.map(Degrees(90) - _),
+    hardware.drivetrain.forwardPosition
+  )
+
+//  val averageAngle = XYPosition.objectaverageAngle.peek.map(_.getOrElse(Degrees(-20)))
+//  val deltaDistance = XYPosition.objectDelatDistance.peek.map(_.getOrElse(Feet(0)))
+
+  val positionPolling = position.toPollingSignal(Milliseconds(5)).map(_.getOrElse(origin))
 
   val dashboard = Future {
     implicit val system = ActorSystem("funky-dashboard")
@@ -165,21 +215,41 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     ))
 
     drivetrain.foreach { d =>
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Ground Speed")(
-        drivetrainHardware.leftVelocity.get.toFeetPerSecond
+//      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Ground Speed")(
+//        drivetrainHardware.leftVelocity.get.toFeetPerSecond
+//      ))
+//
+//      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Ground Speed")(
+//        drivetrainHardware.rightVelocity.get.toFeetPerSecond
+//      ))
+//
+//      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Turn Velocity")(
+//        drivetrainHardware.turnVelocity.get.toDegreesPerSecond
+//      ))
+
+      val defautlAvlue = new Point(
+        Feet(-1),
+        Feet(-1)
+      )
+      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("x Position")(
+        positionPolling.get.x.toFeet
       ))
 
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Ground Speed")(
-        drivetrainHardware.rightVelocity.get.toFeetPerSecond
+      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("y Position")(
+        positionPolling.get.y.toFeet
       ))
 
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Turn Velocity")(
+      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("angular velocity")(
         drivetrainHardware.turnVelocity.get.toDegreesPerSecond
       ))
 
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Rotational Position")(
+      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("angle")(
         drivetrainHardware.turnPosition.get.toDegrees
       ))
+
+//      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("delta distance")(
+////        deltaDistance.get.toFeet
+//      ))
     }
   }
 }
