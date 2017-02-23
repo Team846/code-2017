@@ -13,13 +13,10 @@ import com.lynbrookrobotics.seventeen.shooter.shifter.ShooterShifter
 import com.lynbrookrobotics.seventeen.drivetrain._
 import com.lynbrookrobotics.seventeen.lighting.SerialComms
 import com.lynbrookrobotics.potassium.lighting.LightingComponent
-
 import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
-
 import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
-
 import edu.wpi.first.wpilibj.SerialPort
 
 import scala.concurrent.Future
@@ -30,7 +27,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import com.lynbrookrobotics.potassium.tasks.FiniteTask
-
+import com.typesafe.config.ConfigFactory
 
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit)
                (implicit config: Signal[RobotConfig], hardware: RobotHardware, clock: Clock, polling: ImpulseEvent) {
@@ -140,7 +137,10 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   }
 
   val dashboard = Future {
-    implicit val system = ActorSystem("funky-dashboard")
+    implicit val system = ActorSystem(
+      "funky-dashboard",
+      ConfigFactory.load("dashboard.conf")
+    )
 
     implicit val materializer = ActorMaterializer()
 
