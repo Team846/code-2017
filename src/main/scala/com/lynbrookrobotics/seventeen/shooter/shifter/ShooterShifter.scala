@@ -9,7 +9,9 @@ case object ShooterShiftLeft extends ShooterShifterState
 case object ShooterShiftRight extends ShooterShifterState
 
 class ShooterShifter(implicit hardware: ShooterShifterHardware, clock: Clock) extends Component[ShooterShifterState](Milliseconds(5)) {
-  override def defaultController: PeriodicSignal[ShooterShifterState] = Signal.constant(ShooterShiftRight).toPeriodic
+  var currentState: ShooterShifterState = ShooterShiftRight
+
+  override def defaultController: PeriodicSignal[ShooterShifterState] = Signal(currentState).toPeriodic
 
   override def applySignal(signal: ShooterShifterState): Unit = {
     hardware.pneumatic.set(signal == ShooterShiftLeft)

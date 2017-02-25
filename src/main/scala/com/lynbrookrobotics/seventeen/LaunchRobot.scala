@@ -32,6 +32,7 @@ class LaunchRobot extends RobotBase {
     coreRobot = new CoreRobot(
       Signal(configFile.value),
       newS => {
+        println(newS)
         val oldS = configFile.value
         try {
           configFile.value = newS
