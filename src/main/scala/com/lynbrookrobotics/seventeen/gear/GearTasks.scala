@@ -32,4 +32,22 @@ object GearTasks {
     pickUpGear.then(new WaitForImpulseTask(driverHardware.operatorJoystick.buttonPressed(buttonTrigger).onEnd))
       .andUntilDone(new DisplayLighting(Signal.constant(lightingEffect), lightingComponent)) then liftGear
   }
+
+  def loadGearFromGroundIRDependent(lightingEffect: Int, buttonTrigger: Int, lightingComponent: LightingComponent)
+                                   (implicit tilter: GearTilter,
+                                    grabber: GearGrabber,
+                                    props: Signal[GearGrabberProperties],
+                                    hardware: GearGrabberHardware,
+                                    clock: Clock,
+                                    driverHardware: DriverHardware, polling: ImpulseEvent): FiniteTask = {
+    val liftGear = new WaitTask(Seconds(0.3)).andUntilDone(
+      new CloseGrabber()) then new WaitTask(Seconds(0.3)) andUntilDone new RetractTilter()
+
+    val pickUpGear = new OpenGrabberUntilHasGear().andUntilDone(
+      new ExtendTilter()
+    )
+
+    pickUpGear then new WaitForImpulseTask(driverHardware.operatorJoystick.buttonPressed(buttonTrigger).onEnd)
+        .andUntilDone(new DisplayLighting(Signal.constant(lightingEffect), lightingComponent)) then liftGear
+  }
 }
