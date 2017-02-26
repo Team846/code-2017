@@ -30,7 +30,7 @@ import com.lynbrookrobotics.seventeen.lighting.SerialComms
 import edu.wpi.first.wpilibj.SerialPort
 
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit)
-               (implicit config: Signal[RobotConfig], hardware: RobotHardware, clock: Clock, val polling: ImpulseEvent) {
+               (implicit val config: Signal[RobotConfig], hardware: RobotHardware, clock: Clock, val polling: ImpulseEvent) {
   implicit val driverHardware = hardware.driver
   val ds = driverHardware.station
 
@@ -166,6 +166,10 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
       ds.getBatteryVoltage
     ))
 
+    board.datasetGroup("Joysticks").addDataset(new TimeSeriesNumeric("POV")(
+      driverHardware.operatorJoystick.getPOV()
+    ))
+
     drivetrain.foreach { d =>
       board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Ground Speed")(
         drivetrainHardware.leftVelocity.get.toFeetPerSecond
@@ -181,6 +185,29 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
       board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Rotational Position")(
         drivetrainHardware.turnPosition.get.toDegrees
+      ))
+    }
+
+    shooterFlywheel.foreach { d =>
+      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Left Speed")(
+        shooterFlywheelHardware.leftVelocity.get.toRevolutionsPerMinute
+      ))
+
+      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right Speed")(
+        shooterFlywheelHardware.rightVelocity.get.toRevolutionsPerMinute
+      ))
+
+      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Left Out")(
+        shooterFlywheelHardware.leftMotor.get()
+      ))
+
+      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right Out")(
+        shooterFlywheelHardware.rightMotor.get()
+      ))
+
+      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right - Left")(
+        (shooterFlywheelHardware.rightVelocity.get - shooterFlywheelHardware.leftVelocity.get)
+          .toRevolutionsPerMinute
       ))
     }
   }

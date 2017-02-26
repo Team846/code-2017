@@ -5,12 +5,13 @@ import com.lynbrookrobotics.seventeen.drivetrain.{DrivetrainConfig, DrivetrainPo
 import squants.motion.{DegreesPerSecond, FeetPerSecond, MetersPerSecondSquared}
 import upickle.default._
 import com.lynbrookrobotics.potassium.config.SquantsPickling._
-import com.lynbrookrobotics.potassium.control.PIDConfig
+import com.lynbrookrobotics.potassium.control.{PIDConfig, PIDFConfig}
 import squants.space._
 import com.lynbrookrobotics.potassium.units._
 import GenericValue._
-import squants.Percent
-import squants.time.Seconds
+import com.lynbrookrobotics.seventeen.shooter.flywheel.{ShooterFlywheelConfig, ShooterFlywheelPorts, ShooterFlywheelProperties}
+import squants.{Each, Percent}
+import squants.time.{Minutes, RevolutionsPerMinute, Seconds}
 
 object ConfigGenerator extends App {
   val config = RobotConfig(
@@ -69,7 +70,32 @@ object ConfigGenerator extends App {
     gearGrabber = null,
     gearTilter = null,
     shooterFeeder = null,
-    shooterFlywheel = null,
+    shooterFlywheel = ShooterFlywheelConfig(
+      ports = ShooterFlywheelPorts(
+        leftMotor = 3,
+        rightMotor = 2,
+        leftHall = 0,
+        rightHall = 1
+      ),
+      props = ShooterFlywheelProperties(
+        maxVelocityLeft = RevolutionsPerMinute(1000),
+        maxVelocityRight = RevolutionsPerMinute(1000),
+        velocityGainsLeft = PIDConfig(
+          kp = Ratio(Percent(0), RevolutionsPerMinute(1000)),
+          ki = Ratio(Percent(0), Each(1000)),
+          kd = Percent(0) / (RevolutionsPerMinute(1000).toGeneric / Seconds(1))
+        ),
+        velocityGainsRight = PIDConfig(
+          kp = Ratio(Percent(0), RevolutionsPerMinute(1000)),
+          ki = Ratio(Percent(0), Each(1000)),
+          kd = Percent(0) / (RevolutionsPerMinute(1000).toGeneric / Seconds(1))
+        ),
+        lowShootSpeed = RevolutionsPerMinute(1000),
+        midShootSpeed = RevolutionsPerMinute(1000),
+        fastShootSpeed = RevolutionsPerMinute(1000),
+        speedTolerance = RevolutionsPerMinute(0)
+      )
+    ),
     shooterShifter = null
   )
 

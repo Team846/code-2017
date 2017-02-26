@@ -12,3 +12,13 @@ class RunFeeder(implicit feeder: ShooterFeeder, properties: Signal[ShooterFeeder
     feeder.resetToDefault()
   }
 }
+
+class RunFeederSlow(implicit feeder: ShooterFeeder, properties: Signal[ShooterFeederProperties]) extends ContinuousTask {
+  override protected def onStart(): Unit = {
+    feeder.setController(properties.map(_.slowFeederSpeed).toPeriodic)
+  }
+
+  override protected def onEnd(): Unit = {
+    feeder.resetToDefault()
+  }
+}
