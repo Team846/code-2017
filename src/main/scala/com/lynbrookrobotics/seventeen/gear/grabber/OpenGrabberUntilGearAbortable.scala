@@ -9,15 +9,12 @@ import com.lynbrookrobotics.seventeen.driver.DriverHardware
 class OpenGrabberUntilGearAbortable(button: Int)(implicit hardware: GearGrabberHardware, grabber: GearGrabber,
                                                  props: Signal[GearGrabberProperties], driverHardware: DriverHardware,
                                                  polling: ImpulseEvent) extends FiniteTask {
-
-  val impulseEvent = driverHardware.operatorJoystick.buttonPressed(button).onStart
-
-  impulseEvent.foreach(() => finished())
-
   val proximitySensor = hardware.proximitySensor
+
   override protected def onStart(): Unit = {
     grabber.setController(Signal.constant(GearGrabberOpen).toPeriodic.withCheck { _ =>
-      if (proximitySensor.isCloserThan(props.get.detectingDistance)) {
+      if (/*proximitySensor.isCloserThan(props.get.detectingDistance) ||*/
+        !driverHardware.operatorJoystick.getRawButton(button)) {
         finished()
       }
     })

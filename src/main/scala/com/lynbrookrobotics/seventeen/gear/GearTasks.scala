@@ -24,8 +24,8 @@ object GearTasks {
     )
 
     val liftGear = new WaitTask(Seconds(0.3)).andUntilDone(
-      new CloseGrabber()
-    ) then new WaitTask(Seconds(0.3)).andUntilDone(new RetractTilter())
+      new CloseGrabber() and new ExtendTilter()
+    ).then(new WaitTask(Seconds(0.3)).andUntilDone(new RetractTilter()))
 
     pickUpGear.then(new WaitForContinuousEvent(!driverHardware.operatorJoystick.buttonPressed(buttonTrigger))).then(liftGear)
   }

@@ -11,6 +11,8 @@ import com.lynbrookrobotics.potassium.sensors.imu.{ADIS16448, DigitalGyro}
 import edu.wpi.first.wpilibj.SPI
 import squants.motion.{AngularVelocity, DegreesPerSecond}
 import squants.space.Degrees
+import squants.motion.{AngularVelocity, DegreesPerSecond, FeetPerSecond, RadiansPerSecond}
+import squants.space.{Degrees, Inches, Radians}
 import squants.time.{Milliseconds, Seconds}
 import squants.{Angle, Each, Length, Velocity}
 import com.lynbrookrobotics.potassium.frc.Implicits._
@@ -21,8 +23,8 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
                                        props: DrivetrainProperties,
                                        driverHardware: DriverHardware)
   extends TwoSidedDriveHardware {
-  val leftEncoder = new TalonEncoder(leftBack, Degrees(360) / Each(8192))
-  val rightEncoder = new TalonEncoder(rightBack, -Degrees(360) / Each(8192))
+  val leftEncoder = new TalonEncoder(leftBack, -Degrees(360) / Each(8192))
+  val rightEncoder = new TalonEncoder(rightBack, Degrees(360) / Each(8192))
 
   val wheelRadius = props.wheelDiameter / 2
   val track = props.track
