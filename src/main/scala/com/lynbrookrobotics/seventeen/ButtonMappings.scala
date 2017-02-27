@@ -1,7 +1,7 @@
 package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.potassium.Signal
-import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.WhileAtDoubleVelocity
+import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{WhileAtDoubleVelocity, SpinAtVelocity}
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
 import com.lynbrookrobotics.potassium.frc.Implicits._
 import com.lynbrookrobotics.potassium.tasks.ContinuousTask
@@ -12,6 +12,7 @@ import com.lynbrookrobotics.seventeen.collector.CollectorTasks
 import com.lynbrookrobotics.seventeen.collector.rollers.RollBallsInCollector
 import com.lynbrookrobotics.seventeen.gear.GearTasks
 import com.lynbrookrobotics.seventeen.gear.grabber.OpenGrabber
+import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheelProperties
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight}
 import squants.time.{Frequency, RevolutionsPerMinute}
 
@@ -34,21 +35,10 @@ class ButtonMappings(r: CoreRobot) {
 
     /**
       * Shoots fuel at high speed
-      * Elevates at high speed
       * Trigger pressed
       */
-    val shootFuelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.Trigger).
-      and(!driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftFive))
+    val shootFuelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.Trigger)
     shootFuelPressed.foreach(ShooterTasks.continuousShoot(flywheelSpeedLeft))
-
-    /**
-      * Shoots fuel at low speed
-      * Elevates at slow speed
-      * Trigger and LeftFive pressed
-      */
-    val slowShootFuelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.Trigger).
-      and(driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftFive))
-    slowShootFuelPressed.foreach(ShooterTasks.continuousShootSlowly(flywheelSpeedLeft))
 
     /**
       * Shifts shooter to left
@@ -98,16 +88,23 @@ class ButtonMappings(r: CoreRobot) {
 
     /**
       * Runs flywheel at set speed
-      * LeftFour pressed and POV pushed up
+      * LeftFour pressed
       */
     val runFlywheelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftFour)
-      .and(Signal(driverHardware.operatorJoystick.getPOV() == 0).filter(identity))
     runFlywheelPressed.foreach(new WhileAtDoubleVelocity(
       flywheelSpeedLeft, flywheelSpeedRight, RevolutionsPerMinute(0)).apply(new ContinuousTask {
-      override protected def onEnd() = ???
+      override protected def onEnd() = {}
 
-      override protected def onStart() = ???
+      override protected def onStart() = {}
     }))
+
+    /**
+      * Uses toggle to determine flywheel speed
+      * Overrides set flywheel speed
+      * LeftFive pressed
+      */
+    val flywheelOverridePressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftFive)
+    flywheelOverridePressed.foreach(new SpinAtVelocity(driverHardware.operatorJoystick.y.map(_.toEach * shooterFlywheelProps.get.maxVelocityLeft)))
   }
 
   gearGrabber.zip(gearTilter).foreach { t =>
@@ -134,28 +131,27 @@ class ButtonMappings(r: CoreRobot) {
     implicit val ((elevator, roller), extend) = t
 
     /**
-      * Runs fuel collector opposite direction
-      * LeftFour pressed and POV pushed down
+      * Collects fuel
+      * Collects at high speed
+      * Trigger for driver joystick pressed
       */
-    val runFuelCollectorOutPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftFour)
-      .and(Signal(driverHardware.operatorJoystick.getPOV() == 180).filter(down => down))
-    runFuelCollectorOutPressed.foreach(new RollBallsInCollector(collectorRollersProps.map(-_.highRollerSpeedOutput)))
+    val driverCollectFuelPressed = driverHardware.driverJoystick.buttonPressed(JoystickButtons.Trigger)
+    driverCollectFuelPressed.foreach(CollectorTasks.collect(collectorRollersProps.map(_.highRollerSpeedOutput)))
 
     /**
       * Collects fuel
       * Collects at high speed
-      * LeftSix pressed
+      * RightFour pressed
       */
-    val collectFuelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftSix)
+    val collectFuelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightFour)
     collectFuelPressed.foreach(CollectorTasks.collect(collectorRollersProps.map(_.highRollerSpeedOutput)))
 
     /**
       * Collects fuel
       * Collects at slow speed
-      * LeftSix pressed
+      * RightThree pressed
       */
-    val slowCollectFuelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftSix)
-      .and(driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftFive))
+    val slowCollectFuelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightThree)
     slowCollectFuelPressed.foreach(CollectorTasks.collect(collectorRollersProps.map(_.lowRollerSpeedOutput)))
   }
 
@@ -163,10 +159,10 @@ class ButtonMappings(r: CoreRobot) {
     implicit val pull = t
     /**
       * Climbs
-      * Both operator joystick and driver joystick pressed
+      * Both trigger bottoms for operator joystick and driver joystick pressed
       */
     val climbPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.TriggerBottom)
-      .and(driverHardware.driverJoystick.buttonPressed(2))
+      .and(driverHardware.driverJoystick.buttonPressed(JoystickButtons.TriggerBottom))
     climbPressed.foreach(ClimberTasks.climb)
 
   }
@@ -175,10 +171,9 @@ class ButtonMappings(r: CoreRobot) {
     implicit val agitator = t
     /**
       * Runs agitator counterclockwise
-      * LeftFour pressed and POV pushed right
+      * RightOne pressed
       */
-    val runAgitatorCounterclockwisePressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftFour)
-      .and(Signal(driverHardware.operatorJoystick.getPOV() == 90).filter(down => down))
+    val runAgitatorCounterclockwisePressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightOne)
     runAgitatorCounterclockwisePressed.foreach(new SpinAgitator)
   }
 }
