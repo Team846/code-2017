@@ -29,8 +29,8 @@ object ConfigGenerator extends App {
         rightFront = 1
       ),
       properties = DrivetrainProperties(
-        maxLeftVelocity = FeetPerSecond(22.9),
-        maxRightVelocity = FeetPerSecond(27),
+        maxLeftVelocity = FeetPerSecond(28.9),
+        maxRightVelocity = FeetPerSecond(29.1),
         maxAcceleration = MetersPerSecondSquared(0),
         wheelDiameter = Inches(6),
         track = Inches(21.75),
@@ -51,12 +51,12 @@ object ConfigGenerator extends App {
           Percent(0) / DegreesPerSecond(1)
         ),
         leftControlGains = PIDConfig(
-          Percent(10) / FeetPerSecond(1),
+          Percent(10) / FeetPerSecond(5),
           Percent(0) / Meters(1),
           Percent(0) / MetersPerSecondSquared(1)
         ),
         rightControlGains = PIDConfig(
-          Percent(10) / FeetPerSecond(1),
+          Percent(10) / FeetPerSecond(5),
           Percent(0) / Meters(1),
           Percent(0) / MetersPerSecondSquared(1)
         )
@@ -70,32 +70,36 @@ object ConfigGenerator extends App {
     gearGrabber = null,
     gearTilter = null,
     shooterFeeder = null,
-    shooterFlywheel = ShooterFlywheelConfig(
-      ports = ShooterFlywheelPorts(
-        leftMotor = 3,
-        rightMotor = 2,
-        leftHall = 0,
-        rightHall = 1
-      ),
-      props = ShooterFlywheelProperties(
-        maxVelocityLeft = RevolutionsPerMinute(1000),
-        maxVelocityRight = RevolutionsPerMinute(1000),
-        velocityGainsLeft = PIDConfig(
-          kp = Ratio(Percent(0), RevolutionsPerMinute(1000)),
-          ki = Ratio(Percent(0), Each(1000)),
-          kd = Percent(0) / (RevolutionsPerMinute(1000).toGeneric / Seconds(1))
-        ),
-        velocityGainsRight = PIDConfig(
-          kp = Ratio(Percent(0), RevolutionsPerMinute(1000)),
-          ki = Ratio(Percent(0), Each(1000)),
-          kd = Percent(0) / (RevolutionsPerMinute(1000).toGeneric / Seconds(1))
-        ),
-        lowShootSpeed = RevolutionsPerMinute(1000),
-        midShootSpeed = RevolutionsPerMinute(1000),
-        fastShootSpeed = RevolutionsPerMinute(1000),
-        speedTolerance = RevolutionsPerMinute(0)
-      )
-    ),
+    shooterFlywheel = null,
+//    shooterFlywheel = ShooterFlywheelConfig(
+//      ports = ShooterFlywheelPorts(
+//        leftMotor = 3,
+//        rightMotor = 2,
+//        leftHall = 0,
+//        rightHall = 1
+//      ),
+//      props = ShooterFlywheelProperties(
+//        maxVelocityLeft = RevolutionsPerMinute(6500),
+//        maxVelocityRight = RevolutionsPerMinute(6500),
+//        velocityGainsLeft = PIDConfig(
+//          kp = Ratio(Percent(60), RevolutionsPerMinute(1000)),
+//          ki = Ratio(Percent(0), Each(1000)),
+//          kd = Percent(0) / (RevolutionsPerMinute(1000).toGeneric / Seconds(1))
+//        ),
+//        velocityGainsRight = PIDConfig(
+//          kp = Ratio(Percent(60), RevolutionsPerMinute(1000)),
+//          ki = Ratio(Percent(0), Each(1000)),
+//          kd = Percent(0) / (RevolutionsPerMinute(1000).toGeneric / Seconds(1))
+//        ),
+//        lowShootSpeedLeft = RevolutionsPerMinute(1000),
+//        lowShootSpeedRight = RevolutionsPerMinute(1000),
+//        midShootSpeedLeft = RevolutionsPerMinute(1000),
+//        midShootSpeedRight = RevolutionsPerMinute(1000),
+//        fastShootSpeedLeft = RevolutionsPerMinute(1000),
+//        fastShootSpeedRight= RevolutionsPerMinute(1000),
+//        speedTolerance = RevolutionsPerMinute(0)
+//      )
+//    ),
     shooterShifter = null
   )
 

@@ -9,21 +9,20 @@ import com.lynbrookrobotics.seventeen.driver.DriverHardware
 import com.ctre.CANTalon
 import com.lynbrookrobotics.potassium.sensors.imu.{ADIS16448, DigitalGyro}
 import edu.wpi.first.wpilibj.SPI
-import squants.motion.{AngularVelocity, FeetPerSecond, RadiansPerSecond}
-import squants.space.{Degrees, Inches, Radians}
-import squants.time.Seconds
+import squants.motion.{AngularVelocity, DegreesPerSecond}
+import squants.space.Degrees
+import squants.time.{Milliseconds, Seconds}
 import squants.{Angle, Each, Length, Velocity}
-
 import com.lynbrookrobotics.potassium.frc.Implicits._
 
 case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
-                              rightBack: CANTalon, rightFront: CANTalon,
-                              gyro: DigitalGyro,
-                              props: DrivetrainProperties,
-                              driverHardware: DriverHardware)
+                                       rightBack: CANTalon, rightFront: CANTalon,
+                                       gyro: DigitalGyro,
+                                       props: DrivetrainProperties,
+                                       driverHardware: DriverHardware)
   extends TwoSidedDriveHardware {
-  val leftEncoder = new TalonEncoder(leftFront, -Degrees(360) / Each(8192))
-  val rightEncoder = new TalonEncoder(rightBack, Degrees(360) / Each(8192))
+  val leftEncoder = new TalonEncoder(leftBack, Degrees(360) / Each(8192))
+  val rightEncoder = new TalonEncoder(rightBack, -Degrees(360) / Each(8192))
 
   val wheelRadius = props.wheelDiameter / 2
   val track = props.track
@@ -37,6 +36,12 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
     a.toRadians * props.gearRatio * wheelRadius)
   val rightPosition: Signal[Length] = rightEncoder.angle.map(a =>
     a.toRadians * props.gearRatio * wheelRadius)
+
+  val pos = gyro.position.toPollingSignal(Milliseconds(5))
+
+  override lazy val turnVelocity: Signal[AngularVelocity] = gyro.velocityZ.peek.
+    map(_.getOrElse(DegreesPerSecond(0)))
+  override lazy val turnPosition: Signal[Angle] = pos.map(_.map(_.z).getOrElse(Degrees(0)))
 }
 
 object DrivetrainHardware {
