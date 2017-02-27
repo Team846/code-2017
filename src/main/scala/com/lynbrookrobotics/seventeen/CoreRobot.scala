@@ -62,7 +62,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   implicit val collectorExtenderHardware = hardware.collectorExtender
   lazy val collectorExtender: Option[CollectorExtender] =
     if (config.get.collectorExtender != null) {
-      implicit val gt = gearTilter
+      implicit val gt = () => gearTilter
       Some(new CollectorExtender)
     } else None
 
@@ -82,7 +82,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   implicit val gearTilterHardware = hardware.gearTilter
   lazy val gearTilter: Option[GearTilter] =
     if (config.get.gearTilter != null) {
-      implicit val ce = collectorExtender
+      implicit val ce = () => collectorExtender
       Some(new GearTilter)
     } else None
 

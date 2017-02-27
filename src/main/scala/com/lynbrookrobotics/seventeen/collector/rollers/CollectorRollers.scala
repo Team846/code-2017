@@ -9,7 +9,6 @@ class CollectorRollers(implicit hardware: CollectorRollersHardware, clock: Clock
   override def defaultController: PeriodicSignal[Dimensionless] = Signal.constant(Percent(0)).toPeriodic
 
   override def applySignal(signal: Dimensionless): Unit = {
-    hardware.rollerA.set(signal.toEach)
-    hardware.rollerB.set(signal.toEach)
+    hardware.roller.set(signal.toEach)
   }
 }

@@ -5,6 +5,7 @@ import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.WhileAtDoub
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
 import com.lynbrookrobotics.potassium.frc.Implicits._
 import com.lynbrookrobotics.potassium.tasks.ContinuousTask
+import com.lynbrookrobotics.potassium.tasks.Task
 import com.lynbrookrobotics.seventeen.agitator.SpinAgitator
 import com.lynbrookrobotics.seventeen.climber.ClimberTasks
 import com.lynbrookrobotics.seventeen.collector.CollectorTasks
@@ -117,7 +118,9 @@ class ButtonMappings(r: CoreRobot) {
       * RightFive pressed
       */
     val grabGearPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightFive)
-    grabGearPressed.foreach(GearTasks.loadGearFromGroundAbortable(JoystickButtons.RightFive).toContinuous)
+    grabGearPressed.onStart.foreach(() => {
+      Task.executeTask(GearTasks.loadGearFromGroundAbortable(JoystickButtons.RightFive))
+    })
 
     /**
       * Releases gear
