@@ -27,7 +27,7 @@ import com.lynbrookrobotics.potassium.lighting.LightingComponent
 import com.lynbrookrobotics.potassium.tasks.FiniteTask
 import com.lynbrookrobotics.seventeen.drivetrain._
 import com.lynbrookrobotics.seventeen.lighting.SerialComms
-import edu.wpi.first.wpilibj.SerialPort
+import edu.wpi.first.wpilibj.{Compressor, SerialPort}
 
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit)
                (implicit val config: Signal[RobotConfig], hardware: RobotHardware, clock: Clock, val polling: ImpulseEvent) {
@@ -108,6 +108,8 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   val comms: Option[SerialComms] = serialPort.map(new SerialComms(_))
   val lighting: Option[LightingComponent] = comms.map(c => new LightingComponent(20, c))
 
+  new Compressor().start()
+
   val components: List[Component[_]] = List(
     drivetrain,
     agitator,
@@ -128,9 +130,19 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   val auto = Signal(ds.isEnabled && ds.isAutonomous).filter(identity)
   auto.foreach(FiniteTask.empty.toContinuous)
 
+  if (drivetrainHardware != null) {
+    Signal(ds.isDisabled).filter(identity).foreach { () =>
+      drivetrainHardware.gyro.calibrateUpdate()
+    }
+  }
+
   // Needs to go last because component resets have highest priority
   val enabled = Signal(ds.isEnabled).filter(identity)
   enabled.onStart.foreach { () =>
+    if (drivetrainHardware != null) {
+      drivetrainHardware.gyro.angleUpdate()
+    }
+
     components.foreach(_.resetToDefault())
   }
 

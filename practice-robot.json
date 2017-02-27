@@ -1,1 +1,209 @@
-{"driver":{"driverPort":0,"operatorPort":1,"driverWheelPort":2,"launchpadPort":-1},"drivetrain":null,"agitator":null,"climberPuller":null,"collectorElevator":null,"collectorExtender":null,"collectorRollers":null,"gearGrabber":null,"gearTilter":null,"shooterFeeder":null,"shooterFlywheel":{"ports":{"leftMotor":3,"rightMotor":2,"leftHall":0,"rightHall":1},"props":{"maxVelocityLeft":[5860,"RevolutionsPerMinute$"],"maxVelocityRight":[5960,"RevolutionsPerMinute$"],"velocityGainsLeft":{"kp":{"num":[5,"Percent$"],"den":[100,"RevolutionsPerMinute$"]},"ki":{"num":[0,"Percent$"],"den":[1000,"Each$"]},"kd":{"num":[0,"Percent$"],"den":[1000,"RevolutionsPerMinute$ / s"]}},"velocityGainsRight":{"kp":{"num":[5,"Percent$"],"den":[100,"RevolutionsPerMinute$"]},"ki":{"num":[0,"Percent$"],"den":[1000,"Each$"]},"kd":{"num":[0,"Percent$"],"den":[1000,"RevolutionsPerMinute$ / s"]}},"lowShootSpeed":[2500,"RevolutionsPerMinute$"],"midShootSpeed":[0,"RevolutionsPerMinute$"],"fastShootSpeed":[5000,"RevolutionsPerMinute$"],"speedTolerance":[0,"RevolutionsPerMinute$"]}},"shooterShifter":null}
+{
+  "driver": {
+    "driverPort": 0,
+    "operatorPort": 1,
+    "driverWheelPort": 2,
+    "launchpadPort": -1
+  },
+  "drivetrain": {
+    "ports": {
+      "leftBack": 13,
+      "leftFront": 12,
+      "rightBack": 11,
+      "rightFront": 10
+    },
+    "properties": {
+      "maxLeftVelocity": [
+        22.9,
+        "FeetPerSecond$"
+      ],
+      "maxRightVelocity": [
+        27,
+        "FeetPerSecond$"
+      ],
+      "maxAcceleration": [
+        0,
+        "MetersPerSecondSquared$"
+      ],
+      "wheelDiameter": [
+        6,
+        "Inches$"
+      ],
+      "track": [
+        21.75,
+        "Inches$"
+      ],
+      "gearRatio": 0.4694835680751174,
+      "turnControlGains": {
+        "kp": {
+          "num": [
+            0,
+            "Percent$"
+          ],
+          "den": [
+            1,
+            "DegreesPerSecond$"
+          ]
+        },
+        "ki": {
+          "num": [
+            0,
+            "Percent$"
+          ],
+          "den": [
+            1,
+            "Degrees$"
+          ]
+        },
+        "kd": {
+          "num": [
+            0,
+            "Percent$"
+          ],
+          "den": [
+            1,
+            "DegreesPerSecond$ / s"
+          ]
+        }
+      },
+      "forwardPositionControlGains": {
+        "kp": {
+          "num": [
+            100,
+            "Percent$"
+          ],
+          "den": [
+            3.5,
+            "Feet$"
+          ]
+        },
+        "ki": {
+          "num": [
+            0,
+            "Percent$"
+          ],
+          "den": [
+            1,
+            "Feet$ * s"
+          ]
+        },
+        "kd": {
+          "num": [
+            0,
+            "Percent$"
+          ],
+          "den": [
+            1,
+            "FeetPerSecond$"
+          ]
+        }
+      },
+      "turnPositionControlGains": {
+        "kp": {
+          "num": [
+            75,
+            "Percent$"
+          ],
+          "den": [
+            90,
+            "Degrees$"
+          ]
+        },
+        "ki": {
+          "num": [
+            0,
+            "Percent$"
+          ],
+          "den": [
+            1,
+            "Degrees$ * s"
+          ]
+        },
+        "kd": {
+          "num": [
+            0,
+            "Percent$"
+          ],
+          "den": [
+            1,
+            "DegreesPerSecond$"
+          ]
+        }
+      },
+      "leftControlGains": {
+        "kp": {
+          "num": [
+            0,
+            "Percent$"
+          ],
+          "den": [
+            1,
+            "FeetPerSecond$"
+          ]
+        },
+        "ki": {
+          "num": [
+            0,
+            "Percent$"
+          ],
+          "den": [
+            1,
+            "Meters$"
+          ]
+        },
+        "kd": {
+          "num": [
+            0,
+            "Percent$"
+          ],
+          "den": [
+            1,
+            "MetersPerSecondSquared$"
+          ]
+        }
+      },
+      "rightControlGains": {
+        "kp": {
+          "num": [
+            0,
+            "Percent$"
+          ],
+          "den": [
+            1,
+            "FeetPerSecond$"
+          ]
+        },
+        "ki": {
+          "num": [
+            0,
+            "Percent$"
+          ],
+          "den": [
+            1,
+            "Meters$"
+          ]
+        },
+        "kd": {
+          "num": [
+            0,
+            "Percent$"
+          ],
+          "den": [
+            1,
+            "MetersPerSecondSquared$"
+          ]
+        }
+      }
+    }
+  },
+  "agitator": null,
+  "climberPuller": null,
+  "collectorElevator": null,
+  "collectorExtender": null,
+  "collectorRollers": null,
+  "gearGrabber": null,
+  "gearTilter": null,
+  "shooterFeeder": null,
+  "shooterFlywheel": null,
+  "shooterShifter": null
+}
