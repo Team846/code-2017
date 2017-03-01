@@ -9,9 +9,9 @@ import com.lynbrookrobotics.seventeen.driver.DriverHardware
 import com.lynbrookrobotics.seventeen.drivetrain.DrivetrainHardware
 import com.lynbrookrobotics.seventeen.gear.grabber.GearGrabberHardware
 import com.lynbrookrobotics.seventeen.gear.tilter.GearTilterHardware
-import com.lynbrookrobotics.seventeen.shooter.feeder.ShooterFeederHardware
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheelHardware
 import com.lynbrookrobotics.seventeen.shooter.shifter.ShooterShifterHardware
+import edu.wpi.first.wpilibj.PowerDistributionPanel
 
 case class RobotHardware(driver: DriverHardware,
                          drivetrain: DrivetrainHardware,
@@ -22,9 +22,9 @@ case class RobotHardware(driver: DriverHardware,
                          collectorRollers: CollectorRollersHardware,
                          gearGrabber: GearGrabberHardware,
                          gearTilter: GearTilterHardware,
-                         shooterFeeder: ShooterFeederHardware,
                          shooterFlywheel: ShooterFlywheelHardware,
-                         shooterShifter: ShooterShifterHardware)
+                         shooterShifter: ShooterShifterHardware,
+                         pdp: PowerDistributionPanel)
 
 object RobotHardware {
   def apply(robotConfig: RobotConfig): RobotHardware = {
@@ -42,9 +42,9 @@ object RobotHardware {
       collectorRollers = if (collectorRollers != null) CollectorRollersHardware(collectorRollers) else null,
       gearGrabber = if (gearGrabber != null) GearGrabberHardware(gearGrabber) else null,
       gearTilter = if (gearTilter != null) GearTilterHardware(gearTilter) else null,
-      shooterFeeder = if (shooterFeeder != null) ShooterFeederHardware(shooterFeeder) else null,
       shooterFlywheel = if (shooterFlywheel != null) ShooterFlywheelHardware(shooterFlywheel) else null,
-      shooterShifter = if (shooterShifter != null) ShooterShifterHardware(shooterShifter) else null
+      shooterShifter = if (shooterShifter != null) ShooterShifterHardware(shooterShifter) else null,
+      new PowerDistributionPanel()
     )
   }
 }

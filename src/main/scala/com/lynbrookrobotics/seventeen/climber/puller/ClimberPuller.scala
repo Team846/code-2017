@@ -24,9 +24,11 @@ class ClimberPuller(implicit hardware: ClimberPullerHardware, clock: Clock) exte
         hardware.motorB.set(current.toAmperes)
       case PWMMode(value) =>
         hardware.motorA.changeControlMode(CANTalon.TalonControlMode.PercentVbus)
-        hardware.motorA.changeControlMode(CANTalon.TalonControlMode.PercentVbus)
+        hardware.motorB.changeControlMode(CANTalon.TalonControlMode.PercentVbus)
+        hardware.motorA.enableBrakeMode(false)
+        hardware.motorB.enableBrakeMode(false)
         hardware.motorA.set(value.toEach)
-        hardware.motorA.set(value.toEach)
+        hardware.motorB.set(value.toEach)
     }
   }
 }

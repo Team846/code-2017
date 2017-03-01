@@ -4,7 +4,7 @@ import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.commons.drivetrain.{ArcadeControlsClosed, NoOperation, TwoSidedDrive, UnicycleControlMode}
 import com.lynbrookrobotics.potassium.frc.WPIClock
 import com.lynbrookrobotics.potassium.frc.Implicits._
-import squants.Time
+import squants.{Each, Time}
 import squants.time.Milliseconds
 
 package object drivetrain extends TwoSidedDrive(Milliseconds(5)) {
@@ -12,10 +12,19 @@ package object drivetrain extends TwoSidedDrive(Milliseconds(5)) {
   type Properties = DrivetrainProperties
 
   override protected def output(hardware: DrivetrainHardware, signal: TwoSidedSignal): Unit = {
-    hardware.leftBack.set(signal.left.toEach)
-    hardware.leftFront.set(signal.left.toEach)
-    hardware.rightBack.set(signal.right.toEach)
-    hardware.rightFront.set(signal.right.toEach)
+    val leftVelocityPercent = Each(hardware.leftVelocity.get / hardware.props.maxLeftVelocity)
+    val rightVelocityPercent = Each(hardware.rightVelocity.get / hardware.props.maxRightVelocity)
+
+    val leftDiff = signal.left - leftVelocityPercent
+    val rightDiff = signal.right - rightVelocityPercent
+
+    val leftOut = leftVelocityPercent + (leftDiff * hardware.props.currentLimit)
+    val rightOut = rightVelocityPercent + (rightDiff * hardware.props.currentLimit)
+
+    hardware.leftBack.set(leftOut.toEach)
+    hardware.leftFront.set(leftOut.toEach)
+    hardware.rightBack.set(rightOut.toEach)
+    hardware.rightFront.set(rightOut.toEach)
   }
 
   override protected def controlMode(implicit hardware: DrivetrainHardware,

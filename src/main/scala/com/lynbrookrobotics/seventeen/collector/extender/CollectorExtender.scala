@@ -28,6 +28,10 @@ class CollectorExtender(implicit hardware: CollectorExtenderHardware,
       hardware.pneumatic.set(false)
     } else {
       hardware.pneumatic.set(signal == CollectorExtenderExtended)
+
+      if (signal == CollectorExtenderExtended) {
+        curLastExtendTime = System.currentTimeMillis()
+      }
     }
   }
 }

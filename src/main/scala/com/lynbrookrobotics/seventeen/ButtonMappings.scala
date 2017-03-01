@@ -1,7 +1,7 @@
 package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.potassium.Signal
-import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{WhileAtDoubleVelocity, SpinAtVelocity}
+import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{SpinAtVelocity, WhileAtDoubleVelocity}
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
 import com.lynbrookrobotics.potassium.frc.Implicits._
 import com.lynbrookrobotics.potassium.tasks.ContinuousTask
@@ -9,6 +9,7 @@ import com.lynbrookrobotics.potassium.tasks.Task
 import com.lynbrookrobotics.seventeen.agitator.SpinAgitator
 import com.lynbrookrobotics.seventeen.climber.ClimberTasks
 import com.lynbrookrobotics.seventeen.collector.CollectorTasks
+import com.lynbrookrobotics.seventeen.collector.elevator.LoadIntoStorage
 import com.lynbrookrobotics.seventeen.collector.rollers.RollBallsInCollector
 import com.lynbrookrobotics.seventeen.gear.GearTasks
 import com.lynbrookrobotics.seventeen.gear.grabber.OpenGrabber
@@ -30,8 +31,8 @@ class ButtonMappings(r: CoreRobot) {
   val flywheelSpeedLeft = Signal(curFlywheelSpeedLeft)
   val flywheelSpeedRight = Signal(curFlywheelSpeedRight)
 
-  shooterFlywheel.zip(shooterFeeder).zip(shooterShifter).zip(agitator).foreach { t =>
-    implicit val (((fly, feed), shift), agitator) = t
+  shooterFlywheel.zip(collectorElevator).zip(collectorRollers).zip(shooterShifter).zip(agitator).foreach { t =>
+    implicit val ((((fly, elev), roll), shift), agitator) = t
 
     /**
       * Shoots fuel at high speed
@@ -167,13 +168,16 @@ class ButtonMappings(r: CoreRobot) {
 
   }
 
-  r.agitator.foreach { t =>
-    implicit val agitator = t
+  r.agitator.zip(collectorElevator).zip(collectorRollers).foreach { t =>
+    implicit val ((agitator, elev), roll) = t
     /**
       * Runs agitator counterclockwise
       * RightOne pressed
       */
     val runAgitatorCounterclockwisePressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightOne)
-    runAgitatorCounterclockwisePressed.foreach(new SpinAgitator)
+    runAgitatorCounterclockwisePressed.
+      foreach(new SpinAgitator and
+        new LoadIntoStorage() and
+        new RollBallsInCollector(collectorRollersProps.map(_.highRollerSpeedOutput)))
   }
 }

@@ -13,7 +13,7 @@ class Agitator(implicit hardware: AgitatorHardware, properties: Signal[AgitatorP
 
   override def applySignal(signal: AgitatorState): Unit = {
     if (signal == AgitatorSpinning) {
-      hardware.motor.set(properties.get.talonOutput.toEach)
+      hardware.motor.set(properties.get.spinSpeed.toEach)
     } else {
       hardware.motor.set(0)
     }
