@@ -50,7 +50,7 @@ object RemoteMain extends App {
     val driverCam = new UsbCamera("driverCam", 2)
     driverCam.setResolution(320, 240)
 
-    val driverCamServer = new MjpegServer("serve_driverCam", 5803)
+    val driverCamServer = new MjpegServer("serve_driverCam", "0.0.0.0", 5803)
     driverCamServer.setSource(driverCam)
   }
 }
