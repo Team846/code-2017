@@ -42,10 +42,7 @@ object VisionPipeline {
         new Scalar(76.0, 255.0, 255.0),
         hsv)
       (hsv, timestampedCam.timestamp)
-    }.map{ hsvWithTime: (Mat, Double) =>
-      val hsv = hsvWithTime._1
-      val timestamp = hsvWithTime._2
-
+    }.map{ case (hsv, timestamp) =>
       val hierarchy = new Mat()
       val contours = new ArrayList[MatOfPoint]()
       val mode = Imgproc.RETR_LIST
@@ -53,10 +50,7 @@ object VisionPipeline {
 
       Imgproc.findContours(hsv, contours, hierarchy, mode, method)
       (contours, timestamp)
-    }.map{ contoursWithTime: (ArrayList[MatOfPoint], Double) =>
-      val contours = contoursWithTime._1
-      val timestamp = contoursWithTime._2
-
+    }.map{ case (contours, timestamp) =>
       (contours.asScala.filter{ contour: MatOfPoint =>
         val bb = Imgproc.boundingRect(contour)
 
@@ -87,10 +81,7 @@ object VisionPipeline {
         (vertices < 1000000) &&
         (ratio < 1000)
       }.map{ contour: MatOfPoint => Imgproc.boundingRect(contour) }, timestamp)
-    }.map { openCvRectsWithTime =>
-      val openCvRects = openCvRectsWithTime._1
-      val timestamp = openCvRectsWithTime._2
-
+    }.map { case (openCvRects, timestamp) =>
       VisionTargets(openCvRects.map{ rect =>
         Rectangle(rect.x, rect.y, rect.width, rect.height)
       }.asInstanceOf[List[Rectangle]], timestamp)
