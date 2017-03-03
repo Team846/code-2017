@@ -90,6 +90,8 @@ object ConfigGenerator extends App {
         climbSpeed = Percent(0)
       )
     ),
+    camSelect = null,
+    climberPuller = null,
     collectorElevator = CollectorElevatorConfig(
       port = CollectorElevatorPorts(
         motor = 0
