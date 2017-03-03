@@ -107,7 +107,7 @@ object VisionPipeline {
     val newHeight = (frame.height.asInstanceOf[Double] * (width.asInstanceOf[Double] / frame.width)).asInstanceOf[Int]
 
     val resize = image.getScaledInstance(width, newHeight, Image.SCALE_SMOOTH)
-    var ret = new BufferedImage(width, newHeight, BufferedImage.TYPE_INT_ARGB)
+    var ret = new BufferedImage(width, newHeight, BufferedImage.TYPE_INT_RGB)
 
     val g2d = ret.createGraphics
     g2d.drawImage(resize, 0, 0, null)
