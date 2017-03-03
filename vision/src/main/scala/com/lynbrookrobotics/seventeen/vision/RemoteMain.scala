@@ -15,6 +15,7 @@ import com.lynbrookrobotics.seventeen.commons.VisionTargets
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import edu.wpi.cscore._
 
 object RemoteMain extends App {
   override def main(args: Array[String]) = {
@@ -45,5 +46,11 @@ object RemoteMain extends App {
           VisionPipeline.matToBufferedImage(timestampedMat.mat)).get
       ))
     }
+
+    val driverCam = new UsbCamera("driverCam", 2)
+    driverCam.setResolution(320, 240)
+
+    val driverCamServer = new MjpegServer("serve_driverCam", 1181)
+    driverCamServer.setSource(driverCam)
   }
 }
