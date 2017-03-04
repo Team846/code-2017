@@ -27,8 +27,8 @@ import com.lynbrookrobotics.seventeen.commons._
 object VisionPipeline {
   System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
 
-  val leftCamera = new TimestampedCameraSignal(new VideoCapture(0), 1280, 720)
-  val rightCamera = new TimestampedCameraSignal(new VideoCapture(1), 1280, 720)
+  val leftCamera = new TimestampedCameraSignal(new VideoCapture(1), 1280, 720)
+  val rightCamera = new TimestampedCameraSignal(new VideoCapture(2), 1280, 720)
 
   // TODO: implicit VisionConfiguration for thresholds
   def process(signal: TimestampedCameraSignal): Signal[VisionTargets] = {

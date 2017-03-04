@@ -13,9 +13,9 @@ object CamSelectHardware {
     val uriPath = config.properties.mjpegPath
 
     CamSelectHardware(
-      new HttpCamera("leftCam", uriBase + s":${config.ports.leftCamPort}" + uriPath, HttpCamera.HttpCameraKind.kMJPGStreamer),
-      new HttpCamera("rightCam", uriBase + s":${config.ports.rightCamPort}" + uriPath, HttpCamera.HttpCameraKind.kMJPGStreamer),
-      new HttpCamera("driverCam", uriBase + s":${config.ports.driverCamPort}" + uriPath, HttpCamera.HttpCameraKind.kMJPGStreamer),
+      new HttpCamera("leftCam", uriBase + s":${config.port.leftCamPort}" + uriPath, HttpCamera.HttpCameraKind.kMJPGStreamer),
+      new HttpCamera("rightCam", uriBase + s":${config.port.rightCamPort}" + uriPath, HttpCamera.HttpCameraKind.kMJPGStreamer),
+      new HttpCamera("driverCam", uriBase + s":${config.port.driveCamPort}" + uriPath, HttpCamera.HttpCameraKind.kMJPGStreamer),
       new MjpegServer("serve_Camera Selection", 1182)
     )
   }
