@@ -7,18 +7,18 @@
   },
   "drivetrain": {
     "ports": {
-      "rightBack": 13,
-      "rightFront": 12,
-      "leftBack": 11,
-      "leftFront": 10
+      "leftBack": 13,
+      "leftFront": 12,
+      "rightBack": 11,
+      "rightFront": 10
     },
     "properties": {
       "maxLeftVelocity": [
-        29.1,
+        28.9,
         "FeetPerSecond$"
       ],
       "maxRightVelocity": [
-        28.9,
+        29.1,
         "FeetPerSecond$"
       ],
       "maxAcceleration": [
@@ -195,7 +195,7 @@
         }
       },
       "currentLimit": [
-        75,
+        50,
         "Percent$"
       ]
     }
@@ -218,7 +218,7 @@
     },
     "props": {
       "climbSpeed": [
-        100,
+        50,
         "Percent$"
       ]
     }
@@ -261,8 +261,8 @@
     },
     "props": {
       "detectingDistance": [
-        2.2,
-        "Volts$"
+        0.5,
+        "Inches$"
       ]
     }
   },
@@ -273,24 +273,24 @@
   },
   "shooterFlywheel": {
     "ports": {
-      "leftMotor": 3,
-      "rightMotor": 4,
+      "leftMotor": 0,
+      "rightMotor": 0,
       "leftHall": 0,
-      "rightHall": 1
+      "rightHall": 0
     },
     "props": {
       "maxVelocityLeft": [
-        6500,
+        0,
         "RevolutionsPerMinute$"
       ],
       "maxVelocityRight": [
-        6500,
+        0,
         "RevolutionsPerMinute$"
       ],
       "velocityGainsLeft": {
         "kp": {
           "num": [
-            60,
+            0,
             "Percent$"
           ],
           "den": [
@@ -322,7 +322,7 @@
       "velocityGainsRight": {
         "kp": {
           "num": [
-            60,
+            0,
             "Percent$"
           ],
           "den": [
@@ -352,31 +352,31 @@
         }
       },
       "lowShootSpeedLeft": [
-        2000,
+        0,
         "RevolutionsPerMinute$"
       ],
       "lowShootSpeedRight": [
-        2000,
+        0,
         "RevolutionsPerMinute$"
       ],
       "midShootSpeedLeft": [
-        4000,
+        0,
         "RevolutionsPerMinute$"
       ],
       "midShootSpeedRight": [
-        4000,
+        0,
         "RevolutionsPerMinute$"
       ],
       "fastShootSpeedLeft": [
-        6000,
+        0,
         "RevolutionsPerMinute$"
       ],
       "fastShootSpeedRight": [
-        6000,
+        0,
         "RevolutionsPerMinute$"
       ],
       "speedTolerance": [
-        75,
+        0,
         "RevolutionsPerMinute$"
       ]
     }

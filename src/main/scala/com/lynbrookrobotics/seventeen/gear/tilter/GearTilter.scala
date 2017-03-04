@@ -28,6 +28,10 @@ class GearTilter(implicit hardware: GearTilterHardware,
       hardware.pneumatic.set(false)
     } else {
       hardware.pneumatic.set(signal == GearTilterExtended)
+
+      if (signal == GearTilterExtended) {
+        curLastExtendTime = System.currentTimeMillis()
+      }
     }
   }
 }

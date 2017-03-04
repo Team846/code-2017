@@ -7,7 +7,6 @@ import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
 import com.lynbrookrobotics.seventeen.collector.rollers.CollectorRollers
 import com.lynbrookrobotics.seventeen.gear.grabber.GearGrabber
 import com.lynbrookrobotics.seventeen.gear.tilter.GearTilter
-import com.lynbrookrobotics.seventeen.shooter.feeder.ShooterFeeder
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
 import com.lynbrookrobotics.seventeen.shooter.shifter.ShooterShifter
 import com.lynbrookrobotics.potassium.{Component, Signal}
@@ -27,7 +26,7 @@ import com.lynbrookrobotics.potassium.lighting.LightingComponent
 import com.lynbrookrobotics.potassium.tasks.FiniteTask
 import com.lynbrookrobotics.seventeen.drivetrain._
 import com.lynbrookrobotics.seventeen.lighting.SerialComms
-import edu.wpi.first.wpilibj.{Compressor, SerialPort}
+import edu.wpi.first.wpilibj.{Compressor, PowerDistributionPanel, SerialPort}
 
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit)
                (implicit val config: Signal[RobotConfig], hardware: RobotHardware, clock: Clock, val polling: ImpulseEvent) {
@@ -86,12 +85,6 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
       Some(new GearTilter)
     } else None
 
-  // Shooter Feeder
-  implicit val shooterFeederHardware = hardware.shooterFeeder
-  implicit val shooterFeederProps = config.map(_.shooterFeeder.properties)
-  lazy val shooterFeeder: Option[ShooterFeeder] =
-    if (config.get.shooterFeeder != null) Some(new ShooterFeeder) else None
-
   // Shooter Flywheel
   implicit val shooterFlywheelHardware = hardware.shooterFlywheel
   implicit val shooterFlywheelProps = config.map(_.shooterFlywheel.props)
@@ -119,7 +112,6 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     collectorRollers,
     gearGrabber,
     gearTilter,
-    shooterFeeder,
     shooterFlywheel,
     shooterShifter,
     lighting
@@ -220,6 +212,22 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
       board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right - Left")(
         (shooterFlywheelHardware.rightVelocity.get - shooterFlywheelHardware.leftVelocity.get)
           .toRevolutionsPerMinute
+      ))
+    }
+
+    climberPuller.foreach { c =>
+      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor A")(
+        hardware.pdp.getCurrent(3)
+      ))
+
+      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor B")(
+        hardware.pdp.getCurrent(2)
+      ))
+    }
+
+    gearGrabber.foreach { g =>
+      board.datasetGroup("Grabber").addDataset(new TimeSeriesNumeric("IR Distance")(
+        hardware.gearGrabber.proximitySensor.getVoltage
       ))
     }
   }
