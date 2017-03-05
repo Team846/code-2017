@@ -24,9 +24,12 @@ libraryDependencies += "org.mockito" % "mockito-core" % "2.3.11" % Test
 
 libraryDependencies += "com.lynbrookrobotics" %% "funky-dashboard" % "0.2.1-SNAPSHOT"
 
-libraryDependencies += "edu.wpi.first" % "wpilib" % "2017.2.1"
-libraryDependencies += "edu.wpi.first" % "networktables" % "2017.2.1"
-libraryDependencies += "com.ctre" % "ctrlib" % "4.4.1.9"
+libraryDependencies += "edu.wpi.first" % "wpilib" % "2017.3.1"
+libraryDependencies += "edu.wpi.first" % "networktables" % "2017.3.1"
+libraryDependencies += "edu.wpi.first" % "cscore" % "2017.3.1"
+libraryDependencies += "com.ctre" % "ctrlib" % "4.4.1.12"
 libraryDependencies += "org.opencv" % "opencv-java" % "3.1.0"
+
+libraryDependencies += "com.google.guava" % "guava" % "21.0"
 
 lazy val vision = project.enablePlugins(AssemblyPlugin)
