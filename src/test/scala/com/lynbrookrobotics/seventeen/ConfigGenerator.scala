@@ -102,7 +102,6 @@ object ConfigGenerator extends App {
         mjpegPath = "/stream.mjpg"
       )
     ),
-    climberPuller = null,
     collectorElevator = CollectorElevatorConfig(
       port = CollectorElevatorPorts(
         motor = 0

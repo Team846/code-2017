@@ -30,27 +30,33 @@ object RemoteMain extends App {
       }
     }.flatten
 
-    val leftProcessedProvider =
-      new RemoteSignalProvider[VisionTargets]("left-processed", VisionPipeline.leftCameraProcessed)
-    val rightProcessedProvider =
-      new RemoteSignalProvider[VisionTargets]("right-processed", VisionPipeline.rightCameraProcessed)
+    // val leftProcessedProvider =
+    //   new RemoteSignalProvider[VisionTargets]("left-processed", VisionPipeline.leftCameraProcessed)
+    // val rightProcessedProvider =
+    //   new RemoteSignalProvider[VisionTargets]("right-processed", VisionPipeline.rightCameraProcessed)
 
-    dashboard.foreach { board =>
-      board.datasetGroup("Vision").addDataset(new ImageStream("Left Vision Output")(
-        VisionPipeline.leftCamera.map(timestampedMat =>
-          VisionPipeline.matToBufferedImage(timestampedMat.mat)).get
-      ))
+    // dashboard.foreach { board =>
+    //   board.datasetGroup("Vision").addDataset(new ImageStream("Left Vision Output")(
+    //     VisionPipeline.leftCamera.map(timestampedMat =>
+    //       VisionPipeline.matToBufferedImage(timestampedMat.mat)).get
+    //   ))
 
-      board.datasetGroup("Vision").addDataset(new ImageStream("Right Vision Output")(
-        VisionPipeline.rightCamera.map(timestampedMat =>
-          VisionPipeline.matToBufferedImage(timestampedMat.mat)).get
-      ))
-    }
+    //   board.datasetGroup("Vision").addDataset(new ImageStream("Right Vision Output")(
+    //     VisionPipeline.rightCamera.map(timestampedMat =>
+    //       VisionPipeline.matToBufferedImage(timestampedMat.mat)).get
+    //   ))
+    // }
 
     val driverCam = new UsbCamera("driverCam", 0) // TODO: use v4l paths
     driverCam.setResolution(320, 240)
 
+    val leftCam = new UsbCamera("leftCam", 1)
+    leftCam.setResolution(320, 240)
+
     val driverCamServer = new MjpegServer("serve_driverCam", "0.0.0.0", 5803)
     driverCamServer.setSource(driverCam)
+
+    val leftCamServer = new MjpegServer("serve_leftCam", "0.0.0.0", 5804)
+    leftCamServer.setSource(leftCam)
   }
 }

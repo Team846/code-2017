@@ -1,6 +1,7 @@
 package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.potassium.Signal
+import com.lynbrookrobotics.seventeen.camselect._
 import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{SpinAtVelocity, WhileAtDoubleVelocity}
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
 import com.lynbrookrobotics.potassium.frc.Implicits._
@@ -156,15 +157,15 @@ class ButtonMappings(r: CoreRobot) {
     slowCollectFuelPressed.foreach(CollectorTasks.collect(collectorRollersProps.map(_.lowRollerSpeedOutput)))
   }
 
-  climberPuller.foreach { t =>
-    implicit val pull = t
+  climberPuller.zip(camSelect).foreach { t =>
+    implicit val (pull, select) = t
     /**
       * Climbs
       * Both trigger bottoms for operator joystick and driver joystick pressed
       */
     val climbPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.TriggerBottom)
       .and(driverHardware.driverJoystick.buttonPressed(JoystickButtons.TriggerBottom))
-    climbPressed.foreach(ClimberTasks.climb)
+    climbPressed.foreach(ClimberTasks.climb.and(new SelectCamera(LeftCam)))
 
   }
 

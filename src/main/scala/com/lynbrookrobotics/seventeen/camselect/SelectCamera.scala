@@ -1,13 +1,14 @@
 package com.lynbrookrobotics.seventeen.camselect
 
 import com.lynbrookrobotics.potassium.Signal
-import com.lynbrookrobotics.potassium.tasks.FiniteTask
+import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 
-class SelectCamera(camera: CamSelectState)(implicit camSelect: CamSelect) extends FiniteTask {
+class SelectCamera(camera: CamSelectState)(implicit camSelect: CamSelect) extends ContinuousTask {
   override def onStart(): Unit = {
     camSelect.setController(Signal.constant(camera).toPeriodic)
-    finished()
   }
 
-  override def onEnd(): Unit = { }
+  override def onEnd(): Unit = {
+    camSelect.resetToDefault()
+  }
 }
