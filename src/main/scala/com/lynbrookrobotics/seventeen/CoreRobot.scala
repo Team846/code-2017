@@ -54,8 +54,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   // CamSelect
   implicit val camSelectHardware = hardware.camSelect
   implicit val camselectProps = config.map(_.camSelect.properties)
-  lazy val camSelect: Option[CamSelect] =
-    if (config.get.camSelect != null) Some(new CamSelect) else None
+  implicit val camSelect: CamSelect = new CamSelect
 
   // Climber Puller
   implicit val climberPullerHardware = hardware.climberPuller

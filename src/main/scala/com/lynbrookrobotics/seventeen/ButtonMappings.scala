@@ -157,8 +157,8 @@ class ButtonMappings(r: CoreRobot) {
     slowCollectFuelPressed.foreach(CollectorTasks.collect(collectorRollersProps.map(_.lowRollerSpeedOutput)))
   }
 
-  climberPuller.zip(camSelect).foreach { t =>
-    implicit val (pull, select) = t
+  climberPuller.foreach { t =>
+    implicit val (pull) = t
     /**
       * Climbs
       * Both trigger bottoms for operator joystick and driver joystick pressed
