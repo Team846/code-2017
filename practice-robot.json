@@ -222,7 +222,7 @@
       "driveCamPort": 5803
     },
     "properties": {
-      "coprocessorHostname": "10.8.46.23",
+      "coprocessorHostname": "10.8.46.19",
       "mjpegPath": "/stream.mjpg"
     }
   },

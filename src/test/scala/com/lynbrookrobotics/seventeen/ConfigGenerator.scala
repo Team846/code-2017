@@ -98,7 +98,7 @@ object ConfigGenerator extends App {
         driveCamPort = 5803
       ),
       properties = CamSelectProperties(
-        coprocessorHostname = "tarsier.local",
+        coprocessorHostname = "10.8.46.19",
         mjpegPath = "/stream.mjpg"
       )
     ),
