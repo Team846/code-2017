@@ -69,7 +69,8 @@ object ConfigGenerator extends App {
           Percent(0) / Meters(1),
           Percent(0) / MetersPerSecondSquared(1)
         ),
-        currentLimit = Percent(0)
+        currentLimit = Percent(0),
+        defaultLookAheadDistance = Feet(0.5)
       )
     ),
     agitator = AgitatorConfig(
@@ -91,7 +92,7 @@ object ConfigGenerator extends App {
     ),
     collectorElevator = CollectorElevatorConfig(
       port = CollectorElevatorPorts(
-        motor = 1
+        motor = 0
       ),
       properties = CollectorElevatorProperties(
         collectSpeed = Percent(0)
@@ -156,7 +157,7 @@ object ConfigGenerator extends App {
     ),
     shooterShifter = ShooterShifterConfig(
       ports = ShooterShifterPorts(
-        pneumatic = 3
+        pneumatic = 0
       )
     )
   )

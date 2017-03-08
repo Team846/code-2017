@@ -4,7 +4,7 @@ resolvers += "opencv-maven" at "https://github.com/WPIRoboticsProjects/opencv-ma
 libraryDependencies += "com.lynbrookrobotics" %% "potassium-vision" % Versions.potassiumVersion
 libraryDependencies += "com.lynbrookrobotics" %% "potassium-remote" % Versions.potassiumVersion
 
-libraryDependencies += "com.lynbrookrobotics" %% "funky-dashboard" % "0.2.0-SNAPSHOT"
+libraryDependencies += "com.lynbrookrobotics" %% "funky-dashboard" % "0.2.1-SNAPSHOT"
 
 libraryDependencies += "org.opencv" % "opencv-natives-linux-x86_64" % "3.1.0"
 

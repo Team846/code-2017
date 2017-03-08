@@ -2,6 +2,7 @@ package com.lynbrookrobotics.seventeen
 
 import java.io.File
 
+import com.google.common.reflect.ClassPath
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.config.TwoWayFile
 import com.lynbrookrobotics.potassium.events.ImpulseEventSource
@@ -41,6 +42,14 @@ class LaunchRobot extends RobotBase {
         }
       }
     )
+
+    ClassPath.from(Thread.currentThread().getContextClassLoader).
+      getTopLevelClassesRecursive("com.lynbrookrobotics").
+      forEach(c => println(s"preloaded ${c.getName}"))
+
+    ClassPath.from(Thread.currentThread().getContextClassLoader).
+      getTopLevelClassesRecursive("squants").
+      forEach(c => println(s"preloaded ${c.getName}"))
 
     coreRobot.comms.foreach(_.connect())
     HAL.observeUserProgramStarting()

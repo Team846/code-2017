@@ -26,14 +26,14 @@
         "MetersPerSecondSquared$"
       ],
       "wheelDiameter": [
-        6,
+        4,
         "Inches$"
       ],
       "track": [
         21.75,
         "Inches$"
       ],
-      "gearRatio": 0.4694835680751174,
+      "gearRatio": 0.3125,
       "turnControlGains": {
         "kp": {
           "num": [
@@ -73,7 +73,7 @@
             "Percent$"
           ],
           "den": [
-            3.5,
+            2,
             "Feet$"
           ]
         },
@@ -195,8 +195,12 @@
         }
       },
       "currentLimit": [
-        75,
+        25,
         "Percent$"
+      ],
+      "defaultLookAheadDistance": [
+        1,
+        "Feet$"
       ]
     }
   },

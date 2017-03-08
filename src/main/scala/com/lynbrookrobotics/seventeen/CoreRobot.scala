@@ -23,11 +23,14 @@ import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
 import com.lynbrookrobotics.potassium.lighting.LightingComponent
+import com.lynbrookrobotics.potassium.commons.cartesianPosition.XYPosition
 import com.lynbrookrobotics.potassium.tasks.FiniteTask
+import com.lynbrookrobotics.potassium.units.Point
 import com.lynbrookrobotics.seventeen.drivetrain._
 import com.lynbrookrobotics.seventeen.lighting.{SerialComms, StatusLightingComponent}
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.{Compressor, PowerDistributionPanel, SerialPort}
+import squants.space.{Feet, Inches}
 
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit)
                (implicit val config: Signal[RobotConfig], hardware: RobotHardware, clock: Clock, val polling: ImpulseEvent) {
@@ -149,19 +152,38 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   new ButtonMappings(this)
 
   val auto = Signal(ds.isEnabled && ds.isAutonomous).filter(identity)
-  auto.foreach(FiniteTask.empty.toContinuous)
 
-  if (drivetrainHardware != null) {
-    Signal(ds.isDisabled).filter(identity).foreach { () =>
-      drivetrainHardware.gyro.calibrateUpdate()
-    }
+  drivetrain.foreach { implicit d =>
+    auto.foreach(Signal {
+      val initialTurnPosition = drivetrainHardware.turnPosition.get
+      val turnPosition = drivetrainHardware.turnPosition.map(_ - initialTurnPosition)
+
+      val xy = XYPosition(
+        turnPosition.map(unicycleTasks.compassToTrigonometric),
+        drivetrainHardware.forwardPosition
+      )
+
+      val fdDistance = Inches(0)
+      new unicycleTasks.FollowWayPointsWithPosition(
+        Seq(
+          new Point(Feet(0), fdDistance),
+          new Point(Feet(0), fdDistance - Feet(3)),
+          new Point(Feet(2), fdDistance - Feet(4)),
+          new Point(Feet(4), fdDistance - Feet(3)),
+          new Point(Feet(4), fdDistance + Feet(3))
+        ),
+        Feet(0.5),
+        xy,
+        turnPosition
+      ).toContinuous
+    })
   }
 
   // Needs to go last because component resets have highest priority
   val enabled = Signal(ds.isEnabled).filter(identity)
   enabled.onStart.foreach { () =>
     if (drivetrainHardware != null) {
-      drivetrainHardware.gyro.angleUpdate()
+      drivetrainHardware.gyro.endCalibration()
     }
 
     components.foreach(_.resetToDefault())
@@ -210,6 +232,14 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
       board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Ground Speed")(
         drivetrainHardware.rightVelocity.get.toFeetPerSecond
+      ))
+
+      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Wheel Rotation")(
+        (drivetrainHardware.leftEncoder.angle.get * drivetrainProps.get.gearRatio).toDegrees
+      ))
+
+      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Wheel Rotation")(
+        (drivetrainHardware.rightEncoder.angle.get * drivetrainProps.get.gearRatio).toDegrees
       ))
 
       board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Turn Velocity")(
