@@ -39,7 +39,7 @@ class ButtonMappings(r: CoreRobot) {
       * Trigger pressed
       */
     val shootFuelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.Trigger)
-    shootFuelPressed.foreach(ShooterTasks.continuousShoot(flywheelSpeedLeft))
+    shootFuelPressed.foreach(ShooterTasks.continuousShoot(flywheelSpeedLeft, flywheelSpeedRight))
 
     /**
       * Shifts shooter to left

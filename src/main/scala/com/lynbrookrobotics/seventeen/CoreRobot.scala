@@ -29,11 +29,12 @@ import com.lynbrookrobotics.potassium.units.Point
 import com.lynbrookrobotics.seventeen.drivetrain._
 import com.lynbrookrobotics.seventeen.lighting.{SerialComms, StatusLightingComponent}
 import edu.wpi.first.wpilibj.DriverStation.Alliance
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj.{Compressor, PowerDistributionPanel, SerialPort}
 import squants.space.{Feet, Inches}
 
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit)
-               (implicit val config: Signal[RobotConfig], hardware: RobotHardware, clock: Clock, val polling: ImpulseEvent) {
+               (implicit val config: Signal[RobotConfig], hardware: RobotHardware, val clock: Clock, val polling: ImpulseEvent) {
   implicit val driverHardware = hardware.driver
   val ds = driverHardware.station
 
@@ -153,31 +154,35 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
   val auto = Signal(ds.isEnabled && ds.isAutonomous).filter(identity)
 
-  drivetrain.foreach { implicit d =>
-    auto.foreach(Signal {
-      val initialTurnPosition = drivetrainHardware.turnPosition.get
-      val turnPosition = drivetrainHardware.turnPosition.map(_ - initialTurnPosition)
+  val generator = new AutoGenerator(this)
 
-      val xy = XYPosition(
-        turnPosition.map(unicycleTasks.compassToTrigonometric),
-        drivetrainHardware.forwardPosition
-      )
+  auto.foreach(Signal {
+    val autoID = Math.round(SmartDashboard.getNumber("DB/Slider 0"))
 
-      val fdDistance = Inches(0)
-      new unicycleTasks.FollowWayPointsWithPosition(
-        Seq(
-          new Point(Feet(0), fdDistance),
-          new Point(Feet(0), fdDistance - Feet(3)),
-          new Point(Feet(2), fdDistance - Feet(4)),
-          new Point(Feet(4), fdDistance - Feet(3)),
-          new Point(Feet(4), fdDistance + Feet(3))
-        ),
-        Feet(0.5),
-        xy,
-        turnPosition
-      ).toContinuous
-    })
-  }
+    (if (autoID == 1) {
+      drivetrain.flatMap { implicit dr =>
+        gearGrabber.map { implicit d =>
+          generator.centerGearAndCrossLine
+        }
+      }.getOrElse(FiniteTask.empty)
+    } else if (autoID == 2) {
+      drivetrain.flatMap { implicit dr =>
+        gearGrabber.flatMap { implicit d =>
+          collectorElevator.flatMap { implicit ce =>
+            collectorRollers.flatMap { implicit cr =>
+              agitator.flatMap { implicit a =>
+                shooterFlywheel.map { implicit f =>
+                  generator.shootCenterGearAndCrossLine
+                }
+              }
+            }
+          }
+        }
+      }.getOrElse(FiniteTask.empty)
+    } else {
+      FiniteTask.empty
+    }).toContinuous
+  })
 
   // Needs to go last because component resets have highest priority
   val enabled = Signal(ds.isEnabled).filter(identity)

@@ -12,16 +12,17 @@ import squants.motion.AngularVelocity
 import squants.time.Frequency
 
 object ShooterTasks {
-  def continuousShoot(shootSpeed: Signal[Frequency])(implicit collectorElevator: CollectorElevator,
+  def continuousShoot(shootSpeedLeft: Signal[Frequency],
+                      shootSpeedRight: Signal[Frequency])(implicit collectorElevator: CollectorElevator,
                                                      collectorRollers: CollectorRollers,
-                                                     shifter: ShooterShifter,
                                                      agitator: Agitator, flywheel: ShooterFlywheel,
                                                      flywheelProperties: Signal[ShooterFlywheelProperties],
                                                      collectorElevatorProperties: Signal[CollectorElevatorProperties],
                                                      collectorRollersProperties: Signal[CollectorRollersProperties],
                                                      flywheelHardware: ShooterFlywheelHardware): ContinuousTask = {
-    val wrapper = new WhileAtVelocity(
-      shootSpeed,
+    val wrapper = new WhileAtDoubleVelocity(
+      shootSpeedLeft,
+      shootSpeedRight,
       flywheelProperties.get.speedTolerance
     )
 
@@ -31,22 +32,23 @@ object ShooterTasks {
     )
   }
 
-  def continuousShootSlowly(shootSpeed: Signal[Frequency])(implicit collectorElevator: CollectorElevator,
+  def continuousShootSlowly(shootSpeedLeft: Signal[Frequency],
+                            shootSpeedRight: Signal[Frequency])(implicit collectorElevator: CollectorElevator,
                                                            collectorRollers: CollectorRollers,
-                                                           shifter: ShooterShifter,
                                                            agitator: Agitator, flywheel: ShooterFlywheel,
                                                            flywheelProperties: Signal[ShooterFlywheelProperties],
                                                            collectorElevatorProperties: Signal[CollectorElevatorProperties],
                                                            collectorRollersProperties: Signal[CollectorRollersProperties],
                                                            flywheelHardware: ShooterFlywheelHardware): ContinuousTask = {
-    val wrapper = new WhileAtVelocity(
-      shootSpeed,
+    val wrapper = new WhileAtDoubleVelocity(
+      shootSpeedLeft,
+      shootSpeedRight,
       flywheelProperties.get.speedTolerance
     )
 
     wrapper(
       new SpinAgitator() and new LoadIntoStorage() and
-        new RollBallsInCollector(collectorRollersProperties.map(_.highRollerSpeedOutput))
+        new RollBallsInCollector(collectorRollersProperties.map(_.lowRollerSpeedOutput))
     )
   }
 }
