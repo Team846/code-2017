@@ -8,7 +8,7 @@ import com.lynbrookrobotics.seventeen.collector.rollers.CollectorRollers
 import com.lynbrookrobotics.seventeen.gear.grabber.GearGrabber
 import com.lynbrookrobotics.seventeen.gear.tilter.GearTilter
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
-import com.lynbrookrobotics.seventeen.shooter.shifter.ShooterShifter
+import com.lynbrookrobotics.seventeen.shooter.shifter.{ShooterShiftLeft, ShooterShiftRight, ShooterShifter}
 import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
@@ -27,7 +27,8 @@ import com.lynbrookrobotics.potassium.commons.cartesianPosition.XYPosition
 import com.lynbrookrobotics.potassium.tasks.FiniteTask
 import com.lynbrookrobotics.potassium.units.Point
 import com.lynbrookrobotics.seventeen.drivetrain._
-import com.lynbrookrobotics.seventeen.lighting.SerialComms
+import com.lynbrookrobotics.seventeen.lighting.{SerialComms, StatusLightingComponent}
+import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.{Compressor, PowerDistributionPanel, SerialPort}
 import squants.space.{Feet, Inches}
 
@@ -100,9 +101,37 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     if (config.get.shooterShifter != null) Some(new ShooterShifter) else None
 
   // Lighting
+  /**
+    * Function to determine what lighting effect should be displayed
+    */
+  val lightingStatus: () => Int = () => {
+    val gearState = gearGrabber.isDefined && gearGrabberHardware.proximitySensor.getVoltage > gearGrabberProps.get.detectingDistance.value
+    if (ds.getBatteryVoltage < 12){
+      12
+    } else if (climberPuller.isDefined && climberPullerHardware.motorA.get() > 0){
+      9
+    } else if (gearState) {
+      5
+    } else if (ds.getMatchTime >= 135){
+      16
+    } else if (ds.isDisabled){
+      1
+    } else if (ds.isAutonomous){
+      if (ds.getAlliance == Alliance.Blue){
+        8
+      } else {
+        10
+      }
+    } else if(shooterFlywheel.isDefined && shooterFlywheelHardware.leftVelocity.get.toHertz > 0 ) {
+      7
+    } else {
+      0
+    }
+  }
+
   val serialPort = Try(new SerialPort(9600, SerialPort.Port.kUSB)).toOption
   val comms: Option[SerialComms] = serialPort.map(new SerialComms(_))
-  val lighting: Option[LightingComponent] = comms.map(c => new LightingComponent(20, c))
+  val lighting: Option[StatusLightingComponent] = comms.map(c => new StatusLightingComponent(lightingStatus, c))
 
   new Compressor().start()
 
