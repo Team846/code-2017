@@ -7,10 +7,10 @@
   },
   "drivetrain": {
     "ports": {
-      "rightBack": 13,
+      "rightBack": 11,
       "rightFront": 12,
-      "leftBack": 11,
-      "leftFront": 10
+      "leftBack": 14 ,
+      "leftFront": 13
     },
     "properties": {
       "maxLeftVelocity": [
@@ -195,7 +195,7 @@
         }
       },
       "currentLimit": [
-        25,
+        75,
         "Percent$"
       ],
       "defaultLookAheadDistance": [
@@ -204,17 +204,7 @@
       ]
     }
   },
-  "agitator": {
-    "ports": {
-      "motor": 2
-    },
-    "properties": {
-      "spinSpeed": [
-        -100,
-        "Percent$"
-      ]
-    }
-  },
+  "agitator": null,
   "camSelect": {
     "port": {
       "leftCamPort": 5804,
@@ -228,8 +218,8 @@
   },
   "climberPuller": {
     "ports": {
-      "motorChannelA": 14,
-      "motorChannelB": 15
+      "motorChannelA": 15,
+      "motorChannelB": 16
     },
     "props": {
       "climbSpeed": [
@@ -249,11 +239,7 @@
       ]
     }
   },
-  "collectorExtender": {
-    "port": {
-      "pneumatic": 0
-    }
-  },
+  "collectorExtender": null,
   "collectorRollers": {
     "ports": {
       "rollerChannel": 0
@@ -288,10 +274,10 @@
   },
   "shooterFlywheel": {
     "ports": {
-      "leftMotor": 3,
-      "rightMotor": 4,
-      "leftHall": 0,
-      "rightHall": 1
+      "leftMotor": 2,
+      "rightMotor": 3,
+      "leftHall": 1,
+      "rightHall": 0
     },
     "props": {
       "maxVelocityLeft": [
@@ -396,9 +382,5 @@
       ]
     }
   },
-  "shooterShifter": {
-    "ports": {
-      "pneumatic": 3
-    }
-  }
+  "shooterShifter": null
 }
