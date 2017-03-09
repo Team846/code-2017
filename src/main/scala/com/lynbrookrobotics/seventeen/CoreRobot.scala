@@ -185,6 +185,18 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
           }
         }
       }.getOrElse(FiniteTask.empty)
+    } else if (autoID == 3) {
+      drivetrain.flatMap{ implicit drive =>
+        gearGrabber.map{implicit gearGrabber =>
+          generator.rightGearAndCrossLine
+        }
+      }.getOrElse(FiniteTask.empty)
+    } else if (autoID == 4) {
+      drivetrain.flatMap{ implicit drive =>
+        gearGrabber.map{implicit gearGrabber =>
+          generator.leftGearAndCrossLine
+        }
+      }.getOrElse(FiniteTask.empty)
     } else {
       FiniteTask.empty
     }).toContinuous

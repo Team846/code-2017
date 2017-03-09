@@ -57,7 +57,7 @@ class AutoGenerator(r: CoreRobot) {
           Inches(109) - robotLength + Feet(9)
         )
       ),
-      Feet(0),
+      Feet(0.1),
       xyPosition,
       relativeTurn
     ).andUntilDone(new OpenGrabber))
@@ -75,5 +75,73 @@ class AutoGenerator(r: CoreRobot) {
         shooterFlywheelProps.map(_.midShootSpeedRight)
       )
     ).then(centerGearAndCrossLine)
+  }
+
+  def rightGearAndCrossLine(implicit  drivetrain: Drivetrain, gearGrabber: GearGrabber): FiniteTask = {
+    val initialTurnPosition = drivetrainHardware.turnPosition.get
+
+    val relativeTurn = drivetrainHardware.turnPosition.map(_ - initialTurnPosition)
+
+    val xyPosition = XYPosition(
+      relativeTurn,
+      drivetrainHardware.forwardPosition
+    )
+
+    new FollowWayPointsWithPosition(
+      Seq(
+        new Point(
+          Feet(0),
+          Feet(15.087)
+        ),
+        new Point(
+          Feet(15.087 + 2),
+          Feet(-1.5)
+        ),
+        new Point(
+          Feet(15.087),
+          Feet(-3.017)
+        )
+      ),
+      Feet(0.1),
+      xyPosition,
+      relativeTurn
+    ).then(new DriveDistanceStraight(
+      Feet(-3),
+      Feet(0.1),
+      Degrees(5))).andUntilDone(new OpenGrabber)
+  }
+
+  def leftGearAndCrossLine(implicit  d: Drivetrain, gearGrabber: GearGrabber): FiniteTask = {
+    val initialTurnPosition = drivetrainHardware.turnPosition.get
+
+    val relativeTurn = drivetrainHardware.turnPosition.map(_ - initialTurnPosition)
+
+    val xyPosition = XYPosition(
+      relativeTurn,
+      drivetrainHardware.forwardPosition
+    )
+
+    new FollowWayPointsWithPosition(
+      Seq(
+        new Point(
+          Feet(0),
+          Feet(15.087) - robotLength
+        ),
+        new Point(
+          Feet(1.5),
+          Feet(15.087 + 2) - robotLength
+        ),
+        new Point(
+          Feet(3.017),
+          Feet(15.087) - robotLength
+        )
+      ),
+      Feet(0.1),
+      xyPosition,
+      relativeTurn
+    ).then(new DriveDistanceStraight(
+      Feet(-3),
+      Feet(0.1),
+      Degrees(5))).andUntilDone(new OpenGrabber)
   }
 }
