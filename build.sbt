@@ -34,5 +34,3 @@ libraryDependencies += "com.ctre" % "ctrlib" % "4.4.1.12"
 libraryDependencies += "org.opencv" % "opencv-java" % "3.1.0"
 
 libraryDependencies += "com.google.guava" % "guava" % "21.0"
-
-lazy val vision = project.enablePlugins(AssemblyPlugin)
