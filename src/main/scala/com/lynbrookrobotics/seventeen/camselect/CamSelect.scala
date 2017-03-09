@@ -14,11 +14,13 @@ class CamSelect(implicit hardware: CamSelectHardware, clock: Clock) extends Comp
   override def defaultController: PeriodicSignal[CamSelectState] = Signal.constant(NoCam).toPeriodic
 
   override def applySignal(signal: CamSelectState): Unit = {
-    signal match {
-      case NoCam => Unit
-      case LeftCam => hardware.mjpegServer.setSource(hardware.leftCam)
-      case RightCam => hardware.mjpegServer.setSource(hardware.rightCam)
-      case DriverCam => hardware.mjpegServer.setSource(hardware.driverCam)
+    if (hardware != null) {
+      signal match {
+        case NoCam => 
+        case LeftCam => hardware.mjpegServer.setSource(hardware.leftCam)
+        case RightCam => hardware.mjpegServer.setSource(hardware.rightCam)
+        case DriverCam => hardware.mjpegServer.setSource(hardware.driverCam)
+      }
     }
   }
 }

@@ -10,8 +10,6 @@ case class CamSelectHardware(
 
 object CamSelectHardware {
   def apply(config: CamSelectConfig): CamSelectHardware = {
-    if (config == null) return CamSelectHardware(null, null, null, null)
-
     val cam = new HttpCamera("usbDriverCam", "http://10.8.46.2:1180/stream.mjpg")
 
     CameraServer.getInstance()
