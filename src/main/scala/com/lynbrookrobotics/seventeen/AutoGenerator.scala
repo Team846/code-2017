@@ -1,5 +1,6 @@
 package com.lynbrookrobotics.seventeen
 
+import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.commons.cartesianPosition.XYPosition
 import com.lynbrookrobotics.potassium.tasks.{FiniteTask, WaitTask}
 import com.lynbrookrobotics.potassium.units.Point
@@ -9,6 +10,7 @@ import com.lynbrookrobotics.seventeen.collector.rollers.CollectorRollers
 import com.lynbrookrobotics.seventeen.gear.grabber.{GearGrabber, OpenGrabber, OpenGrabberUntilReleased}
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
+import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight, ShooterShifter}
 import squants.space.{Degrees, Feet, Inches}
 import drivetrain.unicycleTasks._
 import squants.motion.FeetPerSecond
@@ -57,23 +59,136 @@ class AutoGenerator(r: CoreRobot) {
           Inches(109) - robotLength + Feet(9)
         )
       ),
-      Feet(0),
+      Feet(0.1),
       xyPosition,
       relativeTurn
     ).andUntilDone(new OpenGrabber))
   }
 
-  def shootCenterGearAndCrossLine(implicit d: Drivetrain,
-                                  g: GearGrabber,
-                                  ce: CollectorElevator,
-                                  cr: CollectorRollers,
-                                  a: Agitator,
-                                  f: ShooterFlywheel): FiniteTask = {
-    new WaitTask(Seconds(3)).andUntilDone(
-      ShooterTasks.continuousShoot(
-        shooterFlywheelProps.map(_.midShootSpeedLeft),
-        shooterFlywheelProps.map(_.midShootSpeedRight)
-      )
-    ).then(centerGearAndCrossLine)
+  def shootLeftCenterGearAndCrossLine(implicit d: Drivetrain,
+                                               g: GearGrabber,
+                                               ce: CollectorElevator,
+                                               cr: CollectorRollers,
+                                               a: Agitator,
+                                               f: ShooterFlywheel,
+                                               shifter: ShooterShifter): FiniteTask = {
+    new WaitTask(Seconds(0.5)).andUntilDone(
+      new ShiftShooter(Signal.constant(ShooterShiftLeft))
+    ).then(
+        new WaitTask(Seconds(3)).andUntilDone(
+          ShooterTasks.continuousShoot(
+            shooterFlywheelProps.map(_.midShootSpeedLeft),
+            shooterFlywheelProps.map(_.midShootSpeedRight)
+          )
+    )).then(centerGearAndCrossLine)
+  }
+
+  def shootRightCenterGearAndCrossLine(implicit d: Drivetrain,
+                                                g: GearGrabber,
+                                                ce: CollectorElevator,
+                                                cr: CollectorRollers,
+                                                a: Agitator,
+                                                f: ShooterFlywheel,
+                                                shifter: ShooterShifter): FiniteTask = {
+    new WaitTask(Seconds(0.5)).andUntilDone(
+      new ShiftShooter(Signal.constant(ShooterShiftRight))
+    ).then(
+      new WaitTask(Seconds(3)).andUntilDone(
+        ShooterTasks.continuousShoot(
+          shooterFlywheelProps.map(_.midShootSpeedLeft),
+          shooterFlywheelProps.map(_.midShootSpeedRight)
+        ).and(
+          new ShiftShooter(Signal.constant(ShooterShiftRight))
+        ))).then(centerGearAndCrossLine)
+  }
+
+  def shootLeftCenterGearAndCrossLines(implicit d: Drivetrain,
+                                                g: GearGrabber,
+                                                ce: CollectorElevator,
+                                                cr: CollectorRollers,
+                                                a: Agitator,
+                                                f: ShooterFlywheel,
+                                                shifter: ShooterShifter): FiniteTask = {
+
+
+    new WaitTask(Seconds(0.5)).andUntilDone(
+      new ShiftShooter(Signal.constant(ShooterShiftRight))
+    ).then(
+      new WaitTask(Seconds(3)).andUntilDone(
+        ShooterTasks.continuousShoot(
+          shooterFlywheelProps.map(_.midShootSpeedLeft),
+          shooterFlywheelProps.map(_.midShootSpeedRight)
+        ).and(
+          new ShiftShooter(Signal.constant(ShooterShiftRight))
+        )).then(centerGearAndCrossLine)
+    )
+  }
+
+  def rightGearAndCrossLine(implicit  drivetrain: Drivetrain, gearGrabber: GearGrabber): FiniteTask = {
+    val initialTurnPosition = drivetrainHardware.turnPosition.get
+
+    val relativeTurn = drivetrainHardware.turnPosition.map(_ - initialTurnPosition)
+
+    val xyPosition = XYPosition(
+      relativeTurn,
+      drivetrainHardware.forwardPosition
+    )
+
+    new FollowWayPointsWithPosition(
+      Seq(
+        new Point(
+          Feet(0),
+          Feet(15.087)
+        ),
+        new Point(
+          Feet(15.087 + 2),
+          Feet(-1.5)
+        ),
+        new Point(
+          Feet(15.087),
+          Feet(-3.017)
+        )
+      ),
+      Feet(0.1),
+      xyPosition,
+      relativeTurn
+    ).then(new DriveDistanceStraight(
+      Feet(-3),
+      Feet(0.1),
+      Degrees(5))).andUntilDone(new OpenGrabber)
+  }
+
+  def leftGearAndCrossLine(implicit  d: Drivetrain, gearGrabber: GearGrabber): FiniteTask = {
+    val initialTurnPosition = drivetrainHardware.turnPosition.get
+
+    val relativeTurn = drivetrainHardware.turnPosition.map(_ - initialTurnPosition)
+
+    val xyPosition = XYPosition(
+      relativeTurn,
+      drivetrainHardware.forwardPosition
+    )
+
+    new FollowWayPointsWithPosition(
+      Seq(
+        new Point(
+          Feet(0),
+          Feet(15.087) - robotLength
+        ),
+        new Point(
+          Feet(1.5),
+          Feet(15.087 + 2) - robotLength
+        ),
+        new Point(
+          Feet(3.017),
+          Feet(15.087) - robotLength
+        )
+      ),
+      Feet(0.1),
+      xyPosition,
+      relativeTurn
+    ).then(new DriveDistanceStraight(
+      Feet(-3),
+      Feet(0.1),
+      Degrees(5))).andUntilDone(new OpenGrabber)
   }
 }
