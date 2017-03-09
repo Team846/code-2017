@@ -9,6 +9,9 @@ name := "code-2017"
 
 version := "0.1.0-SNAPSHOT"
 
+lazy val commons = project
+lazy val vision = project.dependsOn(commons).enablePlugins(AssemblyPlugin)
+
 resolvers += "Funky-Repo" at "http://team846.github.io/repo"
 resolvers += "WPILib-Maven" at "http://team846.github.io/wpilib-maven"
 resolvers += "opencv-maven" at "https://github.com/WPIRoboticsProjects/opencv-maven/raw/mvn-repo"
@@ -31,5 +34,3 @@ libraryDependencies += "com.ctre" % "ctrlib" % "4.4.1.12"
 libraryDependencies += "org.opencv" % "opencv-java" % "3.1.0"
 
 libraryDependencies += "com.google.guava" % "guava" % "21.0"
-
-lazy val vision = project.enablePlugins(AssemblyPlugin)

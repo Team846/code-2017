@@ -2,6 +2,7 @@ package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.seventeen.driver.DriverConfig
 import com.lynbrookrobotics.seventeen.drivetrain.{DrivetrainConfig, DrivetrainPorts, DrivetrainProperties}
+import com.lynbrookrobotics.seventeen.camselect._
 import squants.motion.{DegreesPerSecond, FeetPerSecond, MetersPerSecondSquared}
 import upickle.default._
 import com.lynbrookrobotics.potassium.config.SquantsPickling._
@@ -88,6 +89,17 @@ object ConfigGenerator extends App {
       ),
       props = ClimberPullerProperties(
         climbSpeed = Percent(0)
+      )
+    ),
+    camSelect = CamSelectConfig(
+      port = CamSelectPorts(
+        leftCamPort = 5804,
+        rightCamPort = 5805,
+        driveCamPort = 5803
+      ),
+      properties = CamSelectProperties(
+        coprocessorHostname = "10.8.46.19",
+        mjpegPath = "/stream.mjpg"
       )
     ),
     collectorElevator = CollectorElevatorConfig(

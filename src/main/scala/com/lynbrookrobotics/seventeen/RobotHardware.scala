@@ -1,6 +1,7 @@
 package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.seventeen.agitator.AgitatorHardware
+import com.lynbrookrobotics.seventeen.camselect.CamSelectHardware
 import com.lynbrookrobotics.seventeen.climber.puller.ClimberPullerHardware
 import com.lynbrookrobotics.seventeen.collector.elevator.CollectorElevatorHardware
 import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtenderHardware
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj.PowerDistributionPanel
 case class RobotHardware(driver: DriverHardware,
                          drivetrain: DrivetrainHardware,
                          agitator: AgitatorHardware,
+                         camSelect: CamSelectHardware,
                          climberPuller: ClimberPullerHardware,
                          collectorElevator: CollectorElevatorHardware,
                          collectorExtender: CollectorExtenderHardware,
@@ -36,6 +38,7 @@ object RobotHardware {
       driver = driver,
       drivetrain = if (drivetrain != null) DrivetrainHardware(drivetrain, driver) else null,
       agitator = if (agitator != null) AgitatorHardware(agitator) else null,
+      camSelect = if (agitator != null) CamSelectHardware(camSelect) else null,
       climberPuller = if (climberPuller != null) ClimberPullerHardware(climberPuller) else null,
       collectorElevator = if (collectorElevator != null) CollectorElevatorHardware(collectorElevator) else null,
       collectorExtender = if (collectorExtender != null) CollectorExtenderHardware(collectorExtender) else null,

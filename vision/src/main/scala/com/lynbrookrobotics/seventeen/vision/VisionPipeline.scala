@@ -15,39 +15,43 @@ import org.opencv.videoio._
 import com.lynbrookrobotics.potassium._
 import com.lynbrookrobotics.potassium.vision._
 
-import java.awt._;
+import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
 
+import com.lynbrookrobotics.seventeen.commons._
+
 object VisionPipeline {
   System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
 
-  val leftCamera = new CameraSignal(new VideoCapture(0), 1280, 720)
-  val rightCamera = new CameraSignal(new VideoCapture(1), 1280, 720)
+  val leftCamera = new TimestampedCameraSignal(new VideoCapture(10), 1280, 720)
+  val rightCamera = new TimestampedCameraSignal(new VideoCapture(11), 1280, 720)
 
   // TODO: implicit VisionConfiguration for thresholds
-  def process(signal: CameraSignal): Signal[Buffer[Rect]] = {
-    signal.map{ cam: Mat =>
+  def process(signal: TimestampedCameraSignal): Signal[VisionTargets] = {
+    signal.map{ timestampedCam: TimestampedMat =>
+      val cam = timestampedCam.mat
+
       val hsv = cam
       Imgproc.cvtColor(cam, hsv, Imgproc.COLOR_BGR2HSV);
       Core.inRange(hsv,
         new Scalar(58.2, 0.0, 0.0),
         new Scalar(76.0, 255.0, 255.0),
         hsv)
-      hsv
-    }.map{ hsv: Mat =>
+      (hsv, timestampedCam.timestamp)
+    }.map{ case (hsv, timestamp) =>
       val hierarchy = new Mat()
       val contours = new ArrayList[MatOfPoint]()
       val mode = Imgproc.RETR_LIST
       val method = Imgproc.CHAIN_APPROX_SIMPLE
 
       Imgproc.findContours(hsv, contours, hierarchy, mode, method)
-      contours
-    }.map{ contours: ArrayList[MatOfPoint] =>
-      contours.asScala.filter{ contour: MatOfPoint =>
+      (contours, timestamp)
+    }.map{ case (contours, timestamp) =>
+      (contours.asScala.filter{ contour: MatOfPoint =>
         val bb = Imgproc.boundingRect(contour)
 
         val hull = new MatOfInt();
@@ -76,7 +80,11 @@ object VisionPipeline {
         (solidity > 70.1 && solidity < 100) &&
         (vertices < 1000000) &&
         (ratio < 1000)
-      }.map{ contour: MatOfPoint => Imgproc.boundingRect(contour) }
+      }.map{ contour: MatOfPoint => Imgproc.boundingRect(contour) }, timestamp)
+    }.map { case (openCvRects, timestamp) =>
+      VisionTargets(openCvRects.map{ rect =>
+        Rectangle(rect.x, rect.y, rect.width, rect.height)
+      }.asInstanceOf[List[Rectangle]], timestamp)
     }
   }
 
@@ -99,7 +107,7 @@ object VisionPipeline {
     val newHeight = (frame.height.asInstanceOf[Double] * (width.asInstanceOf[Double] / frame.width)).asInstanceOf[Int]
 
     val resize = image.getScaledInstance(width, newHeight, Image.SCALE_SMOOTH)
-    var ret = new BufferedImage(width, newHeight, BufferedImage.TYPE_INT_ARGB)
+    var ret = new BufferedImage(width, newHeight, BufferedImage.TYPE_INT_RGB)
 
     val g2d = ret.createGraphics
     g2d.drawImage(resize, 0, 0, null)

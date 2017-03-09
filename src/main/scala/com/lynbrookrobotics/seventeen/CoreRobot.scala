@@ -1,6 +1,7 @@
 package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.seventeen.agitator.Agitator
+import com.lynbrookrobotics.seventeen.camselect.CamSelect
 import com.lynbrookrobotics.seventeen.climber.puller.ClimberPuller
 import com.lynbrookrobotics.seventeen.collector.elevator.CollectorElevator
 import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
@@ -49,6 +50,11 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   implicit val agitatorProps = config.map(_.agitator.properties)
   lazy val agitator: Option[Agitator] =
     if (config.get.agitator != null) Some(new Agitator) else None
+
+  // CamSelect
+  implicit val camSelectHardware = hardware.camSelect
+  implicit val camselectProps = config.map(_.camSelect.properties)
+  implicit val camSelect: CamSelect = new CamSelect
 
   // Climber Puller
   implicit val climberPullerHardware = hardware.climberPuller
