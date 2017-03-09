@@ -1,5 +1,6 @@
 package com.lynbrookrobotics.seventeen
 
+import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.commons.cartesianPosition.XYPosition
 import com.lynbrookrobotics.potassium.tasks.{FiniteTask, WaitTask}
 import com.lynbrookrobotics.potassium.units.Point
@@ -9,6 +10,7 @@ import com.lynbrookrobotics.seventeen.collector.rollers.CollectorRollers
 import com.lynbrookrobotics.seventeen.gear.grabber.{GearGrabber, OpenGrabber, OpenGrabberUntilReleased}
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
+import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight, ShooterShifter}
 import squants.space.{Degrees, Feet, Inches}
 import drivetrain.unicycleTasks._
 import squants.motion.FeetPerSecond
@@ -63,18 +65,63 @@ class AutoGenerator(r: CoreRobot) {
     ).andUntilDone(new OpenGrabber))
   }
 
-  def shootCenterGearAndCrossLine(implicit d: Drivetrain,
-                                  g: GearGrabber,
-                                  ce: CollectorElevator,
-                                  cr: CollectorRollers,
-                                  a: Agitator,
-                                  f: ShooterFlywheel): FiniteTask = {
-    new WaitTask(Seconds(3)).andUntilDone(
-      ShooterTasks.continuousShoot(
-        shooterFlywheelProps.map(_.midShootSpeedLeft),
-        shooterFlywheelProps.map(_.midShootSpeedRight)
-      )
-    ).then(centerGearAndCrossLine)
+  def shootLeftCenterGearAndCrossLine(implicit d: Drivetrain,
+                                               g: GearGrabber,
+                                               ce: CollectorElevator,
+                                               cr: CollectorRollers,
+                                               a: Agitator,
+                                               f: ShooterFlywheel,
+                                               shifter: ShooterShifter): FiniteTask = {
+    new WaitTask(Seconds(0.5)).andUntilDone(
+      new ShiftShooter(Signal.constant(ShooterShiftLeft))
+    ).then(
+        new WaitTask(Seconds(3)).andUntilDone(
+          ShooterTasks.continuousShoot(
+            shooterFlywheelProps.map(_.midShootSpeedLeft),
+            shooterFlywheelProps.map(_.midShootSpeedRight)
+          )
+    )).then(centerGearAndCrossLine)
+  }
+
+  def shootRightCenterGearAndCrossLine(implicit d: Drivetrain,
+                                                g: GearGrabber,
+                                                ce: CollectorElevator,
+                                                cr: CollectorRollers,
+                                                a: Agitator,
+                                                f: ShooterFlywheel,
+                                                shifter: ShooterShifter): FiniteTask = {
+    new WaitTask(Seconds(0.5)).andUntilDone(
+      new ShiftShooter(Signal.constant(ShooterShiftRight))
+    ).then(
+      new WaitTask(Seconds(3)).andUntilDone(
+        ShooterTasks.continuousShoot(
+          shooterFlywheelProps.map(_.midShootSpeedLeft),
+          shooterFlywheelProps.map(_.midShootSpeedRight)
+        ).and(
+          new ShiftShooter(Signal.constant(ShooterShiftRight))
+        ))).then(centerGearAndCrossLine)
+  }
+
+  def shootLeftCenterGearAndCrossLines(implicit d: Drivetrain,
+                                                g: GearGrabber,
+                                                ce: CollectorElevator,
+                                                cr: CollectorRollers,
+                                                a: Agitator,
+                                                f: ShooterFlywheel,
+                                                shifter: ShooterShifter): FiniteTask = {
+
+
+    new WaitTask(Seconds(0.5)).andUntilDone(
+      new ShiftShooter(Signal.constant(ShooterShiftRight))
+    ).then(
+      new WaitTask(Seconds(3)).andUntilDone(
+        ShooterTasks.continuousShoot(
+          shooterFlywheelProps.map(_.midShootSpeedLeft),
+          shooterFlywheelProps.map(_.midShootSpeedRight)
+        ).and(
+          new ShiftShooter(Signal.constant(ShooterShiftRight))
+        )).then(centerGearAndCrossLine)
+    )
   }
 
   def rightGearAndCrossLine(implicit  drivetrain: Drivetrain, gearGrabber: GearGrabber): FiniteTask = {
