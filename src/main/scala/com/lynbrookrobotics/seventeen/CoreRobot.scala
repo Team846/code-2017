@@ -177,8 +177,28 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
           collectorElevator.flatMap { implicit ce =>
             collectorRollers.flatMap { implicit cr =>
               agitator.flatMap { implicit a =>
-                shooterFlywheel.map { implicit f =>
-                  generator.shootCenterGearAndCrossLine
+                shooterShifter.flatMap { implicit ss =>
+                  shooterFlywheel.map { implicit f =>
+                    // generator.shootRightCenterGearAndCrossLine
+                    FiniteTask.empty
+                  }
+                }
+              }
+            }
+          }
+        }
+      }.getOrElse(FiniteTask.empty)
+    } else if (autoID == 3) {
+      drivetrain.flatMap { implicit dr =>
+        gearGrabber.flatMap { implicit d =>
+          collectorElevator.flatMap { implicit ce =>
+            collectorRollers.flatMap { implicit cr =>
+              agitator.flatMap { implicit a =>
+                shooterShifter.flatMap{ implicit ss =>
+                  shooterFlywheel.map { implicit f =>
+//                    generator.shootLeftCenterGearAndCrossLine
+                    FiniteTask.empty
+                  }
                 }
               }
             }
