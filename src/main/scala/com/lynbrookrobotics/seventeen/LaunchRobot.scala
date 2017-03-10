@@ -55,7 +55,14 @@ class LaunchRobot extends RobotBase {
       getTopLevelClassesRecursive("edu.wpi.first.wpilibj").
       forEach(c => println(s"preloaded ${c.getName}"))
 
+    ClassPath.from(Thread.currentThread().getContextClassLoader).
+      getTopLevelClassesRecursive("com.ctre").
+      forEach(c => println(s"preloaded ${c.getName}"))
+
     coreRobot.comms.foreach(_.connect())
+
+    WakeOnLan.awaken("B8:AE:ED:7E:78:E1")
+
     HAL.observeUserProgramStarting()
 
     while (true) {

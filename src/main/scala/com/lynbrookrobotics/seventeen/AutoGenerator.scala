@@ -14,11 +14,37 @@ import drivetrain.unicycleTasks._
 import squants.motion.FeetPerSecond
 import squants.time.Seconds
 import drivetrain.Drivetrain
+import squants.Percent
 
 class AutoGenerator(r: CoreRobot) {
   import r._
 
   val robotLength = Inches(28.313 + 7 /* bumpers */)
+
+  def slowCrossLine(implicit d: Drivetrain, g: GearGrabber): FiniteTask = {
+    new WaitTask(Seconds(8)).andUntilDone(
+      new DriveDistanceStraight(
+        Inches(95) - robotLength,
+        Inches(3),
+        Degrees(10),
+        Percent(20)
+      ).toContinuous
+    )
+  }
+
+  def centerGear(implicit d: Drivetrain, g: GearGrabber): FiniteTask = {
+    new DriveDistanceStraight(
+      Inches(109) - robotLength,
+      Inches(3),
+      Degrees(10),
+      Percent(40)
+    ).then(new DriveDistanceStraight(
+      -Feet(2),
+      Inches(3),
+      Degrees(10),
+      Percent(40)
+    ).andUntilDone(new OpenGrabber))
+  }
 
   def centerGearAndCrossLine(implicit d: Drivetrain, g: GearGrabber): FiniteTask = {
     val initialTurnPosition = drivetrainHardware.turnPosition.get
@@ -33,7 +59,8 @@ class AutoGenerator(r: CoreRobot) {
     new DriveDistanceStraight(
       Inches(109) - robotLength,
       Inches(3),
-      Degrees(10)
+      Degrees(10),
+      Percent(40)
     ).then(new FollowWayPointsWithPosition(
       Seq(
         new Point(
