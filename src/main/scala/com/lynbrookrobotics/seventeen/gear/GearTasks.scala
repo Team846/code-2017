@@ -29,4 +29,21 @@ object GearTasks {
 
     pickUpGear.then(liftGear)
   }
+
+  def slamDunk(implicit tilter: GearTilter,
+              grabber: GearGrabber,
+              props: Signal[GearGrabberProperties],
+              hardware: GearGrabberHardware,
+              clock: Clock,
+              driverHardware: DriverHardware, polling: ImpulseEvent): FiniteTask = {
+    val pickUpGear = new WaitTask(Seconds(1)).andUntilDone(
+      new ExtendTilter() and new OpenGrabber()
+    )
+
+    val liftGear = new WaitTask(Seconds(0.3)).andUntilDone(
+      new CloseGrabber() and new ExtendTilter()
+    ).then(new WaitTask(Seconds(0.3)).andUntilDone(new RetractTilter()))
+
+    pickUpGear.then(liftGear)
+  }
 }

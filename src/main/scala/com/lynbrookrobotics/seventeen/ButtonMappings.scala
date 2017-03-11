@@ -32,8 +32,8 @@ class ButtonMappings(r: CoreRobot) {
   val flywheelSpeedLeft = Signal(curFlywheelSpeedLeft)
   val flywheelSpeedRight = Signal(curFlywheelSpeedRight)
 
-  shooterFlywheel.zip(collectorElevator).zip(collectorRollers).zip(shooterShifter).zip(agitator).foreach { t =>
-    implicit val ((((fly, elev), roll), shift), agitator) = t
+  shooterFlywheel.zip(collectorElevator).zip(collectorRollers).zip(shooterShifter).zip(agitator).zip(collectorExtender).foreach { t =>
+    implicit val (((((fly, elev), roll), shift), agitator), ex) = t
 
     /**
       * Shoots fuel at high speed
@@ -169,16 +169,13 @@ class ButtonMappings(r: CoreRobot) {
 
   }
 
-  r.agitator.zip(collectorElevator).zip(collectorRollers).foreach { t =>
-    implicit val ((agitator, elev), roll) = t
+  r.agitator.foreach { implicit a =>
     /**
       * Runs agitator counterclockwise
       * RightOne pressed
       */
     val runAgitatorCounterclockwisePressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightOne)
     runAgitatorCounterclockwisePressed.
-      foreach(new SpinAgitator and
-        new LoadIntoStorage() and
-        new RollBallsInCollector(collectorRollersProps.map(_.highRollerSpeedOutput)))
+      foreach(new SpinAgitator)
   }
 }

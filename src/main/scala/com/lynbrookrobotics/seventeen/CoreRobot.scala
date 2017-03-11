@@ -25,7 +25,7 @@ import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
 import com.lynbrookrobotics.potassium.lighting.LightingComponent
 import com.lynbrookrobotics.potassium.commons.cartesianPosition.XYPosition
-import com.lynbrookrobotics.potassium.tasks.FiniteTask
+import com.lynbrookrobotics.potassium.tasks.{FiniteTask, Task}
 import com.lynbrookrobotics.potassium.units.Point
 import com.lynbrookrobotics.seventeen.drivetrain._
 import com.lynbrookrobotics.seventeen.lighting.{SerialComms, StatusLightingComponent}
@@ -162,46 +162,109 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
   val generator = new AutoGenerator(this)
 
+  def prepTask(task: Task): Unit = {
+    task.init()
+    task.abort()
+  }
+
+  drivetrain.foreach { implicit dr =>
+    gearGrabber.foreach { implicit d =>
+      gearTilter.foreach { implicit t =>
+        prepTask(generator.centerGear)
+      }
+    }
+  }
+
+  drivetrain.foreach { implicit dr =>
+    gearGrabber.foreach { implicit d =>
+      gearTilter.foreach { implicit t =>
+        prepTask(generator.centerGearAndCrossLine)
+      }
+    }
+  }
+
+  drivetrain.foreach { implicit dr =>
+    gearGrabber.foreach { implicit d =>
+      collectorElevator.foreach { implicit ce =>
+        collectorRollers.foreach { implicit cr =>
+          agitator.foreach { implicit a =>
+            shooterFlywheel.foreach { implicit f =>
+              gearTilter.foreach { implicit t =>
+                collectorExtender.foreach { implicit ex =>
+                  prepTask(generator.shootCenterGearAndCrossLine)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  drivetrain.foreach { implicit dr =>
+    prepTask(generator.slowCrossLine)
+  }
+
   auto.foreach(Signal {
     val autoID = Math.round(SmartDashboard.getNumber("DB/Slider 0"))
 
     (if (autoID == 1) {
       drivetrain.flatMap { implicit dr =>
-        gearGrabber.map { implicit d =>
-//          generator.centerGearAndCrossLine
-          FiniteTask.empty
+        gearGrabber.flatMap { implicit d =>
+          gearTilter.map { implicit t =>
+            generator.centerGear
+          }
+//          FiniteTask.empty
         }
       }.getOrElse(FiniteTask.empty)
     } else if (autoID == 2) {
       drivetrain.flatMap { implicit dr =>
         gearGrabber.flatMap { implicit d =>
-          collectorElevator.flatMap { implicit ce =>
-            collectorRollers.flatMap { implicit cr =>
-              agitator.flatMap { implicit a =>
-                shooterFlywheel.map { implicit f =>
-//                  generator.shootCenterGearAndCrossLine
-                  FiniteTask.empty
-                }
-              }
-            }
+          gearTilter.map { implicit t =>
+            generator.leftGear
           }
         }
       }.getOrElse(FiniteTask.empty)
-    } else if (autoID == 3) {
+    }  else if (autoID == 3) {
+      drivetrain.flatMap { implicit dr =>
+        gearGrabber.flatMap { implicit d =>
+          gearTilter.map { implicit t =>
+            generator.rightGear
+          }
+        }
+      }.getOrElse(FiniteTask.empty)
+    } else if (autoID == 4) {
+      drivetrain.flatMap { implicit dr =>
+        gearGrabber.flatMap { implicit d =>
+          gearTilter.map { implicit t =>
+            generator.centerGearAndCrossLine
+          }
+        }
+      }.getOrElse(FiniteTask.empty)
+    }  else if (autoID == 5) {
       drivetrain.flatMap { implicit dr =>
         gearGrabber.flatMap { implicit d =>
           collectorElevator.flatMap { implicit ce =>
             collectorRollers.flatMap { implicit cr =>
               agitator.flatMap { implicit a =>
-                shooterFlywheel.map { implicit f =>
-                  generator.slowCrossLine
+                shooterFlywheel.flatMap { implicit f =>
+                  gearTilter.flatMap { implicit t =>
+                    collectorExtender.map { implicit ex =>
+                      generator.shootCenterGearAndCrossLine
+                    }
+                  }
+//                  FiniteTask.empty
                 }
               }
             }
           }
         }
       }.getOrElse(FiniteTask.empty)
-    } else {
+    } else if (autoID == 6) {
+      drivetrain.map { implicit dr =>
+        generator.slowCrossLine
+      }.getOrElse(FiniteTask.empty)
+    }else {
       FiniteTask.empty
     }).toContinuous
   })
@@ -253,12 +316,12 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     ))
 
     drivetrain.foreach { d =>
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Ground Speed")(
-        drivetrainHardware.leftVelocity.get.toFeetPerSecond
+      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Ground")(
+        drivetrainHardware.leftPosition.get.toFeet
       ))
 
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Ground Speed")(
-        drivetrainHardware.rightVelocity.get.toFeetPerSecond
+      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Ground")(
+        drivetrainHardware.rightPosition.get.toFeet
       ))
 
       board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Wheel Rotation")(
