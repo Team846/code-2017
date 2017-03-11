@@ -23,7 +23,7 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
                                        props: DrivetrainProperties,
                                        driverHardware: DriverHardware)
   extends TwoSidedDriveHardware {
-  val leftEncoder = new TalonEncoder(leftFront, Degrees(360) / Each(8192))
+  val leftEncoder = new TalonEncoder(leftBack, Degrees(360) / Each(8192))
   val rightEncoder = new TalonEncoder(rightBack, -Degrees(360) / Each(8192))
 
   val wheelRadius = props.wheelDiameter / 2

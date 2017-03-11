@@ -204,7 +204,17 @@
       ]
     }
   },
-  "agitator": null,
+  "agitator": {
+    "ports": {
+      "motor": 4
+    },
+    "properties": {
+      "spinSpeed": [
+        -100,
+        "Percent$"
+      ]
+    }
+  },
   "camSelect": {
     "port": {
       "leftCamPort": 5804,
@@ -239,7 +249,11 @@
       ]
     }
   },
-  "collectorExtender": null,
+  "collectorExtender": {
+    "port": {
+      "pneumatic": 3
+    }
+  },
   "collectorRollers": {
     "ports": {
       "rollerChannel": 0
@@ -276,16 +290,16 @@
     "ports": {
       "leftMotor": 2,
       "rightMotor": 3,
-      "leftHall": 1,
-      "rightHall": 0
+      "leftHall": 0,
+      "rightHall": 1
     },
     "props": {
       "maxVelocityLeft": [
-        6500,
+        6250,
         "RevolutionsPerMinute$"
       ],
       "maxVelocityRight": [
-        6500,
+        6250,
         "RevolutionsPerMinute$"
       ],
       "velocityGainsLeft": {
@@ -361,11 +375,11 @@
         "RevolutionsPerMinute$"
       ],
       "midShootSpeedLeft": [
-        4000,
+        3800,
         "RevolutionsPerMinute$"
       ],
       "midShootSpeedRight": [
-        4000,
+        3800,
         "RevolutionsPerMinute$"
       ],
       "fastShootSpeedLeft": [
@@ -377,10 +391,14 @@
         "RevolutionsPerMinute$"
       ],
       "speedTolerance": [
-        75,
+        50,
         "RevolutionsPerMinute$"
       ]
     }
   },
-  "shooterShifter": null
+  "shooterShifter": {
+    "ports": {
+      "pneumatic": 0
+    }
+  }
 }

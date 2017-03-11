@@ -38,7 +38,7 @@ object RobotHardware {
       driver = driver,
       drivetrain = if (drivetrain != null) DrivetrainHardware(drivetrain, driver) else null,
       agitator = if (agitator != null) AgitatorHardware(agitator) else null,
-      camSelect = if (agitator != null) CamSelectHardware(camSelect) else null,
+      camSelect = if (camSelect != null) CamSelectHardware(camSelect) else null,
       climberPuller = if (climberPuller != null) ClimberPullerHardware(climberPuller) else null,
       collectorElevator = if (collectorElevator != null) CollectorElevatorHardware(collectorElevator) else null,
       collectorExtender = if (collectorExtender != null) CollectorExtenderHardware(collectorExtender) else null,
