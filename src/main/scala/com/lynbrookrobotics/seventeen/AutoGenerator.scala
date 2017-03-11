@@ -1,5 +1,6 @@
 package com.lynbrookrobotics.seventeen
 
+import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.commons.cartesianPosition.XYPosition
 import com.lynbrookrobotics.potassium.tasks.{FiniteTask, WaitTask}
 import com.lynbrookrobotics.potassium.units.Point
@@ -16,7 +17,7 @@ import squants.space.{Degrees, Feet, Inches}
 import drivetrain.unicycleTasks._
 import squants.motion.FeetPerSecond
 import squants.time.Seconds
-import drivetrain.Drivetrain
+import drivetrain.{Drivetrain, DrivetrainHardware}
 import squants.Percent
 
 class AutoGenerator(r: CoreRobot) {
@@ -62,15 +63,15 @@ class AutoGenerator(r: CoreRobot) {
   def rightGear(implicit d: Drivetrain, g: GearGrabber, t: GearTilter): FiniteTask = {
     toGearAndDrop(
       new DriveDistanceStraight(
-        Inches(125) - (robotLength / 2) - Inches(40),
+        Inches(90.5),
         Inches(3),
         Degrees(10),
         Percent(30)
       ).withTimeout(Seconds(8)).then(new RotateByAngle(
-        Degrees(-45),
+        Degrees(-60),
         Degrees(5)
       ).withTimeout(Seconds(5)).then(new DriveDistanceStraight(
-        math.sqrt(2) * Inches(40) + Inches(4) - (robotLength / 2),
+        Inches(45.9),
         Inches(3),
         Degrees(10),
         Percent(30)
@@ -81,20 +82,88 @@ class AutoGenerator(r: CoreRobot) {
   def leftGear(implicit d: Drivetrain, g: GearGrabber, t: GearTilter): FiniteTask = {
     toGearAndDrop(
       new DriveDistanceStraight(
-        Inches(125) - (robotLength / 2) - Inches(30),
+        Inches(90.5),
         Inches(3),
         Degrees(10),
         Percent(30)
       ).withTimeout(Seconds(8)).then(new RotateByAngle(
-        Degrees(45),
+        Degrees(60),
         Degrees(5)
       ).withTimeout(Seconds(5)).then(new DriveDistanceStraight(
-        math.sqrt(2) * Inches(30) + Inches(4) - (robotLength / 2),
+        Inches(45.9),
         Inches(3),
         Degrees(10),
         Percent(30)
       )))
     )
+  }
+
+  def leftHopperAndShoot(implicit d: Drivetrain,
+    g: GearGrabber,
+    ce: CollectorElevator,
+    cr: CollectorRollers,
+    a: Agitator,
+    f: ShooterFlywheel,
+    t: GearTilter,
+    ex: CollectorExtender): FiniteTask = {
+    val initAngle = drivetrainHardware.turnPosition.get
+
+    new DriveDistanceStraight(
+      Inches(80.125),
+      Inches(3),
+      Degrees(10),
+      Percent(30)
+    ).withTimeout(Seconds(8)).then(new RotateByAngle(
+      Degrees(-90),
+      Degrees(5)
+    ).withTimeout(Seconds(5)).then(
+      new DriveDistanceStraight(
+        Inches(33.4),
+        Inches(3),
+        Degrees(10),
+        Percent(30)
+      ).withTimeout(Seconds(8))
+    ).then(new WaitTask(Seconds(0.5)).andUntilDone(new DriveOpenLoop(
+      Signal.constant(Percent(100)),
+      Signal.constant(Percent(0))
+    )))).then(new RotateByAngle(
+      Degrees(-90) + initAngle,
+      Degrees(5)
+    ))
+  }
+
+  def rightHopperAndShoot(implicit d: Drivetrain,
+    g: GearGrabber,
+    ce: CollectorElevator,
+    cr: CollectorRollers,
+    a: Agitator,
+    f: ShooterFlywheel,
+    t: GearTilter,
+    ex: CollectorExtender): FiniteTask = {
+
+    val initAngle = drivetrainHardware.turnPosition.get
+    new DriveDistanceStraight(
+      Inches(80.125),
+      Inches(3),
+      Degrees(10),
+      Percent(30)
+    ).withTimeout(Seconds(8)).then(new RotateByAngle(
+      Degrees(90),
+      Degrees(5)
+    ).withTimeout(Seconds(5)).then(
+      new DriveDistanceStraight(
+        Inches(33.4),
+        Inches(3),
+        Degrees(10),
+        Percent(30)
+      ).withTimeout(Seconds(8))
+    ).then(new WaitTask(Seconds(0.5)).andUntilDone(new DriveOpenLoop(
+      Signal.constant(Percent(100)),
+      Signal.constant(Percent(0))
+    )))).then(new RotateByAngle(
+      Degrees(90) + initAngle,
+      Degrees(5)
+    ))
   }
 
   def centerGearAndCrossLine(implicit d: Drivetrain, g: GearGrabber, t: GearTilter): FiniteTask = {
@@ -144,13 +213,13 @@ class AutoGenerator(r: CoreRobot) {
   }
 
   def shootCenterGearAndCrossLine(implicit d: Drivetrain,
-                                  g: GearGrabber,
-                                  ce: CollectorElevator,
-                                  cr: CollectorRollers,
-                                  a: Agitator,
-                                  f: ShooterFlywheel,
-                                  t: GearTilter,
-                                  ex: CollectorExtender): FiniteTask = {
+    g: GearGrabber,
+    ce: CollectorElevator,
+    cr: CollectorRollers,
+    a: Agitator,
+    f: ShooterFlywheel,
+    t: GearTilter,
+    ex: CollectorExtender): FiniteTask = {
     new WaitTask(Seconds(3)).andUntilDone(
       ShooterTasks.continuousShoot(
         shooterFlywheelProps.map(_.midShootSpeedLeft),
