@@ -2,7 +2,7 @@ package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.commons.cartesianPosition.XYPosition
-import com.lynbrookrobotics.potassium.tasks.{FiniteTask, WaitTask}
+import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, FiniteTask, WaitTask}
 import com.lynbrookrobotics.potassium.units.Point
 import com.lynbrookrobotics.seventeen.agitator.Agitator
 import com.lynbrookrobotics.seventeen.collector.elevator.CollectorElevator
@@ -105,7 +105,7 @@ class AutoGenerator(r: CoreRobot) {
     a: Agitator,
     f: ShooterFlywheel,
     t: GearTilter,
-    ex: CollectorExtender): FiniteTask = {
+    ex: CollectorExtender): ContinuousTask = {
     val initAngle = drivetrainHardware.turnPosition.get
 
     new DriveDistanceStraight(
@@ -126,9 +126,12 @@ class AutoGenerator(r: CoreRobot) {
     ).then(new WaitTask(Seconds(0.5)).andUntilDone(new DriveOpenLoop(
       Signal.constant(Percent(100)),
       Signal.constant(Percent(0))
-    )))).then(new RotateByAngle(
+    )))).then(new RotateToAngle(
       Degrees(-90) + initAngle,
       Degrees(5)
+    )).then(ShooterTasks.continuousShoot(
+      shooterFlywheelProps.map(_.midShootSpeedLeft),
+      shooterFlywheelProps.map(_.midShootSpeedRight)
     ))
   }
 
@@ -139,7 +142,7 @@ class AutoGenerator(r: CoreRobot) {
     a: Agitator,
     f: ShooterFlywheel,
     t: GearTilter,
-    ex: CollectorExtender): FiniteTask = {
+    ex: CollectorExtender): ContinuousTask = {
 
     val initAngle = drivetrainHardware.turnPosition.get
     new DriveDistanceStraight(
@@ -160,9 +163,12 @@ class AutoGenerator(r: CoreRobot) {
     ).then(new WaitTask(Seconds(0.5)).andUntilDone(new DriveOpenLoop(
       Signal.constant(Percent(100)),
       Signal.constant(Percent(0))
-    )))).then(new RotateByAngle(
+    )))).then(new RotateToAngle(
       Degrees(90) + initAngle,
       Degrees(5)
+    )).then(ShooterTasks.continuousShoot(
+      shooterFlywheelProps.map(_.midShootSpeedLeft),
+      shooterFlywheelProps.map(_.midShootSpeedRight)
     ))
   }
 
