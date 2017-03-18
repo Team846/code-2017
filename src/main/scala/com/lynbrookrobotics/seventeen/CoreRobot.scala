@@ -203,111 +203,111 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     prepTask(generator.slowCrossLine)
   }
 
-//  auto.foreach(Signal {
-//    val autoID = Math.round(SmartDashboard.getNumber("DB/Slider 0"))
-//
-//    if (autoID == 1) {
-//      drivetrain.flatMap { implicit dr =>
-//        gearGrabber.flatMap { implicit gg =>
-//          gearTilter.map { implicit t =>
-//            generator.centerGear.toContinuous
-//          }
-//        }
-//      }.getOrElse(FiniteTask.empty.toContinuous)
-//    } else if (autoID == 2) {
-//      drivetrain.flatMap { implicit dr =>
-//        gearGrabber.flatMap { implicit gg =>
-//          gearTilter.map { implicit t =>
-//            generator.leftGear.toContinuous
-//          }
-//        }
-//      }.getOrElse(FiniteTask.empty.toContinuous)
-//    }  else if (autoID == 3) {
-//      drivetrain.flatMap { implicit dr =>
-//        gearGrabber.flatMap { implicit gg =>
-//          gearTilter.map { implicit t =>
-//            generator.rightGear.toContinuous
-//          }
-//        }
-//      }.getOrElse(FiniteTask.empty.toContinuous)
-//    } else if (autoID == 4) {
-//      drivetrain.flatMap { implicit dr =>
-//        gearGrabber.flatMap { implicit gg =>
-//          gearTilter.map { implicit t =>
-//            generator.centerGearAndCrossLine.toContinuous
-//          }
-//        }
-//      }.getOrElse(FiniteTask.empty.toContinuous)
-//    } else if (autoID == 5) {
-//      drivetrain.flatMap { implicit dr =>
-//        gearGrabber.flatMap { implicit gg =>
-//          collectorElevator.flatMap { implicit ce =>
-//            collectorRollers.flatMap { implicit cr =>
-//              agitator.flatMap { implicit a =>
-//                shooterFlywheel.flatMap { implicit f =>
-//                  gearTilter.flatMap { implicit t =>
-//                    collectorExtender.map { implicit ex =>
-//                      generator.shootCenterGearAndCrossLine.toContinuous
-//                    }
-//                  }
-//                }
-//              }
-//            }
-//          }
-//        }
-//      }.getOrElse(FiniteTask.empty.toContinuous)
-//    } else if (autoID == 6) {
-//      drivetrain.flatMap { implicit dr =>
-//        gearGrabber.flatMap { implicit gg =>
-//          collectorElevator.flatMap { implicit ce =>
-//            collectorRollers.flatMap { implicit cr =>
-//              agitator.flatMap { implicit a =>
-//                shooterFlywheel.flatMap { implicit f =>
-//                  gearTilter.flatMap { implicit t =>
-//                    collectorExtender.map { implicit ex =>
-//                      generator.leftHopperAndShoot
-//                    }
-//                  }
-//                }
-//              }
-//            }
-//          }
-//        }
-//      }.getOrElse(FiniteTask.empty.toContinuous)
-//    } else if (autoID == 7) {
-//      drivetrain.flatMap { implicit dr =>
-//        gearGrabber.flatMap { implicit gg =>
-//          collectorElevator.flatMap { implicit ce =>
-//            collectorRollers.flatMap { implicit cr =>
-//              agitator.flatMap { implicit a =>
-//                shooterFlywheel.flatMap { implicit f =>
-//                  gearTilter.flatMap { implicit t =>
-//                    collectorExtender.map { implicit ex =>
-//                      generator.rightHopperAndShoot
-//                    }
-//                  }
-//                }
-//              }
-//            }
-//          }
-//        }
-//      }.getOrElse(FiniteTask.empty.toContinuous)
-//    } else if (autoID == 8) {
-//      drivetrain.map { implicit dr =>
-//        generator.slowCrossLine
-//      }.getOrElse(FiniteTask.empty)
-//    } else if (autoID == 7) {
-//      drivetrain.flatMap { implicit dr =>
-//        gearGrabber.flatMap { implicit d =>
-//          gearTilter.map { implicit t =>
-//            generator.centerGearAndCrossLineSmooth
-//          }
-//        }
-//      }.getOrElse(FiniteTask.empty)
-//    } else {
-//      FiniteTask.empty
-//    }).toContinuous
-//  })
+  auto.foreach(Signal {
+    val autoID = Math.round(SmartDashboard.getNumber("DB/Slider 0"))
+
+    if (autoID == 1) {
+      drivetrain.flatMap { implicit dr =>
+        gearGrabber.flatMap { implicit gg =>
+          gearTilter.map { implicit t =>
+            generator.centerGear.toContinuous
+          }
+        }
+      }.getOrElse(FiniteTask.empty.toContinuous)
+    } else if (autoID == 2) {
+      drivetrain.flatMap { implicit dr =>
+        gearGrabber.flatMap { implicit gg =>
+          gearTilter.map { implicit t =>
+            generator.leftGear.toContinuous
+          }
+        }
+      }.getOrElse(FiniteTask.empty.toContinuous)
+    }  else if (autoID == 3) {
+      drivetrain.flatMap { implicit dr =>
+        gearGrabber.flatMap { implicit gg =>
+          gearTilter.map { implicit t =>
+            generator.rightGear.toContinuous
+          }
+        }
+      }.getOrElse(FiniteTask.empty.toContinuous)
+    } else if (autoID == 4) {
+      drivetrain.flatMap { implicit dr =>
+        gearGrabber.flatMap { implicit gg =>
+          gearTilter.map { implicit t =>
+            generator.centerGearAndCrossLine.toContinuous
+          }
+        }
+      }.getOrElse(FiniteTask.empty.toContinuous)
+    } else if (autoID == 5) {
+      drivetrain.flatMap { implicit dr =>
+        gearGrabber.flatMap { implicit gg =>
+          collectorElevator.flatMap { implicit ce =>
+            collectorRollers.flatMap { implicit cr =>
+              agitator.flatMap { implicit a =>
+                shooterFlywheel.flatMap { implicit f =>
+                  gearTilter.flatMap { implicit t =>
+                    collectorExtender.map { implicit ex =>
+                      generator.shootCenterGearAndCrossLine.toContinuous
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }.getOrElse(FiniteTask.empty.toContinuous)
+    } else if (autoID == 6) {
+      drivetrain.flatMap { implicit dr =>
+        gearGrabber.flatMap { implicit gg =>
+          collectorElevator.flatMap { implicit ce =>
+            collectorRollers.flatMap { implicit cr =>
+              agitator.flatMap { implicit a =>
+                shooterFlywheel.flatMap { implicit f =>
+                  gearTilter.flatMap { implicit t =>
+                    collectorExtender.map { implicit ex =>
+                      generator.leftHopperAndShoot
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }.getOrElse(FiniteTask.empty.toContinuous)
+    } else if (autoID == 7) {
+      drivetrain.flatMap { implicit dr =>
+        gearGrabber.flatMap { implicit gg =>
+          collectorElevator.flatMap { implicit ce =>
+            collectorRollers.flatMap { implicit cr =>
+              agitator.flatMap { implicit a =>
+                shooterFlywheel.flatMap { implicit f =>
+                  gearTilter.flatMap { implicit t =>
+                    collectorExtender.map { implicit ex =>
+                      generator.rightHopperAndShoot
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }.getOrElse(FiniteTask.empty.toContinuous)
+    } else if (autoID == 8) {
+      drivetrain.map { implicit dr =>
+        generator.slowCrossLine.toContinuous
+      }.getOrElse(FiniteTask.empty.toContinuous)
+    } else if (autoID == 9) {
+      drivetrain.flatMap { implicit dr =>
+        gearGrabber.flatMap { implicit d =>
+          gearTilter.map { implicit t =>
+            generator.centerGearAndCrossLineSmooth.toContinuous
+          }
+        }
+      }.getOrElse(FiniteTask.empty.toContinuous)
+    } else {
+      FiniteTask.empty.toContinuous
+    }
+  })
 
   // Needs to go last because component resets have highest priority
   val enabled = Signal(ds.isEnabled).filter(identity)
