@@ -233,4 +233,48 @@ class AutoGenerator(r: CoreRobot) {
       )
     ).then(centerGearAndCrossLine)
   }
+
+  def centerGearAndCrossLineSmooth(implicit d: Drivetrain, g: GearGrabber, t: GearTilter): FiniteTask = {
+    val initialTurnPosition = drivetrainHardware.turnPosition.get
+
+    val relativeTurn = drivetrainHardware.turnPosition.map(_ - initialTurnPosition)
+
+    val xyPosition = XYPosition(
+      relativeTurn,
+      drivetrainHardware.forwardPosition
+    )
+
+    toGearAndDrop(
+      new DriveDistanceSmooth(
+        gearPegDistance - robotLength,
+        FeetPerSecond(0)
+      ).withTimeout(Seconds(8))
+    ).then(new FollowWayPointsWithPosition(
+      Seq(
+        new Point(
+          Inches(0),
+          gearPegDistance - robotLength
+        ),
+        new Point(
+          Inches(0),
+          gearPegDistance - robotLength - Feet(3)
+        ),
+        new Point(
+          Feet(4),
+          gearPegDistance - robotLength - Feet(4)
+        ),
+        new Point(
+          Feet(8),
+          gearPegDistance - robotLength - Feet(3)
+        ),
+        new Point(
+          Feet(8),
+          gearPegDistance - robotLength + Feet(9)
+        )
+      ),
+      Feet(0),
+      xyPosition,
+      relativeTurn
+    ).withTimeout(Seconds(10)))
+  }
 }
