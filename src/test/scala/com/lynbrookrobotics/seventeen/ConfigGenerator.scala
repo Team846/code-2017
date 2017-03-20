@@ -17,6 +17,7 @@ import com.lynbrookrobotics.seventeen.collector.extender.{CollectorExtenderConfi
 import com.lynbrookrobotics.seventeen.collector.rollers.{CollectorRollersConfig, CollectorRollersPorts, CollectorRollersProperties}
 import com.lynbrookrobotics.seventeen.gear.grabber.{GearGrabberConfig, GearGrabberPorts, GearGrabberProperties}
 import com.lynbrookrobotics.seventeen.gear.tilter.{GearTilterConfig, GearTilterPorts}
+import com.lynbrookrobotics.seventeen.loadtray.{LoadTrayConfig, LoadTrayPorts}
 import com.lynbrookrobotics.seventeen.shooter.flywheel.{ShooterFlywheelConfig, ShooterFlywheelPorts, ShooterFlywheelProperties}
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShooterShifterConfig, ShooterShifterPorts}
 import squants.electro.Volts
@@ -169,6 +170,11 @@ object ConfigGenerator extends App {
     ),
     shooterShifter = ShooterShifterConfig(
       ports = ShooterShifterPorts(
+        pneumatic = 0
+      )
+    ),
+    loadTray = LoadTrayConfig(
+      port = LoadTrayPorts(
         pneumatic = 0
       )
     )

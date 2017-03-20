@@ -101,7 +101,7 @@
       "turnPositionControlGains": {
         "kp": {
           "num": [
-            75,
+            100,
             "Percent$"
           ],
           "den": [
@@ -195,7 +195,7 @@
         }
       },
       "currentLimit": [
-        25,
+        90,
         "Percent$"
       ],
       "defaultLookAheadDistance": [
@@ -305,11 +305,11 @@
       "velocityGainsLeft": {
         "kp": {
           "num": [
-            60,
+            100,
             "Percent$"
           ],
           "den": [
-            1000,
+            750,
             "RevolutionsPerMinute$"
           ]
         },
@@ -337,11 +337,11 @@
       "velocityGainsRight": {
         "kp": {
           "num": [
-            60,
+            100,
             "Percent$"
           ],
           "den": [
-            1000,
+            750,
             "RevolutionsPerMinute$"
           ]
         },
@@ -375,11 +375,11 @@
         "RevolutionsPerMinute$"
       ],
       "midShootSpeedLeft": [
-        4000,
+        4300,
         "RevolutionsPerMinute$"
       ],
       "midShootSpeedRight": [
-        4000,
+        4300,
         "RevolutionsPerMinute$"
       ],
       "fastShootSpeedLeft": [
@@ -400,5 +400,6 @@
     "ports": {
       "pneumatic": 3
     }
-  }
+  },
+  "loadTray": null
 }
