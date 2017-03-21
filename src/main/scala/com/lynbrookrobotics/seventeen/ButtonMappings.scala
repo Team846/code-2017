@@ -16,6 +16,7 @@ import com.lynbrookrobotics.seventeen.gear.GearTasks
 import com.lynbrookrobotics.seventeen.gear.grabber.OpenGrabber
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheelProperties
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight}
+import squants.Dimensionless
 import squants.time.{Frequency, RevolutionsPerMinute}
 
 class ButtonMappings(r: CoreRobot) {
@@ -98,7 +99,10 @@ class ButtonMappings(r: CoreRobot) {
       override protected def onEnd() = {}
 
       override protected def onStart() = {}
-    }))
+    }).and(new DataDump(
+      ("Left Flywheel Speed", shooterFlywheelHardware.leftVelocity.map(_.value)),
+      ("Right Flywheel Speed", shooterFlywheelHardware.rightVelocity.map(_.value))
+    )))
 
     /**
       * Uses toggle to determine flywheel speed
