@@ -29,6 +29,7 @@ import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, FiniteTask, Task}
 import com.lynbrookrobotics.potassium.units.Point
 import com.lynbrookrobotics.seventeen.drivetrain._
 import com.lynbrookrobotics.seventeen.lighting.{SerialComms, StatusLightingComponent}
+import com.lynbrookrobotics.seventeen.loadtray.LoadTray
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj.{Compressor, PowerDistributionPanel, SerialPort}
@@ -73,6 +74,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   lazy val collectorExtender: Option[CollectorExtender] =
     if (config.get.collectorExtender != null) {
       implicit val gt = () => gearTilter
+      implicit val lt = () => loadTray
       Some(new CollectorExtender)
     } else None
 
@@ -107,15 +109,21 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   lazy val shooterShifter: Option[ShooterShifter] =
     if (config.get.shooterShifter != null) Some(new ShooterShifter) else None
 
+  // Load Tray
+  implicit val loadTrayHardware = hardware.loadTray
+  lazy val loadTray: Option[LoadTray] =
+    if (config.get.loadTray != null) {
+      implicit val ce = () => collectorExtender
+      Some(new LoadTray)
+    } else None
+
   // Lighting
   /**
     * Function to determine what lighting effect should be displayed
     */
   val lightingStatus: () => Int = () => {
     val gearState = gearGrabber.isDefined && gearGrabberHardware.proximitySensor.getVoltage > gearGrabberProps.get.detectingDistance.value
-    if (ds.getBatteryVoltage < 12){
-      12
-    } else if (climberPuller.isDefined && climberPullerHardware.motorA.get() > 0){
+    if (climberPuller.isDefined && climberPullerHardware.motorA.get() > 0){
       9
     } else if (gearState) {
       5
@@ -153,6 +161,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     gearTilter,
     shooterFlywheel,
     shooterShifter,
+    loadTray,
     lighting
   ).flatten
 
@@ -186,9 +195,11 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
             shooterFlywheel.foreach { implicit f =>
               gearTilter.foreach { implicit t =>
                 collectorExtender.foreach { implicit ex =>
-                  prepTask(generator.shootCenterGearAndCrossLine)
-                  prepTask(generator.leftHopperAndShoot)
-                  prepTask(generator.rightHopperAndShoot)
+                  shooterShifter.foreach { implicit sh =>
+                    prepTask(generator.shootCenterGear)
+                    prepTask(generator.leftHopperAndShoot)
+                    prepTask(generator.rightHopperAndShoot)
+                  }
                 }
               }
             }
@@ -246,7 +257,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
                 shooterFlywheel.flatMap { implicit f =>
                   gearTilter.flatMap { implicit t =>
                     collectorExtender.map { implicit ex =>
-                      generator.shootCenterGearAndCrossLine.toContinuous
+                      generator.shootCenterGear.toContinuous
                     }
                   }
                 }
@@ -263,8 +274,10 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
               agitator.flatMap { implicit a =>
                 shooterFlywheel.flatMap { implicit f =>
                   gearTilter.flatMap { implicit t =>
-                    collectorExtender.map { implicit ex =>
-                      generator.leftHopperAndShoot
+                    collectorExtender.flatMap { implicit ex =>
+                      shooterShifter.map { implicit sh =>
+                        generator.leftHopperAndShoot
+                      }
                     }
                   }
                 }
@@ -281,8 +294,10 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
               agitator.flatMap { implicit a =>
                 shooterFlywheel.flatMap { implicit f =>
                   gearTilter.flatMap { implicit t =>
-                    collectorExtender.map { implicit ex =>
-                      generator.rightHopperAndShoot
+                    collectorExtender.flatMap { implicit ex =>
+                      shooterShifter.map { implicit sh =>
+                        generator.rightHopperAndShoot
+                      }
                     }
                   }
                 }

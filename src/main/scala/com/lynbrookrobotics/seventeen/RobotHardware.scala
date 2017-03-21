@@ -10,6 +10,7 @@ import com.lynbrookrobotics.seventeen.driver.DriverHardware
 import com.lynbrookrobotics.seventeen.drivetrain.DrivetrainHardware
 import com.lynbrookrobotics.seventeen.gear.grabber.GearGrabberHardware
 import com.lynbrookrobotics.seventeen.gear.tilter.GearTilterHardware
+import com.lynbrookrobotics.seventeen.loadtray.LoadTrayHardware
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheelHardware
 import com.lynbrookrobotics.seventeen.shooter.shifter.ShooterShifterHardware
 import edu.wpi.first.wpilibj.PowerDistributionPanel
@@ -26,6 +27,7 @@ case class RobotHardware(driver: DriverHardware,
                          gearTilter: GearTilterHardware,
                          shooterFlywheel: ShooterFlywheelHardware,
                          shooterShifter: ShooterShifterHardware,
+                         loadTray: LoadTrayHardware,
                          pdp: PowerDistributionPanel)
 
 object RobotHardware {
@@ -47,6 +49,7 @@ object RobotHardware {
       gearTilter = if (gearTilter != null) GearTilterHardware(gearTilter) else null,
       shooterFlywheel = if (shooterFlywheel != null) ShooterFlywheelHardware(shooterFlywheel) else null,
       shooterShifter = if (shooterShifter != null) ShooterShifterHardware(shooterShifter) else null,
+      loadTray = if (loadTray != null) LoadTrayHardware(loadTray) else null,
       new PowerDistributionPanel()
     )
   }
