@@ -10,7 +10,7 @@ import com.lynbrookrobotics.seventeen.gear.grabber.GearGrabber
 import com.lynbrookrobotics.seventeen.gear.tilter.GearTilter
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShooterShiftLeft, ShooterShiftRight, ShooterShifter}
-import com.lynbrookrobotics.potassium.{Component, Signal}
+import com.lynbrookrobotics.potassium.{Component, PeriodicSignal, Signal}
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
 import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj.{Compressor, PowerDistributionPanel, SerialPort}
 import squants.space.{Feet, Inches}
+import squants.time.Milliseconds
 
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit)
                (implicit val config: Signal[RobotConfig], hardware: RobotHardware, val clock: Clock, val polling: ImpulseEvent) {
@@ -310,6 +311,14 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
       drivetrain.map { implicit dr =>
         generator.slowCrossLine.toContinuous
       }.getOrElse(FiniteTask.empty.toContinuous)
+    } else if (autoID == 9) {
+      drivetrain.flatMap { implicit dr =>
+        gearGrabber.flatMap { implicit d =>
+          gearTilter.map { implicit t =>
+            generator.centerGearAndCrossLineSmooth.toContinuous
+          }
+        }
+      }.getOrElse(FiniteTask.empty.toContinuous)
     } else {
       FiniteTask.empty.toContinuous
     }
@@ -345,6 +354,12 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     }
   }.flatten
 
+  val positionSignal = XYPosition(drivetrainHardware.turnPosition, drivetrainHardware.forwardPosition)
+  val position = positionSignal.toPollingSignal(Milliseconds(5))
+
+  val simpsonPositionSignal = XYPosition.positionWithSimpsons(drivetrainHardware.turnPosition, drivetrainHardware.forwardPosition)
+  val simpsonPosition = simpsonPositionSignal.toPollingSignal(Milliseconds(5))
+
   dashboard.failed.foreach(_.printStackTrace())
 
   dashboard.foreach { board =>
@@ -362,68 +377,84 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     ))
 
     drivetrain.foreach { d =>
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Ground")(
-        drivetrainHardware.leftPosition.get.toFeet
-      ))
+//      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Ground")(
+//        drivetrainHardware.leftPosition.get.toFeet
+//      ))
+//
+//      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Ground")(
+//        drivetrainHardware.rightPosition.get.toFeet
+//      ))
+//
+//      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Wheel Rotation")(
+//        (drivetrainHardware.leftEncoder.angle.get * drivetrainProps.get.gearRatio).toDegrees
+//      ))
+//
+//      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Wheel Rotation")(
+//        (drivetrainHardware.rightEncoder.angle.get * drivetrainProps.get.gearRatio).toDegrees
+//      ))
+//
+//      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Turn Velocity")(
+//        drivetrainHardware.turnVelocity.get.toDegreesPerSecond
+//      ))
+//
+//      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Rotational Position")(
+//        drivetrainHardware.turnPosition.get.toDegrees
+//      ))
 
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Ground")(
-        drivetrainHardware.rightPosition.get.toFeet
-      ))
-
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Wheel Rotation")(
-        (drivetrainHardware.leftEncoder.angle.get * drivetrainProps.get.gearRatio).toDegrees
-      ))
-
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Wheel Rotation")(
-        (drivetrainHardware.rightEncoder.angle.get * drivetrainProps.get.gearRatio).toDegrees
-      ))
-
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Turn Velocity")(
-        drivetrainHardware.turnVelocity.get.toDegreesPerSecond
-      ))
-
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Rotational Position")(
-        drivetrainHardware.turnPosition.get.toDegrees
-      ))
+        board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("x pose")(
+           position.get.get.x.toFeet
+        ))
+        board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("y pose")(
+          position.get.get.y.toFeet
+        ))
+        board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("x pose simpson")(
+          simpsonPosition.get.get.x.toFeet
+        ))
+        board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("y pose simpson")(
+          simpsonPosition.get.get.y.toFeet
+        ))
+        board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("turn position")(
+          drivetrainHardware.turnPosition.get.toDegrees
+        ))
     }
 
-    shooterFlywheel.foreach { d =>
-      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Left Speed")(
-        shooterFlywheelHardware.leftVelocity.get.toRevolutionsPerMinute
-      ))
-
-      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right Speed")(
-        shooterFlywheelHardware.rightVelocity.get.toRevolutionsPerMinute
-      ))
-
-      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Left Out")(
-        shooterFlywheelHardware.leftMotor.get()
-      ))
-
-      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right Out")(
-        shooterFlywheelHardware.rightMotor.get()
-      ))
-
-      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right - Left")(
-        (shooterFlywheelHardware.rightVelocity.get - shooterFlywheelHardware.leftVelocity.get)
-          .toRevolutionsPerMinute
-      ))
-    }
-
-    climberPuller.foreach { c =>
-      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor A")(
-        hardware.pdp.getCurrent(3)
-      ))
-
-      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor B")(
-        hardware.pdp.getCurrent(2)
-      ))
-    }
-
-    gearGrabber.foreach { g =>
-      board.datasetGroup("Grabber").addDataset(new TimeSeriesNumeric("IR Distance")(
-        hardware.gearGrabber.proximitySensor.getVoltage
-      ))
-    }
+//    shooterFlywheel.foreach { d =>
+//      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Left Speed")(
+//        shooterFlywheelHardware.leftVelocity.get.toRevolutionsPerMinute
+//      ))
+//
+//      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right Speed")(
+//        shooterFlywheelHardware.rightVelocity.get.toRevolutionsPerMinute
+//      ))
+//
+//      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Left Out")(
+//        shooterFlywheelHardware.leftMotor.get()
+//      ))
+//
+//      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right Out")(
+//        shooterFlywheelHardware.rightMotor.get()
+//      ))
+//
+//      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right - Left")(
+//        (shooterFlywheelHardware.rightVelocity.get - shooterFlywheelHardware.leftVelocity.get)
+//          .toRevolutionsPerMinute
+//      ))
+//    }
+//
+//    climberPuller.foreach { c =>
+//      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor A")(
+//        hardware.pdp.getCurrent(3)
+//      ))
+//
+//      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor B")(
+//        hardware.pdp.getCurrent(2)
+//      ))
+//    }
+//
+//    gearGrabber.foreach { g =>
+//      board.datasetGroup("Grabber").addDataset(new TimeSeriesNumeric("IR Distance")(
+//        hardware.gearGrabber.proximitySensor.getVoltage
+//      ))
+//    }
   }
 }
