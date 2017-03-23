@@ -1,6 +1,6 @@
 package com.lynbrookrobotics.seventeen
 
-import com.lynbrookrobotics.potassium.Signal
+import com.lynbrookrobotics.potassium.{Signal, SignalLike}
 import com.lynbrookrobotics.seventeen.camselect._
 import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{SpinAtVelocity, WhileAtDoubleVelocity}
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
@@ -17,7 +17,8 @@ import com.lynbrookrobotics.seventeen.gear.grabber.OpenGrabber
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheelProperties
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight}
 import squants.Dimensionless
-import squants.time.{Frequency, RevolutionsPerMinute}
+import squants.time.{Frequency, Milliseconds, RevolutionsPerMinute}
+import squants.Time
 
 class ButtonMappings(r: CoreRobot) {
   import r._
@@ -36,12 +37,20 @@ class ButtonMappings(r: CoreRobot) {
   shooterFlywheel.zip(collectorElevator).zip(collectorRollers).zip(shooterShifter).zip(agitator).zip(collectorExtender).foreach { t =>
     implicit val (((((fly, elev), roll), shift), agitator), ex) = t
 
+    val time = Signal{
+      Milliseconds(System.currentTimeMillis())
+    }
+
     /**
       * Shoots fuel at high speed
       * Trigger pressed
       */
     val shootFuelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.Trigger)
-    shootFuelPressed.foreach(ShooterTasks.continuousShoot(flywheelSpeedLeft, flywheelSpeedRight))
+    shootFuelPressed.foreach(ShooterTasks.continuousShoot(flywheelSpeedLeft, flywheelSpeedRight).and(new DataDump(
+      ("time (millis)", time.map(_.toMilliseconds)),
+      ("Left Flywheel Speed", shooterFlywheelHardware.leftVelocity.map(_.value)),
+      ("Right Flywheel Speed", shooterFlywheelHardware.rightVelocity.map(_.value))
+    )))
 
     /**
       * Shifts shooter to left
@@ -59,6 +68,10 @@ class ButtonMappings(r: CoreRobot) {
   }
 
   shooterFlywheel.foreach { implicit fly =>
+    val time = Signal{
+      Milliseconds(System.currentTimeMillis())
+    }
+
     /**
       * Flywheel speed set to low speed
       * LeftOne pressed
@@ -100,6 +113,7 @@ class ButtonMappings(r: CoreRobot) {
 
       override protected def onStart() = {}
     }).and(new DataDump(
+      ("time (millis)", time.map(_.toMilliseconds)),
       ("Left Flywheel Speed", shooterFlywheelHardware.leftVelocity.map(_.value)),
       ("Right Flywheel Speed", shooterFlywheelHardware.rightVelocity.map(_.value))
     )))
