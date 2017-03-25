@@ -16,8 +16,9 @@ import com.lynbrookrobotics.seventeen.gear.GearTasks
 import com.lynbrookrobotics.seventeen.gear.grabber.OpenGrabber
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheelProperties
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight}
+import edu.wpi.first.wpilibj.Utility
 import squants.Dimensionless
-import squants.time.{Frequency, Milliseconds, RevolutionsPerMinute}
+import squants.time.{Frequency, Microseconds, Milliseconds, RevolutionsPerMinute}
 import squants.Time
 
 class ButtonMappings(r: CoreRobot) {
@@ -38,7 +39,7 @@ class ButtonMappings(r: CoreRobot) {
     implicit val (((((fly, elev), roll), shift), agitator), ex) = t
 
     val time = Signal{
-      Milliseconds(System.currentTimeMillis())
+      Microseconds(Utility.getFPGATime)
     }
 
     /**
@@ -48,6 +49,9 @@ class ButtonMappings(r: CoreRobot) {
     val shootFuelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.Trigger)
     shootFuelPressed.foreach(ShooterTasks.continuousShoot(flywheelSpeedLeft, flywheelSpeedRight).and(new DataDump(
       ("time (millis)", time.map(_.toMilliseconds)),
+      ("Left Raw Output", shooterFlywheel.get.peekedController.map(_.map(_.left.toEach).getOrElse(0))),
+      ("Right Raw Output", shooterFlywheel.get.peekedController.map(_.map(_.right.toEach).getOrElse(0))),
+      ("Battery Voltage", Signal(ds.getBatteryVoltage)),
       ("Left Flywheel Speed", shooterFlywheelHardware.leftVelocity.map(_.value)),
       ("Right Flywheel Speed", shooterFlywheelHardware.rightVelocity.map(_.value))
     )))
