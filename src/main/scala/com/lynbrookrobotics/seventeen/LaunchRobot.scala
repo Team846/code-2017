@@ -456,7 +456,7 @@ class LaunchRobot extends RobotBase {
     coreRobot = new CoreRobot(
       Signal(configFile.value),
       newS => {
-        println(newS)
+        println(newS.toString.substring(0, 200))
         val oldS = configFile.value
         try {
           configFile.value = newS

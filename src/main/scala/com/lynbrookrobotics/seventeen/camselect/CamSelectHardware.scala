@@ -13,7 +13,7 @@ object CamSelectHardware {
 //    val cam = new HttpCamera("usbDriverCam", "http://10.8.46.2:1180/stream.mjpg")
 
     CameraServer.getInstance()
-    CameraServer.getInstance.startAutomaticCapture(/*cam*/)
+//    CameraServer.getInstance.startAutomaticCapture(/*cam*/)
 
 //    val uriBase = "http://" + config.properties.coprocessorHostname
 //    val uriPath = config.properties.mjpegPath
