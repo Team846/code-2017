@@ -309,7 +309,7 @@
             "Percent$"
           ],
           "den": [
-            750,
+            3000,
             "RevolutionsPerMinute$"
           ]
         },
@@ -341,7 +341,7 @@
             "Percent$"
           ],
           "den": [
-            750,
+            3000,
             "RevolutionsPerMinute$"
           ]
         },
@@ -389,6 +389,10 @@
       "fastShootSpeedRight": [
         6000,
         "RevolutionsPerMinute$"
+      ],
+      "currentLimit": [
+        0,
+        "Percent$"
       ],
       "speedTolerance": [
         75,

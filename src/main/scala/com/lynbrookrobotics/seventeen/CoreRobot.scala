@@ -32,7 +32,7 @@ import com.lynbrookrobotics.seventeen.lighting.{SerialComms, StatusLightingCompo
 import com.lynbrookrobotics.seventeen.loadtray.LoadTray
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
-import edu.wpi.first.wpilibj.{Compressor, PowerDistributionPanel, SerialPort}
+import edu.wpi.first.wpilibj._
 import squants.space.{Feet, Inches}
 
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit)
@@ -56,6 +56,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   implicit val camSelectHardware = hardware.camSelect
   implicit val camselectProps = config.map(_.camSelect.properties)
   implicit val camSelect: CamSelect = new CamSelect
+
 
   // Climber Puller
   implicit val climberPullerHardware = hardware.climberPuller

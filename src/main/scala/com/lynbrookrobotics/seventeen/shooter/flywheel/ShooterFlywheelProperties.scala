@@ -26,4 +26,5 @@ case class ShooterFlywheelProperties(maxVelocityLeft: Frequency,
                                      midShootSpeedRight: Frequency,
                                      fastShootSpeedLeft: Frequency,
                                      fastShootSpeedRight: Frequency,
+                                     currentLimit: Dimensionless,
                                      speedTolerance: Frequency) extends DoubleFlywheelProperties

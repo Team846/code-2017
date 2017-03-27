@@ -1,7 +1,7 @@
 package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.potassium.clock.Clock
-import com.lynbrookrobotics.potassium.commons.drivetrain.{ArcadeControlsClosed, NoOperation, TwoSidedDrive, UnicycleControlMode}
+import com.lynbrookrobotics.potassium.commons.drivetrain._
 import com.lynbrookrobotics.potassium.frc.WPIClock
 import com.lynbrookrobotics.potassium.frc.Implicits._
 import squants.{Each, Time}
@@ -15,11 +15,10 @@ package object drivetrain extends TwoSidedDrive(Milliseconds(5)) {
     val leftVelocityPercent = Each(hardware.leftVelocity.get / hardware.props.maxLeftVelocity)
     val rightVelocityPercent = Each(hardware.rightVelocity.get / hardware.props.maxRightVelocity)
 
-    val leftDiff = signal.left - leftVelocityPercent
-    val rightDiff = signal.right - rightVelocityPercent
-
-    val leftOut = leftVelocityPercent + (leftDiff * hardware.props.currentLimit)
-    val rightOut = rightVelocityPercent + (rightDiff * hardware.props.currentLimit)
+    val leftOut = MathUtilities.limitCurrentOutput(signal.left,
+      leftVelocityPercent, hardware.props.currentLimit, hardware.props.currentLimit)
+    val rightOut = MathUtilities.limitCurrentOutput(signal.right,
+      rightVelocityPercent, hardware.props.currentLimit, hardware.props.currentLimit)
 
     hardware.leftBack.set(leftOut.toEach)
     hardware.leftFront.set(leftOut.toEach)
