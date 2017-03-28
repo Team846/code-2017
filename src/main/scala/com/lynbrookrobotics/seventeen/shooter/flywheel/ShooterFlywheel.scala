@@ -38,7 +38,7 @@ class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], ha
     val leftOut = MathUtilities.limitCurrentOutput(signal.left, leftVelocityPercent, properties.get.currentLimit, properties.get.currentLimit)
     val rightOut = MathUtilities.limitCurrentOutput(signal.right, rightVelocityPercent, properties.get.currentLimit, properties.get.currentLimit)
 
-    hardware.leftMotor.set(/*voltageFactor * */leftOut.toEach)
-    hardware.rightMotor.set(/*voltageFactor * */rightOut.toEach)
+    hardware.leftMotor.set(voltageFactor * leftOut.toEach)
+    hardware.rightMotor.set(voltageFactor * rightOut.toEach)
   }
 }

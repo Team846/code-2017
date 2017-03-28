@@ -3,13 +3,11 @@ package com.lynbrookrobotics.seventeen.shooter
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks._
-import com.lynbrookrobotics.seventeen.agitator.{Agitator, SpinAgitator}
+import com.lynbrookrobotics.seventeen.agitator.{Agitator, AgitatorProperties, SpinAgitator}
 import com.lynbrookrobotics.seventeen.collector.elevator.{CollectorElevator, CollectorElevatorProperties, LoadIntoStorage}
 import com.lynbrookrobotics.seventeen.collector.extender.{CollectorExtender, ExtendCollector}
 import com.lynbrookrobotics.seventeen.collector.rollers.{CollectorRollers, CollectorRollersProperties, RollBallsInCollector}
 import com.lynbrookrobotics.seventeen.shooter.flywheel.{ShooterFlywheel, ShooterFlywheelHardware, ShooterFlywheelProperties}
-import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShifter, ShooterShifterState}
-import squants.motion.AngularVelocity
 import squants.time.Frequency
 
 object ShooterTasks {
@@ -19,6 +17,7 @@ object ShooterTasks {
                       collectorRollers: CollectorRollers,
                       agitator: Agitator, flywheel: ShooterFlywheel,
                       collectorExtender: CollectorExtender,
+                      agitatorProperties: Signal[AgitatorProperties],
                       flywheelProperties: Signal[ShooterFlywheelProperties],
                       collectorElevatorProperties: Signal[CollectorElevatorProperties],
                       collectorRollersProperties: Signal[CollectorRollersProperties],
@@ -42,6 +41,7 @@ object ShooterTasks {
                             collectorRollers: CollectorRollers,
                             agitator: Agitator, flywheel: ShooterFlywheel,
                             collectorExtender: CollectorExtender,
+                            agitatorProperties: Signal[AgitatorProperties],
                             flywheelProperties: Signal[ShooterFlywheelProperties],
                             collectorElevatorProperties: Signal[CollectorElevatorProperties],
                             collectorRollersProperties: Signal[CollectorRollersProperties],

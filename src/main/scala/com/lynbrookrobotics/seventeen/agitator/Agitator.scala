@@ -1,21 +1,19 @@
 package com.lynbrookrobotics.seventeen.agitator
 
 import com.lynbrookrobotics.potassium.clock.Clock
+import com.lynbrookrobotics.potassium.commons.electronics.CurrentLimiting
 import com.lynbrookrobotics.potassium.{Component, PeriodicSignal, Signal}
-import squants.time.Milliseconds
+import squants.{Dimensionless, Percent}
+import squants.time.{Milliseconds, Seconds}
 
-sealed trait AgitatorState
-case object AgitatorSpinning extends AgitatorState
-case object AgitatorStopped extends AgitatorState
+class Agitator(implicit hardware: AgitatorHardware, clock: Clock) extends Component[Dimensionless](Milliseconds(5)){
+  override def defaultController: PeriodicSignal[Dimensionless] = Signal.constant(Percent(0)).toPeriodic
 
-class Agitator(implicit hardware: AgitatorHardware, properties: Signal[AgitatorProperties], clock: Clock) extends Component[AgitatorState](Milliseconds(5)){
-  override def defaultController: PeriodicSignal[AgitatorState] = Signal.constant(AgitatorStopped).toPeriodic
+  override def setController(controller: PeriodicSignal[Dimensionless]): Unit = {
+    super.setController(CurrentLimiting.slewRate(controller, Percent(100) / Seconds(0.3)))
+  }
 
-  override def applySignal(signal: AgitatorState): Unit = {
-    if (signal == AgitatorSpinning) {
-      hardware.motor.set(properties.get.spinSpeed.toEach)
-    } else {
-      hardware.motor.set(0)
-    }
+  override def applySignal(signal: Dimensionless): Unit = {
+    hardware.motor.set(signal.toEach)
   }
 }

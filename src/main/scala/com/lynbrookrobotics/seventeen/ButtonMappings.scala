@@ -47,14 +47,7 @@ class ButtonMappings(r: CoreRobot) {
       * Trigger pressed
       */
     val shootFuelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.Trigger)
-    shootFuelPressed.foreach(ShooterTasks.continuousShoot(flywheelSpeedLeft, flywheelSpeedRight).and(new DataDump(
-      ("time (millis)", time.map(_.toMilliseconds)),
-      ("Left Raw Output", shooterFlywheel.get.peekedController.map(_.map(_.left.toEach).getOrElse(0))),
-      ("Right Raw Output", shooterFlywheel.get.peekedController.map(_.map(_.right.toEach).getOrElse(0))),
-      ("Battery Voltage", Signal(ds.getBatteryVoltage)),
-      ("Left Flywheel Speed", shooterFlywheelHardware.leftVelocity.map(_.value)),
-      ("Right Flywheel Speed", shooterFlywheelHardware.rightVelocity.map(_.value))
-    )))
+    shootFuelPressed.foreach(ShooterTasks.continuousShoot(flywheelSpeedLeft, flywheelSpeedRight))
 
     /**
       * Shifts shooter to left
@@ -116,14 +109,7 @@ class ButtonMappings(r: CoreRobot) {
       override protected def onEnd() = {}
 
       override protected def onStart() = {}
-    }).and(new DataDump(
-      ("time (millis)", time.map(_.toMilliseconds)),
-      ("Left Raw Output", shooterFlywheel.get.peekedController.map(_.map(_.left.toEach).getOrElse(0))),
-      ("Right Raw Output", shooterFlywheel.get.peekedController.map(_.map(_.right.toEach).getOrElse(0))),
-      ("Battery Voltage", Signal(ds.getBatteryVoltage)),
-      ("Left Flywheel Speed", shooterFlywheelHardware.leftVelocity.map(_.value)),
-      ("Right Flywheel Speed", shooterFlywheelHardware.rightVelocity.map(_.value))
-    )))
+    }))
 
     /**
       * Uses toggle to determine flywheel speed
