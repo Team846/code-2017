@@ -17,6 +17,10 @@ import com.lynbrookrobotics.seventeen.shooter.shifter.{ShooterShiftLeft, Shooter
 import edu.wpi.first.wpilibj.Utility
 import squants.Percent
 import squants.time.{Frequency, Microseconds, Milliseconds, RevolutionsPerMinute}
+import com.lynbrookrobotics.seventeen.gear.tilter.ExtendTilter
+import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheelProperties
+import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight}
+import squants.time.{Frequency, RevolutionsPerMinute}
 
 class ButtonMappings(r: CoreRobot) {
 
@@ -140,21 +144,34 @@ class ButtonMappings(r: CoreRobot) {
   gearGrabber.zip(gearTilter).foreach { t =>
     implicit val (grabber, tilt) = t
 
-    /**
-      * Grabs gear
-      * RightFive pressed
-      */
-    val grabGearPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightFive)
-    grabGearPressed.onStart.foreach(() => {
-      Task.executeTask(GearTasks.loadGearFromGroundAbortable(JoystickButtons.RightFive))
-    })
+    val bothPressed = Signal(driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFour)
+      && driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFive)).filter(identity)
+
+    val onlyRightFourPressed = Signal(driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFour)
+      && !driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFive)).filter(identity)
+
+    val onlyRightFivePressed = Signal(!driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFour)
+      && driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFive)).filter(identity)
 
     /**
       * Releases gear
-      * RightSix pressed
+      * only RightFour pressed
       */
-    val releaseGearPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightSix)
-    releaseGearPressed.foreach(new OpenGrabber)
+    onlyRightFourPressed.foreach(new OpenGrabber)
+
+    /**
+      * extends collector
+      * only RightFive pressed
+      */
+    onlyRightFivePressed.foreach(new ExtendTilter)
+
+    /**
+      * Extends collector and opens grabber
+      * both RightFour and RightFive pressed
+      */
+    bothPressed.foreach(
+      new OpenGrabber().and(new ExtendTilter())
+    )
   }
 
   collectorElevator.zip(collectorRollers).zip(collectorExtender).zip(loadTray).foreach { t =>

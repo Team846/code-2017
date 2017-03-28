@@ -130,7 +130,7 @@ class AutoGenerator(r: CoreRobot) {
         Degrees(10),
         hopperAutoDriveSpeed
       ).withTimeout(Seconds(8))
-    ).then(new WaitTask(Seconds(0.5)).andUntilDone(new DriveOpenLoop(
+    ).then(new WaitTask(Seconds(1)).andUntilDone(new DriveOpenLoop(
       Signal.constant(Percent(40)),
       Signal.constant(Percent(0))
     ))).then(new RotateToAngle(
@@ -170,7 +170,7 @@ class AutoGenerator(r: CoreRobot) {
         Degrees(10),
         hopperAutoDriveSpeed
       ).withTimeout(Seconds(8))
-    ).then(new WaitTask(Seconds(0.5)).andUntilDone(new DriveOpenLoop(
+    ).then(new WaitTask(Seconds(1)).andUntilDone(new DriveOpenLoop(
       Signal.constant(Percent(40)),
       Signal.constant(Percent(0))
     )))).then(new RotateToAngle(
