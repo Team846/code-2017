@@ -11,7 +11,7 @@ import squants.{Each, Percent}
 class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], hardware: ShooterFlywheelHardware, clock: Clock, driverHardware: DriverHardware)
   extends Component[DoubleFlywheelSignal](Milliseconds(5)) {
 
-  val NominalVoltage = 13.0
+  val NominalVoltage = 11.9
 
   override def defaultController = Signal.constant(
     DoubleFlywheelSignal(Percent(0), Percent(0))
@@ -27,7 +27,8 @@ class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], ha
     if (batteryVoltage > NominalVoltage / 2) { // reasonable measurement must be than 6 volts
       NominalVoltage / batteryVoltage
     } else {
-      NominalVoltage
+      // Do not apply correction if voltage is unusually low
+      1.0
     }
   }
 
