@@ -10,22 +10,21 @@ case class CamSelectHardware(
 
 object CamSelectHardware {
   def apply(config: CamSelectConfig): CamSelectHardware = {
-//    val cam = new HttpCamera("usbDriverCam", "http://10.8.46.2:1180/stream.mjpg")
+    val cam = new HttpCamera("usbDriverCam", "http://10.8.46.2:1180/stream.mjpg")
 
     CameraServer.getInstance()
-    CameraServer.getInstance.startAutomaticCapture(/*cam*/)
+    CameraServer.getInstance.startAutomaticCapture(cam)
 
-//    val uriBase = "http://" + config.properties.coprocessorHostname
-//    val uriPath = config.properties.mjpegPath
-//
-//    val camSelectHardware = CamSelectHardware(
-//      new HttpCamera("leftCam", uriBase + s":${config.port.leftCamPort}" + uriPath),
-//      new HttpCamera("rightCam", uriBase + s":${config.port.rightCamPort}" + uriPath),
-//      new HttpCamera("driverCam", uriBase + s":${config.port.driveCamPort}" + uriPath),
-//      CameraServer.getInstance.addServer("serve_Camera Selection", 1180)
-//    )
-//
-//    camSelectHardware
-    null
+    val uriBase = "http://" + config.properties.coprocessorHostname
+    val uriPath = config.properties.mjpegPath
+
+    val camSelectHardware = CamSelectHardware(
+      new HttpCamera("leftCam", uriBase + s":${config.port.leftCamPort}" + uriPath),
+      new HttpCamera("rightCam", uriBase + s":${config.port.rightCamPort}" + uriPath),
+      new HttpCamera("driverCam", uriBase + s":${config.port.driveCamPort}" + uriPath),
+      CameraServer.getInstance.addServer("serve_Camera Selection", 1180)
+    )
+
+    camSelectHardware
   }
 }

@@ -165,6 +165,7 @@ object ConfigGenerator extends App {
         midShootSpeedRight = RevolutionsPerMinute(0),
         fastShootSpeedLeft = RevolutionsPerMinute(0),
         fastShootSpeedRight= RevolutionsPerMinute(0),
+        currentLimit = Percent(0),
         speedTolerance = RevolutionsPerMinute(0)
       )
     ),

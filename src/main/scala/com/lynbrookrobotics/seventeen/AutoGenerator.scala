@@ -70,7 +70,8 @@ class AutoGenerator(r: CoreRobot) {
         Percent(30)
       ).withTimeout(Seconds(8)).then(new RotateByAngle(
         Degrees(-60),
-        Degrees(5)
+        Degrees(5),
+        5
       ).withTimeout(Seconds(5)).then(new DriveDistanceStraight(
         Inches(45.9),
         Inches(3),
@@ -89,7 +90,8 @@ class AutoGenerator(r: CoreRobot) {
         Percent(30)
       ).withTimeout(Seconds(8)).then(new RotateByAngle(
         Degrees(60),
-        Degrees(5)
+        Degrees(5),
+        5
       ).withTimeout(Seconds(5)).then(new DriveDistanceStraight(
         Inches(45.9),
         Inches(3),
@@ -117,7 +119,8 @@ class AutoGenerator(r: CoreRobot) {
       Percent(30)
     ).withTimeout(Seconds(8)).then(new RotateByAngle(
       Degrees(-90),
-      Degrees(2.5)
+      Degrees(2.5),
+      5
     ).withTimeout(Seconds(5))).then(
       new DriveDistanceStraight(
         Inches(27.4),
@@ -155,7 +158,8 @@ class AutoGenerator(r: CoreRobot) {
       Percent(30)
     ).withTimeout(Seconds(8)).then(new RotateByAngle(
       Degrees(90),
-      Degrees(5)
+      Degrees(5),
+      5
     ).withTimeout(Seconds(5)).then(
       new DriveDistanceStraight(
         Inches(33.4),

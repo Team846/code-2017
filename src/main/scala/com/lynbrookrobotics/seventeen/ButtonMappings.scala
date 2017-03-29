@@ -1,6 +1,6 @@
 package com.lynbrookrobotics.seventeen
 
-import com.lynbrookrobotics.potassium.Signal
+import com.lynbrookrobotics.potassium.{Signal, SignalLike}
 import com.lynbrookrobotics.seventeen.camselect._
 import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{SpinAtVelocity, WhileAtDoubleVelocity}
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
@@ -16,7 +16,10 @@ import com.lynbrookrobotics.seventeen.gear.GearTasks
 import com.lynbrookrobotics.seventeen.gear.grabber.OpenGrabber
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheelProperties
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight}
-import squants.time.{Frequency, RevolutionsPerMinute}
+import edu.wpi.first.wpilibj.Utility
+import squants.Dimensionless
+import squants.time.{Frequency, Microseconds, Milliseconds, RevolutionsPerMinute}
+import squants.Time
 
 class ButtonMappings(r: CoreRobot) {
   import r._
@@ -34,6 +37,10 @@ class ButtonMappings(r: CoreRobot) {
 
   shooterFlywheel.zip(collectorElevator).zip(collectorRollers).zip(shooterShifter).zip(agitator).zip(collectorExtender).foreach { t =>
     implicit val (((((fly, elev), roll), shift), agitator), ex) = t
+
+    val time = Signal{
+      Microseconds(Utility.getFPGATime)
+    }
 
     /**
       * Shoots fuel at high speed
@@ -58,6 +65,10 @@ class ButtonMappings(r: CoreRobot) {
   }
 
   shooterFlywheel.foreach { implicit fly =>
+    val time = Signal{
+      Milliseconds(System.currentTimeMillis())
+    }
+
     /**
       * Flywheel speed set to low speed
       * LeftOne pressed

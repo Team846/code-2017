@@ -197,6 +197,10 @@
       "currentLimit": [
         0,
         "Percent$"
+      ],
+      "defaultLookAheadDistance": [
+        0.5,
+        "Feet$"
       ]
     }
   },
@@ -236,7 +240,7 @@
   },
   "collectorElevator": {
     "port": {
-      "motor": 1
+      "motor": 0
     },
     "properties": {
       "collectSpeed": [
@@ -386,6 +390,10 @@
         0,
         "RevolutionsPerMinute$"
       ],
+      "currentLimit": [
+        0,
+        "Percent$"
+      ],
       "speedTolerance": [
         0,
         "RevolutionsPerMinute$"
@@ -394,7 +402,12 @@
   },
   "shooterShifter": {
     "ports": {
-      "pneumatic": 3
+      "pneumatic": 0
+    }
+  },
+  "loadTray": {
+    "port": {
+      "pneumatic": 0
     }
   }
 }
