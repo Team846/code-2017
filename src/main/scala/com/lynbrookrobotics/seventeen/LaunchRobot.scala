@@ -26,8 +26,7 @@ class LaunchRobot extends RobotBase {
       case _ =>
         println("BAD BAD DEFAULTING CONFIG")
         read[RobotConfig](
-          """
-            |{
+          """{
             |  "driver": {
             |    "driverPort": 0,
             |    "operatorPort": 1,
@@ -224,7 +223,7 @@ class LaunchRobot extends RobotBase {
             |        }
             |      },
             |      "currentLimit": [
-            |        75,
+            |        50,
             |        "Percent$"
             |      ],
             |      "defaultLookAheadDistance": [
@@ -324,21 +323,21 @@ class LaunchRobot extends RobotBase {
             |    },
             |    "props": {
             |      "maxVelocityLeft": [
-            |        6250,
+            |        6500,
             |        "RevolutionsPerMinute$"
             |      ],
             |      "maxVelocityRight": [
-            |        6250,
+            |        6500,
             |        "RevolutionsPerMinute$"
             |      ],
             |      "velocityGainsLeft": {
             |        "kp": {
             |          "num": [
-            |            60,
+            |            100,
             |            "Percent$"
             |          ],
             |          "den": [
-            |            1000,
+            |            3000,
             |            "RevolutionsPerMinute$"
             |          ]
             |        },
@@ -366,11 +365,11 @@ class LaunchRobot extends RobotBase {
             |      "velocityGainsRight": {
             |        "kp": {
             |          "num": [
-            |            60,
+            |            100,
             |            "Percent$"
             |          ],
             |          "den": [
-            |            1000,
+            |            3000,
             |            "RevolutionsPerMinute$"
             |          ]
             |        },
@@ -404,11 +403,11 @@ class LaunchRobot extends RobotBase {
             |        "RevolutionsPerMinute$"
             |      ],
             |      "midShootSpeedLeft": [
-            |        3800,
+            |        4300,
             |        "RevolutionsPerMinute$"
             |      ],
             |      "midShootSpeedRight": [
-            |        3800,
+            |        4300,
             |        "RevolutionsPerMinute$"
             |      ],
             |      "fastShootSpeedLeft": [
@@ -420,11 +419,11 @@ class LaunchRobot extends RobotBase {
             |        "RevolutionsPerMinute$"
             |      ],
             |      "currentLimit": [
-            |        0,
+            |        40,
             |        "Percent$"
             |      ],
             |      "speedTolerance": [
-            |        50,
+            |        75,
             |        "RevolutionsPerMinute$"
             |      ]
             |    }
@@ -433,9 +432,10 @@ class LaunchRobot extends RobotBase {
             |    "ports": {
             |      "pneumatic": 0
             |    }
-            |  }
+            |  },
+            |  "loadTray": null
             |}
-          """.stripMargin)
+            |""".stripMargin)
     }
 
     ret

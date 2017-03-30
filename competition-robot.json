@@ -195,7 +195,7 @@
         }
       },
       "currentLimit": [
-        75,
+        50,
         "Percent$"
       ],
       "defaultLookAheadDistance": [
@@ -295,21 +295,21 @@
     },
     "props": {
       "maxVelocityLeft": [
-        6250,
+        6500,
         "RevolutionsPerMinute$"
       ],
       "maxVelocityRight": [
-        6250,
+        6500,
         "RevolutionsPerMinute$"
       ],
       "velocityGainsLeft": {
         "kp": {
           "num": [
-            60,
+            100,
             "Percent$"
           ],
           "den": [
-            1000,
+            3000,
             "RevolutionsPerMinute$"
           ]
         },
@@ -337,11 +337,11 @@
       "velocityGainsRight": {
         "kp": {
           "num": [
-            60,
+            100,
             "Percent$"
           ],
           "den": [
-            1000,
+            3000,
             "RevolutionsPerMinute$"
           ]
         },
@@ -375,11 +375,11 @@
         "RevolutionsPerMinute$"
       ],
       "midShootSpeedLeft": [
-        3800,
+        4300,
         "RevolutionsPerMinute$"
       ],
       "midShootSpeedRight": [
-        3800,
+        4300,
         "RevolutionsPerMinute$"
       ],
       "fastShootSpeedLeft": [
@@ -390,8 +390,12 @@
         6000,
         "RevolutionsPerMinute$"
       ],
+      "currentLimit": [
+        40,
+        "Percent$"
+      ],
       "speedTolerance": [
-        50,
+        75,
         "RevolutionsPerMinute$"
       ]
     }
@@ -400,5 +404,6 @@
     "ports": {
       "pneumatic": 0
     }
-  }
+  },
+  "loadTray": null
 }

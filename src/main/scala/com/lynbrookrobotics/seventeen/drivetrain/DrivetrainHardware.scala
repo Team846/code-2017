@@ -18,10 +18,10 @@ import squants.{Angle, Each, Length, Velocity}
 import com.lynbrookrobotics.potassium.frc.Implicits._
 
 case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
-                                       rightBack: CANTalon, rightFront: CANTalon,
-                                       gyro: DigitalGyro,
-                                       props: DrivetrainProperties,
-                                       driverHardware: DriverHardware)
+                                 rightBack: CANTalon, rightFront: CANTalon,
+                                 gyro: DigitalGyro,
+                                 props: DrivetrainProperties,
+                                 driverHardware: DriverHardware)
   extends TwoSidedDriveHardware {
   val leftEncoder = new TalonEncoder(leftBack, Degrees(360) / Each(8192))
   val rightEncoder = new TalonEncoder(rightBack, -Degrees(360) / Each(8192))
