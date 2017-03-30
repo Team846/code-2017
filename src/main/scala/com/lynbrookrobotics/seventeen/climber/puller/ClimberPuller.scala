@@ -3,13 +3,14 @@ package com.lynbrookrobotics.seventeen.climber.puller
 import com.ctre.CANTalon
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.{Component, PeriodicSignal, Signal}
-import squants.{Dimensionless, Percent}
+import squants.electro.ElectricCurrent
 import squants.time.Milliseconds
-import squants.electro.{ElectricCurrent}
+import squants.{Dimensionless, Percent}
 
 sealed trait ClimberControlMode
 
 case class CurrentMode(current: ElectricCurrent) extends ClimberControlMode
+
 case class PWMMode(value: Dimensionless) extends ClimberControlMode
 
 class ClimberPuller(implicit hardware: ClimberPullerHardware, clock: Clock) extends Component[ClimberControlMode](Milliseconds(5)) {

@@ -5,7 +5,6 @@ import com.lynbrookrobotics.potassium.clock.JavaClock
 import com.lynbrookrobotics.potassium.config.TwoWaySignal
 import com.lynbrookrobotics.potassium.events.ImpulseEventSource
 import upickle.default._
-import com.lynbrookrobotics.potassium.config.SquantsPickling._
 
 object TestLaunchRobot extends App {
   protected val configFile = TwoWaySignal[String]("")

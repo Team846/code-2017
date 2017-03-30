@@ -1,10 +1,8 @@
 package com.lynbrookrobotics.seventeen
 
-import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.commons.drivetrain._
-import com.lynbrookrobotics.potassium.frc.WPIClock
 import com.lynbrookrobotics.potassium.frc.Implicits._
-import squants.{Each, Time}
+import squants.Each
 import squants.time.Milliseconds
 
 package object drivetrain extends TwoSidedDrive(Milliseconds(5)) {

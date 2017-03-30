@@ -6,7 +6,9 @@ import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
 import squants.time.Milliseconds
 
 sealed trait LoadTrayState
+
 case object LoadTrayExtended extends LoadTrayState
+
 case object LoadTrayRetracted extends LoadTrayState
 
 class LoadTray(implicit hardware: LoadTrayHardware,

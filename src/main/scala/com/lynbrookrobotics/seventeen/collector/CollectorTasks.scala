@@ -9,10 +9,10 @@ import squants.Dimensionless
 
 object CollectorTasks {
   def collect(collectingSpeed: Signal[Dimensionless])(implicit extender: CollectorExtender,
-                                             elevator: CollectorElevator,
-                                             rollers: CollectorRollers,
-                                             elevatorProps: Signal[CollectorElevatorProperties],
-                                             rollerProps: Signal[CollectorRollersProperties]): ContinuousTask = {
+                                                      elevator: CollectorElevator,
+                                                      rollers: CollectorRollers,
+                                                      elevatorProps: Signal[CollectorElevatorProperties],
+                                                      rollerProps: Signal[CollectorRollersProperties]): ContinuousTask = {
     new ExtendCollector()
       .and(new RollBallsInCollector(collectingSpeed))
       .and(new LoadIntoStorage())

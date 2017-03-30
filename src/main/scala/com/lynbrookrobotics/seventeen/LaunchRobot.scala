@@ -6,11 +6,10 @@ import com.google.common.reflect.ClassPath
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.config.TwoWayFile
 import com.lynbrookrobotics.potassium.events.ImpulseEventSource
+import com.lynbrookrobotics.potassium.frc.Implicits._
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.hal.HAL
-import com.lynbrookrobotics.potassium.frc.Implicits._
 import upickle.default._
-import com.lynbrookrobotics.potassium.config.SquantsPickling._
 
 class LaunchRobot extends RobotBase {
   val targetFile = new File("/home/lvuser/robot-config.json")
@@ -460,7 +459,7 @@ class LaunchRobot extends RobotBase {
     coreRobot = new CoreRobot(
       Signal(configFile.value),
       newS => {
-//        println(newS.toString.substring(0, 200))
+        //        println(newS.toString.substring(0, 200))
         val oldS = configFile.value
         try {
           configFile.value = newS

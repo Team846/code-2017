@@ -2,10 +2,8 @@ package com.lynbrookrobotics.seventeen.shooter.flywheel
 
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.commons.flywheel.DoubleFlywheelHardware
-import edu.wpi.first.wpilibj.{Counter, Spark, Talon}
-import squants.motion.AngularVelocity
 import com.lynbrookrobotics.potassium.frc.Implicits._
-import squants.space.Turns
+import edu.wpi.first.wpilibj.{Counter, Talon}
 import squants.time.Frequency
 
 case class ShooterFlywheelHardware(leftMotor: Talon,

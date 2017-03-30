@@ -1,27 +1,22 @@
 package com.lynbrookrobotics.seventeen
 
-import com.lynbrookrobotics.potassium.{Signal, SignalLike}
-import com.lynbrookrobotics.seventeen.camselect._
-import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{SpinAtVelocity, WhileAtDoubleVelocity}
-import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
+import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.frc.Implicits._
-import com.lynbrookrobotics.potassium.tasks.ContinuousTask
-import com.lynbrookrobotics.potassium.tasks.Task
+import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, Task}
 import com.lynbrookrobotics.seventeen.agitator.SpinAgitator
+import com.lynbrookrobotics.seventeen.camselect._
 import com.lynbrookrobotics.seventeen.climber.ClimberTasks
 import com.lynbrookrobotics.seventeen.collector.CollectorTasks
-import com.lynbrookrobotics.seventeen.collector.elevator.LoadIntoStorage
-import com.lynbrookrobotics.seventeen.collector.rollers.RollBallsInCollector
 import com.lynbrookrobotics.seventeen.gear.GearTasks
 import com.lynbrookrobotics.seventeen.gear.grabber.OpenGrabber
-import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheelProperties
-import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight}
+import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
+import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{SpinAtVelocity, WhileAtDoubleVelocity}
+import com.lynbrookrobotics.seventeen.shooter.shifter.{ShooterShiftLeft, ShooterShiftRight}
 import edu.wpi.first.wpilibj.Utility
-import squants.Dimensionless
 import squants.time.{Frequency, Microseconds, Milliseconds, RevolutionsPerMinute}
-import squants.Time
 
 class ButtonMappings(r: CoreRobot) {
+
   import r._
 
   var curFlywheelSpeedLeft: Frequency = if (config.get.shooterFlywheel != null) {
@@ -38,7 +33,7 @@ class ButtonMappings(r: CoreRobot) {
   shooterFlywheel.zip(collectorElevator).zip(collectorRollers).zip(shooterShifter).zip(agitator).zip(collectorExtender).foreach { t =>
     implicit val (((((fly, elev), roll), shift), agitator), ex) = t
 
-    val time = Signal{
+    val time = Signal {
       Microseconds(Utility.getFPGATime)
     }
 
@@ -65,7 +60,7 @@ class ButtonMappings(r: CoreRobot) {
   }
 
   shooterFlywheel.foreach { implicit fly =>
-    val time = Signal{
+    val time = Signal {
       Milliseconds(System.currentTimeMillis())
     }
 
@@ -181,6 +176,7 @@ class ButtonMappings(r: CoreRobot) {
   }
 
   r.agitator.foreach { implicit a =>
+
     /**
       * Runs agitator counterclockwise
       * RightOne pressed

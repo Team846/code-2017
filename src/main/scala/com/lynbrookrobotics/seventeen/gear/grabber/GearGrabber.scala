@@ -5,11 +5,13 @@ import com.lynbrookrobotics.potassium.{Component, PeriodicSignal, Signal}
 import squants.time.Milliseconds
 
 sealed trait GearGrabberState
+
 case object GearGrabberOpen extends GearGrabberState
+
 case object GearGrabberClosed extends GearGrabberState
 
 class GearGrabber(implicit hardware: GearGrabberHardware,
-                  clock: Clock) extends Component[GearGrabberState](Milliseconds(5)){
+                  clock: Clock) extends Component[GearGrabberState](Milliseconds(5)) {
   override def defaultController: PeriodicSignal[GearGrabberState] = Signal.constant(GearGrabberClosed).toPeriodic
 
   override def applySignal(signal: GearGrabberState): Unit = {

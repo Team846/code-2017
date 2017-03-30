@@ -2,7 +2,6 @@ package com.lynbrookrobotics.seventeen.gear.grabber
 
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
-import com.lynbrookrobotics.potassium.frc.Implicits._
 import com.lynbrookrobotics.potassium.tasks.FiniteTask
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
 

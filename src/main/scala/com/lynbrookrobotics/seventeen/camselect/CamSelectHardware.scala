@@ -1,12 +1,12 @@
 package com.lynbrookrobotics.seventeen.camselect
 
-import edu.wpi.cscore.{ HttpCamera, MjpegServer, UsbCamera, VideoSource }
+import edu.wpi.cscore.{HttpCamera, MjpegServer}
 import edu.wpi.first.wpilibj.CameraServer
 
 case class CamSelectHardware(
-  leftCam: HttpCamera, rightCam: HttpCamera, driverCam: HttpCamera,
-  mjpegServer: MjpegServer
-)
+                              leftCam: HttpCamera, rightCam: HttpCamera, driverCam: HttpCamera,
+                              mjpegServer: MjpegServer
+                            )
 
 object CamSelectHardware {
   def apply(config: CamSelectConfig): CamSelectHardware = {

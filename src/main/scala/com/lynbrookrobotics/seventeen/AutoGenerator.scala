@@ -8,20 +8,19 @@ import com.lynbrookrobotics.seventeen.agitator.Agitator
 import com.lynbrookrobotics.seventeen.collector.elevator.CollectorElevator
 import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
 import com.lynbrookrobotics.seventeen.collector.rollers.CollectorRollers
-import com.lynbrookrobotics.seventeen.gear.GearTasks
-import com.lynbrookrobotics.seventeen.gear.grabber.{CloseGrabber, GearGrabber, OpenGrabber, OpenGrabberUntilReleased}
-import com.lynbrookrobotics.seventeen.gear.tilter.{ExtendTilter, GearTilter, RetractTilter}
+import com.lynbrookrobotics.seventeen.drivetrain.Drivetrain
+import com.lynbrookrobotics.seventeen.drivetrain.unicycleTasks._
+import com.lynbrookrobotics.seventeen.gear.grabber.{GearGrabber, OpenGrabber}
+import com.lynbrookrobotics.seventeen.gear.tilter.{ExtendTilter, GearTilter}
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight, ShooterShifter}
-import squants.space.{Degrees, Feet, Inches}
-import drivetrain.unicycleTasks._
-import squants.motion.FeetPerSecond
-import squants.time.Seconds
-import drivetrain.{Drivetrain, DrivetrainHardware}
 import squants.Percent
+import squants.space.{Degrees, Feet, Inches}
+import squants.time.Seconds
 
 class AutoGenerator(r: CoreRobot) {
+
   import r._
 
   val robotLength = Inches(28.313 + 7 /* bumpers */)
@@ -226,13 +225,13 @@ class AutoGenerator(r: CoreRobot) {
   }
 
   def shootCenterGear(implicit d: Drivetrain,
-                                  g: GearGrabber,
-                                  ce: CollectorElevator,
-                                  cr: CollectorRollers,
-                                  a: Agitator,
-                                  f: ShooterFlywheel,
-                                  t: GearTilter,
-                                  ex: CollectorExtender): FiniteTask = {
+                      g: GearGrabber,
+                      ce: CollectorElevator,
+                      cr: CollectorRollers,
+                      a: Agitator,
+                      f: ShooterFlywheel,
+                      t: GearTilter,
+                      ex: CollectorExtender): FiniteTask = {
     new WaitTask(Seconds(3)).andUntilDone(
       ShooterTasks.continuousShoot(
         shooterFlywheelProps.map(_.midShootSpeedLeft),
