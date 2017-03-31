@@ -61,7 +61,7 @@ class ButtonMappings(r: CoreRobot) {
     val shiftShooterRightPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.TriggerRight)
     shiftShooterRightPressed.foreach(() => shift.currentState = ShooterShiftRight)
 
-    driverHardware.driverJoystick.buttonPressed(JoystickButtons.LeftSix)
+    driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightTwo)
       .foreach(new ContinuousTask {
         override protected def onStart(): Unit = {
           agitator.setController(Signal.constant(Percent(50)).toPeriodic)
@@ -157,8 +157,8 @@ class ButtonMappings(r: CoreRobot) {
     releaseGearPressed.foreach(new OpenGrabber)
   }
 
-  collectorElevator.zip(collectorRollers).zip(collectorExtender).foreach { t =>
-    implicit val ((elevator, roller), extend) = t
+  collectorElevator.zip(collectorRollers).zip(collectorExtender).zip(loadTray).foreach { t =>
+    implicit val (((elevator, roller), extend), loadTray) = t
 
     /**
       * Collects fuel

@@ -100,6 +100,8 @@ class AutoGenerator(r: CoreRobot) {
     )
   }
 
+  val hopperAutoDriveSpeed = Percent(50)
+
   def leftHopperAndShoot(implicit d: Drivetrain,
                          g: GearGrabber,
                          ce: CollectorElevator,
@@ -113,23 +115,23 @@ class AutoGenerator(r: CoreRobot) {
     val initAngle = drivetrainHardware.turnPosition.get
 
     new DriveDistanceStraight(
-      Inches(80.125),
+      Inches(72.125), // decreased by 8 inches after match 13
       Inches(3),
       Degrees(10),
-      Percent(30)
+      hopperAutoDriveSpeed
     ).withTimeout(Seconds(8)).then(new RotateByAngle(
       Degrees(-90),
-      Degrees(2.5),
+      Degrees(5),
       5
     ).withTimeout(Seconds(5))).then(
       new DriveDistanceStraight(
-        Inches(27.4),
+        Inches(39.4), // originally short by 1 ft
         Inches(3),
         Degrees(10),
-        Percent(30)
+        hopperAutoDriveSpeed
       ).withTimeout(Seconds(8))
     ).then(new WaitTask(Seconds(0.5)).andUntilDone(new DriveOpenLoop(
-      Signal.constant(Percent(20)),
+      Signal.constant(Percent(40)),
       Signal.constant(Percent(0))
     ))).then(new RotateToAngle(
       Degrees(-90) + initAngle,
@@ -153,23 +155,23 @@ class AutoGenerator(r: CoreRobot) {
 
     val initAngle = drivetrainHardware.turnPosition.get
     new DriveDistanceStraight(
-      Inches(80.125),
+      Inches(72.125),
       Inches(3),
       Degrees(10),
-      Percent(30)
+      hopperAutoDriveSpeed
     ).withTimeout(Seconds(8)).then(new RotateByAngle(
       Degrees(90),
       Degrees(5),
       5
     ).withTimeout(Seconds(5)).then(
       new DriveDistanceStraight(
-        Inches(33.4),
+        Inches(39.4),
         Inches(3),
         Degrees(10),
-        Percent(30)
+        hopperAutoDriveSpeed
       ).withTimeout(Seconds(8))
     ).then(new WaitTask(Seconds(0.5)).andUntilDone(new DriveOpenLoop(
-      Signal.constant(Percent(20)),
+      Signal.constant(Percent(40)),
       Signal.constant(Percent(0))
     )))).then(new RotateToAngle(
       Degrees(90) + initAngle,

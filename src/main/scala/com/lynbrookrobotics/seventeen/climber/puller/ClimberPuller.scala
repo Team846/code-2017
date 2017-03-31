@@ -2,9 +2,10 @@ package com.lynbrookrobotics.seventeen.climber.puller
 
 import com.ctre.CANTalon
 import com.lynbrookrobotics.potassium.clock.Clock
+import com.lynbrookrobotics.potassium.commons.electronics.CurrentLimiting
 import com.lynbrookrobotics.potassium.{Component, PeriodicSignal, Signal}
 import squants.electro.ElectricCurrent
-import squants.time.Milliseconds
+import squants.time.{Milliseconds, Seconds}
 import squants.{Dimensionless, Percent}
 
 sealed trait ClimberControlMode
@@ -31,5 +32,11 @@ class ClimberPuller(implicit hardware: ClimberPullerHardware, clock: Clock) exte
         hardware.motorA.set(value.toEach)
         hardware.motorB.set(value.toEach)
     }
+  }
+
+  override def setController(controller: PeriodicSignal[ClimberControlMode]): Unit = {
+    super.setController(CurrentLimiting.slewRate(
+      controller.map(_.asInstanceOf[PWMMode].value),
+      Percent(100) / Seconds(0.3)).map(p => PWMMode(p)))
   }
 }

@@ -9,7 +9,7 @@
     "ports": {
       "rightBack": 11,
       "rightFront": 12,
-      "leftBack": 14 ,
+      "leftBack": 14,
       "leftFront": 13
     },
     "properties": {
@@ -37,11 +37,11 @@
       "turnControlGains": {
         "kp": {
           "num": [
-            0,
+            60,
             "Percent$"
           ],
           "den": [
-            1,
+            360,
             "DegreesPerSecond$"
           ]
         },
@@ -101,11 +101,11 @@
       "turnPositionControlGains": {
         "kp": {
           "num": [
-            100,
+            90,
             "Percent$"
           ],
           "den": [
-            90,
+            110,
             "Degrees$"
           ]
         },
@@ -133,7 +133,7 @@
       "leftControlGains": {
         "kp": {
           "num": [
-            10,
+            30,
             "Percent$"
           ],
           "den": [
@@ -165,7 +165,7 @@
       "rightControlGains": {
         "kp": {
           "num": [
-            10,
+            30,
             "Percent$"
           ],
           "den": [
@@ -375,11 +375,11 @@
         "RevolutionsPerMinute$"
       ],
       "midShootSpeedLeft": [
-        4200,
+        4300,
         "RevolutionsPerMinute$"
       ],
       "midShootSpeedRight": [
-        4200,
+        4300,
         "RevolutionsPerMinute$"
       ],
       "fastShootSpeedLeft": [
