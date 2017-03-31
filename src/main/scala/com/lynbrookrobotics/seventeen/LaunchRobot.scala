@@ -6,10 +6,11 @@ import com.google.common.reflect.ClassPath
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.config.TwoWayFile
 import com.lynbrookrobotics.potassium.events.ImpulseEventSource
+import com.lynbrookrobotics.potassium.frc.Implicits._
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.hal.HAL
-import com.lynbrookrobotics.potassium.frc.Implicits._
 import upickle.default._
+
 import com.lynbrookrobotics.potassium.config.SquantsPickling._
 
 class LaunchRobot extends RobotBase {
@@ -26,8 +27,7 @@ class LaunchRobot extends RobotBase {
       case _ =>
         println("BAD BAD DEFAULTING CONFIG")
         read[RobotConfig](
-          """
-            |{
+          """{
             |  "driver": {
             |    "driverPort": 0,
             |    "operatorPort": 1,
@@ -130,7 +130,7 @@ class LaunchRobot extends RobotBase {
             |      "turnPositionControlGains": {
             |        "kp": {
             |          "num": [
-            |            75,
+            |            100,
             |            "Percent$"
             |          ],
             |          "den": [
@@ -224,7 +224,7 @@ class LaunchRobot extends RobotBase {
             |        }
             |      },
             |      "currentLimit": [
-            |        75,
+            |        50,
             |        "Percent$"
             |      ],
             |      "defaultLookAheadDistance": [
@@ -324,21 +324,21 @@ class LaunchRobot extends RobotBase {
             |    },
             |    "props": {
             |      "maxVelocityLeft": [
-            |        6250,
+            |        6500,
             |        "RevolutionsPerMinute$"
             |      ],
             |      "maxVelocityRight": [
-            |        6250,
+            |        6500,
             |        "RevolutionsPerMinute$"
             |      ],
             |      "velocityGainsLeft": {
             |        "kp": {
             |          "num": [
-            |            60,
+            |            100,
             |            "Percent$"
             |          ],
             |          "den": [
-            |            1000,
+            |            3000,
             |            "RevolutionsPerMinute$"
             |          ]
             |        },
@@ -366,11 +366,11 @@ class LaunchRobot extends RobotBase {
             |      "velocityGainsRight": {
             |        "kp": {
             |          "num": [
-            |            60,
+            |            100,
             |            "Percent$"
             |          ],
             |          "den": [
-            |            1000,
+            |            3000,
             |            "RevolutionsPerMinute$"
             |          ]
             |        },
@@ -404,11 +404,11 @@ class LaunchRobot extends RobotBase {
             |        "RevolutionsPerMinute$"
             |      ],
             |      "midShootSpeedLeft": [
-            |        3800,
+            |        4300,
             |        "RevolutionsPerMinute$"
             |      ],
             |      "midShootSpeedRight": [
-            |        3800,
+            |        4300,
             |        "RevolutionsPerMinute$"
             |      ],
             |      "fastShootSpeedLeft": [
@@ -420,11 +420,11 @@ class LaunchRobot extends RobotBase {
             |        "RevolutionsPerMinute$"
             |      ],
             |      "currentLimit": [
-            |        0,
+            |        40,
             |        "Percent$"
             |      ],
             |      "speedTolerance": [
-            |        50,
+            |        75,
             |        "RevolutionsPerMinute$"
             |      ]
             |    }
@@ -433,9 +433,14 @@ class LaunchRobot extends RobotBase {
             |    "ports": {
             |      "pneumatic": 0
             |    }
+            |  },
+            |  "loadTray": {
+            |    "port": {
+            |      "pneumatic": 4
+            |    }
             |  }
             |}
-          """.stripMargin)
+            |""".stripMargin)
     }
 
     ret
@@ -457,10 +462,12 @@ class LaunchRobot extends RobotBase {
   private implicit val eventPolling = eventPollingSource.event
 
   override def startCompetition(): Unit = {
+    WakeOnLan.awaken("B8:AE:ED:7E:78:E1")
+
     coreRobot = new CoreRobot(
       Signal(configFile.value),
       newS => {
-//        println(newS.toString.substring(0, 200))
+        //        println(newS.toString.substring(0, 200))
         val oldS = configFile.value
         try {
           configFile.value = newS
@@ -487,8 +494,6 @@ class LaunchRobot extends RobotBase {
       forEach(c => println(s"preloaded ${c.getName}"))
 
     coreRobot.comms.foreach(_.connect())
-
-    WakeOnLan.awaken("B8:AE:ED:7E:78:E1")
 
     HAL.observeUserProgramStarting()
 

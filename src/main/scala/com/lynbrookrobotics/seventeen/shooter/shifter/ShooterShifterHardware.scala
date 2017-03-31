@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.Solenoid
 
 case class ShooterShifterHardware(pneumatic: Solenoid)
 
-object ShooterShifterHardware{
+object ShooterShifterHardware {
   def apply(config: ShooterShifterConfig): ShooterShifterHardware = {
     ShooterShifterHardware(new Solenoid(config.ports.pneumatic))
   }

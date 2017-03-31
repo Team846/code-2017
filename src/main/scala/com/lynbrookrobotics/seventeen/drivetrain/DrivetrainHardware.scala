@@ -1,27 +1,25 @@
 package com.lynbrookrobotics.seventeen.drivetrain
 
 
+import com.ctre.CANTalon
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.commons.drivetrain.TwoSidedDriveHardware
+import com.lynbrookrobotics.potassium.frc.Implicits._
 import com.lynbrookrobotics.potassium.frc.TalonEncoder
+import com.lynbrookrobotics.potassium.sensors.imu.{ADIS16448, DigitalGyro}
 import com.lynbrookrobotics.potassium.units._
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
-import com.ctre.CANTalon
-import com.lynbrookrobotics.potassium.sensors.imu.{ADIS16448, DigitalGyro}
 import edu.wpi.first.wpilibj.SPI
 import squants.motion.{AngularVelocity, DegreesPerSecond}
 import squants.space.Degrees
-import squants.motion.{AngularVelocity, DegreesPerSecond, FeetPerSecond, RadiansPerSecond}
-import squants.space.{Degrees, Inches, Radians}
 import squants.time.{Milliseconds, Seconds}
 import squants.{Angle, Each, Length, Velocity}
-import com.lynbrookrobotics.potassium.frc.Implicits._
 
 case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
-                                       rightBack: CANTalon, rightFront: CANTalon,
-                                       gyro: DigitalGyro,
-                                       props: DrivetrainProperties,
-                                       driverHardware: DriverHardware)
+                              rightBack: CANTalon, rightFront: CANTalon,
+                              gyro: DigitalGyro,
+                              props: DrivetrainProperties,
+                              driverHardware: DriverHardware)
   extends TwoSidedDriveHardware {
   val leftEncoder = new TalonEncoder(leftBack, Degrees(360) / Each(8192))
   val rightEncoder = new TalonEncoder(rightBack, -Degrees(360) / Each(8192))

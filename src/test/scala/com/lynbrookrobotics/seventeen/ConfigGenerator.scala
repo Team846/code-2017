@@ -1,28 +1,29 @@
 package com.lynbrookrobotics.seventeen
 
-import com.lynbrookrobotics.seventeen.driver.DriverConfig
-import com.lynbrookrobotics.seventeen.drivetrain.{DrivetrainConfig, DrivetrainPorts, DrivetrainProperties}
-import com.lynbrookrobotics.seventeen.camselect._
-import squants.motion.{DegreesPerSecond, FeetPerSecond, MetersPerSecondSquared}
-import upickle.default._
-import com.lynbrookrobotics.potassium.config.SquantsPickling._
-import com.lynbrookrobotics.potassium.control.{PIDConfig, PIDFConfig}
-import squants.space._
+import com.lynbrookrobotics.potassium.control.PIDConfig
+import com.lynbrookrobotics.potassium.units.GenericValue._
 import com.lynbrookrobotics.potassium.units._
-import GenericValue._
 import com.lynbrookrobotics.seventeen.agitator.{AgitatorConfig, AgitatorPorts, AgitatorProperties}
+import com.lynbrookrobotics.seventeen.camselect._
 import com.lynbrookrobotics.seventeen.climber.puller.{ClimberPullerConfig, ClimberPullerPorts, ClimberPullerProperties}
 import com.lynbrookrobotics.seventeen.collector.elevator.{CollectorElevatorConfig, CollectorElevatorPorts, CollectorElevatorProperties}
 import com.lynbrookrobotics.seventeen.collector.extender.{CollectorExtenderConfig, CollectorExtenderPorts}
 import com.lynbrookrobotics.seventeen.collector.rollers.{CollectorRollersConfig, CollectorRollersPorts, CollectorRollersProperties}
+import com.lynbrookrobotics.seventeen.driver.DriverConfig
+import com.lynbrookrobotics.seventeen.drivetrain.{DrivetrainConfig, DrivetrainPorts, DrivetrainProperties}
 import com.lynbrookrobotics.seventeen.gear.grabber.{GearGrabberConfig, GearGrabberPorts, GearGrabberProperties}
 import com.lynbrookrobotics.seventeen.gear.tilter.{GearTilterConfig, GearTilterPorts}
 import com.lynbrookrobotics.seventeen.loadtray.{LoadTrayConfig, LoadTrayPorts}
 import com.lynbrookrobotics.seventeen.shooter.flywheel.{ShooterFlywheelConfig, ShooterFlywheelPorts, ShooterFlywheelProperties}
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShooterShifterConfig, ShooterShifterPorts}
 import squants.electro.Volts
+import squants.motion.{DegreesPerSecond, FeetPerSecond, MetersPerSecondSquared}
+import squants.space._
+import squants.time.{RevolutionsPerMinute, Seconds}
 import squants.{Each, Percent}
-import squants.time.{Minutes, RevolutionsPerMinute, Seconds}
+import upickle.default._
+
+import com.lynbrookrobotics.potassium.config.SquantsPickling._
 
 object ConfigGenerator extends App {
   val config = RobotConfig(
@@ -164,7 +165,7 @@ object ConfigGenerator extends App {
         midShootSpeedLeft = RevolutionsPerMinute(0),
         midShootSpeedRight = RevolutionsPerMinute(0),
         fastShootSpeedLeft = RevolutionsPerMinute(0),
-        fastShootSpeedRight= RevolutionsPerMinute(0),
+        fastShootSpeedRight = RevolutionsPerMinute(0),
         currentLimit = Percent(0),
         speedTolerance = RevolutionsPerMinute(0)
       )

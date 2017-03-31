@@ -25,11 +25,11 @@ public class WakeOnLan {
 
             InetAddress address = null;
             try {
-                address = InetAddress.getByName("10.8.46.255");
+                address = InetAddress.getByName("255.255.255.255");
                 System.out.println(address);
                 DatagramPacket packet = new DatagramPacket(bytes, bytes.length, address, PORT);
                 System.out.println(packet);
-                DatagramSocket socket = new DatagramSocket();
+                DatagramSocket socket = new DatagramSocket(0, InetAddress.getByName("10.8.46.2"));
                 System.out.println(socket);
                 socket.send(packet);
                 socket.close();

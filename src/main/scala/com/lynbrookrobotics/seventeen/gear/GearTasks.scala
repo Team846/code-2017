@@ -3,13 +3,11 @@ package com.lynbrookrobotics.seventeen.gear
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
-import squants.time.Seconds
 import com.lynbrookrobotics.potassium.tasks.{FiniteTask, WaitTask}
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
-import com.lynbrookrobotics.seventeen.gear.tilter.{ExtendTilter, GearTilter, RetractTilter}
 import com.lynbrookrobotics.seventeen.gear.grabber._
-import com.lynbrookrobotics.potassium.tasks.WaitForContinuousEvent
-import com.lynbrookrobotics.potassium.frc.Implicits._
+import com.lynbrookrobotics.seventeen.gear.tilter.{ExtendTilter, GearTilter, RetractTilter}
+import squants.time.Seconds
 
 object GearTasks {
   def loadGearFromGroundAbortable(buttonTrigger: Int)
@@ -31,11 +29,11 @@ object GearTasks {
   }
 
   def slamDunk(implicit tilter: GearTilter,
-              grabber: GearGrabber,
-              props: Signal[GearGrabberProperties],
-              hardware: GearGrabberHardware,
-              clock: Clock,
-              driverHardware: DriverHardware, polling: ImpulseEvent): FiniteTask = {
+               grabber: GearGrabber,
+               props: Signal[GearGrabberProperties],
+               hardware: GearGrabberHardware,
+               clock: Clock,
+               driverHardware: DriverHardware, polling: ImpulseEvent): FiniteTask = {
     val pickUpGear = new WaitTask(Seconds(1)).andUntilDone(
       new ExtendTilter() and new OpenGrabber()
     )

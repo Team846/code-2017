@@ -9,7 +9,7 @@
     "ports": {
       "rightBack": 11,
       "rightFront": 12,
-      "leftBack": 14 ,
+      "leftBack": 14,
       "leftFront": 13
     },
     "properties": {
@@ -37,11 +37,11 @@
       "turnControlGains": {
         "kp": {
           "num": [
-            0,
+            60,
             "Percent$"
           ],
           "den": [
-            1,
+            360,
             "DegreesPerSecond$"
           ]
         },
@@ -101,11 +101,11 @@
       "turnPositionControlGains": {
         "kp": {
           "num": [
-            75,
+            90,
             "Percent$"
           ],
           "den": [
-            90,
+            110,
             "Degrees$"
           ]
         },
@@ -133,7 +133,7 @@
       "leftControlGains": {
         "kp": {
           "num": [
-            10,
+            30,
             "Percent$"
           ],
           "den": [
@@ -165,7 +165,7 @@
       "rightControlGains": {
         "kp": {
           "num": [
-            10,
+            30,
             "Percent$"
           ],
           "den": [
@@ -195,7 +195,7 @@
         }
       },
       "currentLimit": [
-        75,
+        50,
         "Percent$"
       ],
       "defaultLookAheadDistance": [
@@ -295,21 +295,21 @@
     },
     "props": {
       "maxVelocityLeft": [
-        6250,
+        6500,
         "RevolutionsPerMinute$"
       ],
       "maxVelocityRight": [
-        6250,
+        6500,
         "RevolutionsPerMinute$"
       ],
       "velocityGainsLeft": {
         "kp": {
           "num": [
-            60,
+            100,
             "Percent$"
           ],
           "den": [
-            1000,
+            3000,
             "RevolutionsPerMinute$"
           ]
         },
@@ -337,11 +337,11 @@
       "velocityGainsRight": {
         "kp": {
           "num": [
-            60,
+            100,
             "Percent$"
           ],
           "den": [
-            1000,
+            3000,
             "RevolutionsPerMinute$"
           ]
         },
@@ -375,11 +375,11 @@
         "RevolutionsPerMinute$"
       ],
       "midShootSpeedLeft": [
-        3800,
+        4300,
         "RevolutionsPerMinute$"
       ],
       "midShootSpeedRight": [
-        3800,
+        4300,
         "RevolutionsPerMinute$"
       ],
       "fastShootSpeedLeft": [
@@ -390,8 +390,12 @@
         6000,
         "RevolutionsPerMinute$"
       ],
+      "currentLimit": [
+        40,
+        "Percent$"
+      ],
       "speedTolerance": [
-        50,
+        75,
         "RevolutionsPerMinute$"
       ]
     }
@@ -399,6 +403,11 @@
   "shooterShifter": {
     "ports": {
       "pneumatic": 0
+    }
+  },
+  "loadTray": {
+    "port": {
+      "pneumatic": 4
     }
   }
 }

@@ -1,10 +1,10 @@
 package com.lynbrookrobotics.seventeen.collector.rollers
 
-import com.lynbrookrobotics.potassium.{Component, PeriodicSignal, Signal}
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.commons.electronics.CurrentLimiting
-import squants.{Dimensionless, Percent}
+import com.lynbrookrobotics.potassium.{Component, PeriodicSignal, Signal}
 import squants.time.{Milliseconds, Seconds}
+import squants.{Dimensionless, Percent}
 
 class CollectorRollers(implicit hardware: CollectorRollersHardware, clock: Clock) extends Component[Dimensionless](Milliseconds(5)) {
   override def defaultController: PeriodicSignal[Dimensionless] = Signal.constant(Percent(0)).toPeriodic

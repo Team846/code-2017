@@ -1,6 +1,5 @@
 package com.lynbrookrobotics.seventeen.agitator
 
-import com.ctre.CANTalon
 import edu.wpi.first.wpilibj.Spark
 
 case class AgitatorHardware(motor: Spark)

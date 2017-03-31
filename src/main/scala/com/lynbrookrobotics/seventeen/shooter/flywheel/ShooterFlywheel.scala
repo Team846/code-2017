@@ -19,6 +19,7 @@ class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], ha
 
   /**
     * Compensate for reduced battery voltage
+    *
     * @return factor to multiply inputs to imitate behaviour of system where battery voltage
     *         is nominal
     */

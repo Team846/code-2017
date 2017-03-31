@@ -8,18 +8,17 @@ import com.lynbrookrobotics.seventeen.agitator.Agitator
 import com.lynbrookrobotics.seventeen.collector.elevator.CollectorElevator
 import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
 import com.lynbrookrobotics.seventeen.collector.rollers.CollectorRollers
-import com.lynbrookrobotics.seventeen.gear.GearTasks
-import com.lynbrookrobotics.seventeen.gear.grabber.{CloseGrabber, GearGrabber, OpenGrabber, OpenGrabberUntilReleased}
-import com.lynbrookrobotics.seventeen.gear.tilter.{ExtendTilter, GearTilter, RetractTilter}
+import com.lynbrookrobotics.seventeen.drivetrain.Drivetrain
+import com.lynbrookrobotics.seventeen.drivetrain.unicycleTasks._
+import com.lynbrookrobotics.seventeen.gear.grabber.{GearGrabber, OpenGrabber}
+import com.lynbrookrobotics.seventeen.gear.tilter.{ExtendTilter, GearTilter}
+import com.lynbrookrobotics.seventeen.loadtray.LoadTray
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight, ShooterShifter}
-import squants.space.{Degrees, Feet, Inches}
-import drivetrain.unicycleTasks._
-import squants.motion.FeetPerSecond
-import squants.time.Seconds
-import drivetrain.{Drivetrain, DrivetrainHardware}
 import squants.Percent
+import squants.space.{Degrees, Feet, Inches}
+import squants.time.Seconds
 
 class AutoGenerator(r: CoreRobot) {
   import r._
@@ -72,12 +71,12 @@ class AutoGenerator(r: CoreRobot) {
         Degrees(-60),
         Degrees(5),
         5
-      ).withTimeout(Seconds(5)).then(new DriveDistanceStraight(
+      ).withTimeout(Seconds(5))).then(new DriveDistanceStraight(
         Inches(45.9),
         Inches(3),
         Degrees(10),
         Percent(30)
-      )))
+      ).withTimeout(Seconds(5)))
     )
   }
 
@@ -92,14 +91,16 @@ class AutoGenerator(r: CoreRobot) {
         Degrees(60),
         Degrees(5),
         5
-      ).withTimeout(Seconds(5)).then(new DriveDistanceStraight(
+      ).withTimeout(Seconds(5))).then(new DriveDistanceStraight(
         Inches(45.9),
         Inches(3),
         Degrees(10),
         Percent(30)
-      )))
+      ).withTimeout(Seconds(5)))
     )
   }
+
+  val hopperAutoDriveSpeed = Percent(50)
 
   def leftHopperAndShoot(implicit d: Drivetrain,
                          g: GearGrabber,
@@ -109,27 +110,28 @@ class AutoGenerator(r: CoreRobot) {
                          f: ShooterFlywheel,
                          t: GearTilter,
                          ex: CollectorExtender,
-                         sh: ShooterShifter): ContinuousTask = {
+                         sh: ShooterShifter,
+                         lt: LoadTray): ContinuousTask = {
     val initAngle = drivetrainHardware.turnPosition.get
 
     new DriveDistanceStraight(
-      Inches(80.125),
+      Inches(72.125), // decreased by 8 inches after match 13
       Inches(3),
       Degrees(10),
-      Percent(30)
+      hopperAutoDriveSpeed
     ).withTimeout(Seconds(8)).then(new RotateByAngle(
       Degrees(-90),
-      Degrees(2.5),
+      Degrees(5),
       5
     ).withTimeout(Seconds(5))).then(
       new DriveDistanceStraight(
-        Inches(27.4),
+        Inches(39.4), // originally short by 1 ft
         Inches(3),
         Degrees(10),
-        Percent(30)
+        hopperAutoDriveSpeed
       ).withTimeout(Seconds(8))
-    ).then(new WaitTask(Seconds(0.5)).andUntilDone(new DriveOpenLoop(
-      Signal.constant(Percent(20)),
+    ).then(new WaitTask(Seconds(1)).andUntilDone(new DriveOpenLoop(
+      Signal.constant(Percent(40)),
       Signal.constant(Percent(0))
     ))).then(new RotateToAngle(
       Degrees(-90) + initAngle,
@@ -148,27 +150,28 @@ class AutoGenerator(r: CoreRobot) {
                           f: ShooterFlywheel,
                           t: GearTilter,
                           ex: CollectorExtender,
-                          sh: ShooterShifter): ContinuousTask = {
+                          sh: ShooterShifter,
+                          lt: LoadTray): ContinuousTask = {
 
     val initAngle = drivetrainHardware.turnPosition.get
     new DriveDistanceStraight(
-      Inches(80.125),
+      Inches(72.125),
       Inches(3),
       Degrees(10),
-      Percent(30)
+      hopperAutoDriveSpeed
     ).withTimeout(Seconds(8)).then(new RotateByAngle(
       Degrees(90),
       Degrees(5),
       5
     ).withTimeout(Seconds(5)).then(
       new DriveDistanceStraight(
-        Inches(33.4),
+        Inches(39.4),
         Inches(3),
         Degrees(10),
-        Percent(30)
+        hopperAutoDriveSpeed
       ).withTimeout(Seconds(8))
-    ).then(new WaitTask(Seconds(0.5)).andUntilDone(new DriveOpenLoop(
-      Signal.constant(Percent(20)),
+    ).then(new WaitTask(Seconds(1)).andUntilDone(new DriveOpenLoop(
+      Signal.constant(Percent(40)),
       Signal.constant(Percent(0))
     )))).then(new RotateToAngle(
       Degrees(90) + initAngle,
@@ -226,13 +229,14 @@ class AutoGenerator(r: CoreRobot) {
   }
 
   def shootCenterGear(implicit d: Drivetrain,
-                                  g: GearGrabber,
-                                  ce: CollectorElevator,
-                                  cr: CollectorRollers,
-                                  a: Agitator,
-                                  f: ShooterFlywheel,
-                                  t: GearTilter,
-                                  ex: CollectorExtender): FiniteTask = {
+                      g: GearGrabber,
+                      ce: CollectorElevator,
+                      cr: CollectorRollers,
+                      a: Agitator,
+                      f: ShooterFlywheel,
+                      t: GearTilter,
+                      ex: CollectorExtender,
+                      lt: LoadTray): FiniteTask = {
     new WaitTask(Seconds(3)).andUntilDone(
       ShooterTasks.continuousShoot(
         shooterFlywheelProps.map(_.midShootSpeedLeft),
