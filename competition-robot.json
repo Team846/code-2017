@@ -101,7 +101,7 @@
       "turnPositionControlGains": {
         "kp": {
           "num": [
-            75,
+            100,
             "Percent$"
           ],
           "den": [
@@ -375,11 +375,11 @@
         "RevolutionsPerMinute$"
       ],
       "midShootSpeedLeft": [
-        4300,
+        4200,
         "RevolutionsPerMinute$"
       ],
       "midShootSpeedRight": [
-        4300,
+        4200,
         "RevolutionsPerMinute$"
       ],
       "fastShootSpeedLeft": [
@@ -405,5 +405,9 @@
       "pneumatic": 0
     }
   },
-  "loadTray": null
+  "loadTray": {
+    "port": {
+      "pneumatic": 4
+    }
+  }
 }

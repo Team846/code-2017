@@ -23,6 +23,8 @@ import squants.time.{RevolutionsPerMinute, Seconds}
 import squants.{Each, Percent}
 import upickle.default._
 
+import com.lynbrookrobotics.potassium.config.SquantsPickling._
+
 object ConfigGenerator extends App {
   val config = RobotConfig(
     driver = DriverConfig(

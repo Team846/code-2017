@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.hal.HAL
 import upickle.default._
 
+import com.lynbrookrobotics.potassium.config.SquantsPickling._
+
 class LaunchRobot extends RobotBase {
   val targetFile = new File("/home/lvuser/robot-config.json")
   if (!targetFile.exists()) {
@@ -128,7 +130,7 @@ class LaunchRobot extends RobotBase {
             |      "turnPositionControlGains": {
             |        "kp": {
             |          "num": [
-            |            75,
+            |            100,
             |            "Percent$"
             |          ],
             |          "den": [
@@ -432,7 +434,11 @@ class LaunchRobot extends RobotBase {
             |      "pneumatic": 0
             |    }
             |  },
-            |  "loadTray": null
+            |  "loadTray": {
+            |    "port": {
+            |      "pneumatic": 4
+            |    }
+            |  }
             |}
             |""".stripMargin)
     }
@@ -456,6 +462,8 @@ class LaunchRobot extends RobotBase {
   private implicit val eventPolling = eventPollingSource.event
 
   override def startCompetition(): Unit = {
+    WakeOnLan.awaken("B8:AE:ED:7E:78:E1")
+
     coreRobot = new CoreRobot(
       Signal(configFile.value),
       newS => {
@@ -486,8 +494,6 @@ class LaunchRobot extends RobotBase {
       forEach(c => println(s"preloaded ${c.getName}"))
 
     coreRobot.comms.foreach(_.connect())
-
-    WakeOnLan.awaken("B8:AE:ED:7E:78:E1")
 
     HAL.observeUserProgramStarting()
 

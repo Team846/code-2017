@@ -14,12 +14,10 @@ case object CollectorExtenderRetracted extends CollectorExtenderState
 
 class CollectorExtender(implicit hardware: CollectorExtenderHardware,
                         gearTilterF: () => Option[GearTilter],
-                        loadTrayF: () => Option[LoadTray],
                         clock: Clock) extends Component[CollectorExtenderState](Milliseconds(5)) {
   override def defaultController: PeriodicSignal[CollectorExtenderState] = Signal.constant(CollectorExtenderRetracted).toPeriodic
 
   lazy val gearTilter = gearTilterF()
-  lazy val loadTray = loadTrayF()
 
   private var curLastExtendTime: Long = 0
   val lastExtendTime = Signal(curLastExtendTime)
@@ -28,11 +26,7 @@ class CollectorExtender(implicit hardware: CollectorExtenderHardware,
     map(t => System.currentTimeMillis() - t <= 1000)).
     getOrElse(Signal.constant(false))
 
-  lazy val loadTrayExtended = loadTray.map(_.lastExtendTime.
-    map(t => System.currentTimeMillis() - t <= 1000)).
-    getOrElse(Signal.constant(false))
-
-  lazy val somethingExtended = gearExtended.zip(loadTrayExtended).map(t => t._1 || t._2)
+  lazy val somethingExtended = gearExtended
 
   override def applySignal(signal: CollectorExtenderState): Unit = {
     if (somethingExtended.get) {

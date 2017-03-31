@@ -7,12 +7,15 @@ import com.lynbrookrobotics.seventeen.agitator.SpinAgitator
 import com.lynbrookrobotics.seventeen.camselect._
 import com.lynbrookrobotics.seventeen.climber.ClimberTasks
 import com.lynbrookrobotics.seventeen.collector.CollectorTasks
+import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtenderExtended
 import com.lynbrookrobotics.seventeen.gear.GearTasks
 import com.lynbrookrobotics.seventeen.gear.grabber.OpenGrabber
+import com.lynbrookrobotics.seventeen.loadtray.ExtendTray
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
 import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{SpinAtVelocity, WhileAtDoubleVelocity}
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShooterShiftLeft, ShooterShiftRight}
 import edu.wpi.first.wpilibj.Utility
+import squants.Percent
 import squants.time.{Frequency, Microseconds, Milliseconds, RevolutionsPerMinute}
 
 class ButtonMappings(r: CoreRobot) {
@@ -30,8 +33,8 @@ class ButtonMappings(r: CoreRobot) {
   val flywheelSpeedLeft = Signal(curFlywheelSpeedLeft)
   val flywheelSpeedRight = Signal(curFlywheelSpeedRight)
 
-  shooterFlywheel.zip(collectorElevator).zip(collectorRollers).zip(shooterShifter).zip(agitator).zip(collectorExtender).foreach { t =>
-    implicit val (((((fly, elev), roll), shift), agitator), ex) = t
+  shooterFlywheel.zip(collectorElevator).zip(collectorRollers).zip(shooterShifter).zip(agitator).zip(collectorExtender).zip(loadTray).foreach { t =>
+    implicit val ((((((fly, elev), roll), shift), agitator), ex), lt) = t
 
     val time = Signal {
       Microseconds(Utility.getFPGATime)
@@ -57,6 +60,25 @@ class ButtonMappings(r: CoreRobot) {
       */
     val shiftShooterRightPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.TriggerRight)
     shiftShooterRightPressed.foreach(() => shift.currentState = ShooterShiftRight)
+
+    driverHardware.driverJoystick.buttonPressed(JoystickButtons.LeftSix)
+      .foreach(new ContinuousTask {
+        override protected def onStart(): Unit = {
+          agitator.setController(Signal.constant(Percent(50)).toPeriodic)
+          elev.setController(Signal.constant(-Percent(50)).toPeriodic)
+          roll.setController(Signal.constant(-Percent(50)).toPeriodic)
+          ex.setController(Signal.constant(CollectorExtenderExtended).toPeriodic)
+        }
+
+        override protected def onEnd(): Unit = {
+          agitator.resetToDefault()
+          elev.resetToDefault()
+          roll.resetToDefault()
+          ex.resetToDefault()
+        }
+
+
+      })
   }
 
   shooterFlywheel.foreach { implicit fly =>
@@ -184,5 +206,10 @@ class ButtonMappings(r: CoreRobot) {
     val runAgitatorCounterclockwisePressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightOne)
     runAgitatorCounterclockwisePressed.
       foreach(new SpinAgitator)
+  }
+
+  r.loadTray.foreach { implicit l =>
+    driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftSix).
+      foreach(new ExtendTray())
   }
 }

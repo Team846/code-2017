@@ -193,9 +193,11 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
               gearTilter.foreach { implicit t =>
                 collectorExtender.foreach { implicit ex =>
                   shooterShifter.foreach { implicit sh =>
-                    prepTask(generator.shootCenterGear)
-                    prepTask(generator.leftHopperAndShoot)
-                    prepTask(generator.rightHopperAndShoot)
+                    loadTray.foreach { implicit lt =>
+                      prepTask(generator.shootCenterGear)
+                      prepTask(generator.leftHopperAndShoot)
+                      prepTask(generator.rightHopperAndShoot)
+                    }
                   }
                 }
               }
@@ -253,8 +255,10 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
               agitator.flatMap { implicit a =>
                 shooterFlywheel.flatMap { implicit f =>
                   gearTilter.flatMap { implicit t =>
-                    collectorExtender.map { implicit ex =>
-                      generator.shootCenterGear.toContinuous
+                    collectorExtender.flatMap { implicit ex =>
+                      loadTray.map { implicit lt =>
+                        generator.shootCenterGear.toContinuous
+                      }
                     }
                   }
                 }
@@ -272,8 +276,10 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
                 shooterFlywheel.flatMap { implicit f =>
                   gearTilter.flatMap { implicit t =>
                     collectorExtender.flatMap { implicit ex =>
-                      shooterShifter.map { implicit sh =>
-                        generator.leftHopperAndShoot
+                      shooterShifter.flatMap { implicit sh =>
+                        loadTray.map { implicit lt =>
+                          generator.leftHopperAndShoot
+                        }
                       }
                     }
                   }
@@ -292,8 +298,10 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
                 shooterFlywheel.flatMap { implicit f =>
                   gearTilter.flatMap { implicit t =>
                     collectorExtender.flatMap { implicit ex =>
-                      shooterShifter.map { implicit sh =>
-                        generator.rightHopperAndShoot
+                      shooterShifter.flatMap { implicit sh =>
+                        loadTray.map { implicit lt =>
+                          generator.rightHopperAndShoot
+                        }
                       }
                     }
                   }

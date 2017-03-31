@@ -6,6 +6,8 @@ import com.lynbrookrobotics.potassium.config.TwoWaySignal
 import com.lynbrookrobotics.potassium.events.ImpulseEventSource
 import upickle.default._
 
+import com.lynbrookrobotics.potassium.config.SquantsPickling._
+
 object TestLaunchRobot extends App {
   protected val configFile = TwoWaySignal[String]("")
   configFile.value = "{\"driver\":{\"driverPort\":0,\"operatorPort\":1,\"driverWheelPort\":2},\"drivetrain\":{\"ports\":{\"leftBack\":4,\"leftFront\":3,\"rightBack\":0,\"rightFront\":1},\"properties\":{\"maxLeftVelocity\":[22.9,\"ft/s\"],\"maxRightVelocity\":[27,\"ft/s\"]}}}"
