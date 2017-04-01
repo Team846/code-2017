@@ -112,34 +112,33 @@ class AutoGenerator(r: CoreRobot) {
                          ex: CollectorExtender,
                          sh: ShooterShifter,
                          lt: LoadTray): ContinuousTask = {
-    val initAngle = drivetrainHardware.turnPosition.get
+    val shooting = ShooterTasks.continuousShoot(
+      shooterFlywheelProps.map(_.midShootSpeedLeft),
+      shooterFlywheelProps.map(_.midShootSpeedRight)
+    ).and(new ShiftShooter(Signal.constant(ShooterShiftLeft)))
 
     new DriveDistanceStraight(
-      Inches(72.125), // decreased by 8 inches after match 13
+      Inches(66.125), // decreased by 8 inches after match 13
       Inches(3),
       Degrees(10),
       hopperAutoDriveSpeed
     ).withTimeout(Seconds(8)).then(new RotateByAngle(
       Degrees(-90),
-      Degrees(5),
+      Degrees(10),
       5
     ).withTimeout(Seconds(5))).then(
-      new DriveDistanceStraight(
+      new DriveBeyondStraight(
         Inches(39.4), // originally short by 1 ft
         Inches(3),
         Degrees(10),
         hopperAutoDriveSpeed
-      ).withTimeout(Seconds(8))
-    ).then(new WaitTask(Seconds(1)).andUntilDone(new DriveOpenLoop(
+      ).withTimeout(Seconds(4))
+    ).then(new WaitTask(Seconds(0.5)).andUntilDone(new DriveOpenLoop(
       Signal.constant(Percent(40)),
       Signal.constant(Percent(0))
-    ))).then(new RotateToAngle(
-      Degrees(-90) + initAngle,
-      Degrees(5)
-    ).withTimeout(Seconds(2))).then(ShooterTasks.continuousShoot(
-      shooterFlywheelProps.map(_.midShootSpeedLeft),
-      shooterFlywheelProps.map(_.midShootSpeedRight)
-    ).and(new ShiftShooter(Signal.constant(ShooterShiftLeft))))
+    ))).andUntilDone(
+      new WaitTask(Seconds(6)).then(shooting)
+    ).then(shooting)
   }
 
   def rightHopperAndShoot(implicit d: Drivetrain,
@@ -152,10 +151,13 @@ class AutoGenerator(r: CoreRobot) {
                           ex: CollectorExtender,
                           sh: ShooterShifter,
                           lt: LoadTray): ContinuousTask = {
+    val shooting = ShooterTasks.continuousShoot(
+      shooterFlywheelProps.map(_.midShootSpeedLeft),
+      shooterFlywheelProps.map(_.midShootSpeedRight)
+    ).and(new ShiftShooter(Signal.constant(ShooterShiftRight)))
 
-    val initAngle = drivetrainHardware.turnPosition.get
     new DriveDistanceStraight(
-      Inches(72.125),
+      Inches(66.125),
       Inches(3),
       Degrees(10),
       hopperAutoDriveSpeed
@@ -163,23 +165,48 @@ class AutoGenerator(r: CoreRobot) {
       Degrees(90),
       Degrees(5),
       5
-    ).withTimeout(Seconds(5)).then(
-      new DriveDistanceStraight(
+    ).withTimeout(Seconds(5))).then(
+      new DriveBeyondStraight(
         Inches(39.4),
         Inches(3),
         Degrees(10),
         hopperAutoDriveSpeed
-      ).withTimeout(Seconds(8))
-    ).then(new WaitTask(Seconds(1)).andUntilDone(new DriveOpenLoop(
+      ).withTimeout(Seconds(4))
+    ).then(new WaitTask(Seconds(0.5)).andUntilDone(new DriveOpenLoop(
       Signal.constant(Percent(40)),
       Signal.constant(Percent(0))
-    )))).then(new RotateToAngle(
-      Degrees(90) + initAngle,
-      Degrees(5)
-    )).then(ShooterTasks.continuousShoot(
-      shooterFlywheelProps.map(_.midShootSpeedLeft),
-      shooterFlywheelProps.map(_.midShootSpeedRight)
-    ).and(new ShiftShooter(Signal.constant(ShooterShiftRight))))
+    ))).andUntilDone(
+      new WaitTask(Seconds(6)).then(shooting)
+    ).then(shooting)
+  }
+
+  def smallTestShot(implicit d: Drivetrain,
+                    g: GearGrabber,
+                    ce: CollectorElevator,
+                    cr: CollectorRollers,
+                    a: Agitator,
+                    f: ShooterFlywheel,
+                    t: GearTilter,
+                    ex: CollectorExtender,
+                    sh: ShooterShifter,
+                    lt: LoadTray): ContinuousTask = {
+    new DriveDistanceStraight(
+      Feet(2), // decreased by 8 inches after match 13
+      Inches(3),
+      Degrees(10),
+      hopperAutoDriveSpeed
+    ).withTimeout(Seconds(8)).then(new RotateByAngle(
+      Degrees(-90),
+      Degrees(10),
+      5
+    ).withTimeout(Seconds(5))).then(
+      new DriveBeyondStraight(
+        Feet(2), // originally short by 1 ft
+        Inches(3),
+        Degrees(10),
+        hopperAutoDriveSpeed
+      ).withTimeout(Seconds(8))
+    ).toContinuous
   }
 
   def centerGearAndCrossLine(implicit d: Drivetrain, g: GearGrabber, t: GearTilter): FiniteTask = {

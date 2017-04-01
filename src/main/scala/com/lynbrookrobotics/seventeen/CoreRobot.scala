@@ -315,7 +315,29 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
       drivetrain.map { implicit dr =>
         generator.slowCrossLine.toContinuous
       }.getOrElse(FiniteTask.empty.toContinuous)
-    } else {
+    } else if (autoID == 9) {
+      drivetrain.flatMap { implicit dr =>
+        gearGrabber.flatMap { implicit gg =>
+          collectorElevator.flatMap { implicit ce =>
+            collectorRollers.flatMap { implicit cr =>
+              agitator.flatMap { implicit a =>
+                shooterFlywheel.flatMap { implicit f =>
+                  gearTilter.flatMap { implicit t =>
+                    collectorExtender.flatMap { implicit ex =>
+                      shooterShifter.flatMap { implicit sh =>
+                        loadTray.map { implicit lt =>
+                          generator.smallTestShot
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }.getOrElse(FiniteTask.empty.toContinuous)
+      } else {
       FiniteTask.empty.toContinuous
     }
   })

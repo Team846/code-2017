@@ -69,7 +69,7 @@
       "forwardPositionControlGains": {
         "kp": {
           "num": [
-            100,
+            50,
             "Percent$"
           ],
           "den": [
@@ -101,7 +101,7 @@
       "turnPositionControlGains": {
         "kp": {
           "num": [
-            90,
+            50,
             "Percent$"
           ],
           "den": [
