@@ -101,6 +101,50 @@ class AutoGenerator(r: CoreRobot) {
   }
 
   val hopperAutoDriveSpeed = Percent(50)
+  val hopperTurnThreshold = Degrees(10)
+
+  def hopperForward(implicit d: Drivetrain,
+                         g: GearGrabber,
+                         ce: CollectorElevator,
+                         cr: CollectorRollers,
+                         a: Agitator,
+                         f: ShooterFlywheel,
+                         t: GearTilter,
+                         ex: CollectorExtender,
+                         sh: ShooterShifter,
+                         lt: LoadTray): FiniteTask = {
+    new DriveDistanceStraight(
+      Inches(61.125), // decreased by 8 inches after match 13
+      Inches(3),
+      hopperTurnThreshold,
+      hopperAutoDriveSpeed
+    ).withTimeout(Seconds(8))
+  }
+
+  def hopperRam(implicit d: Drivetrain,
+                    g: GearGrabber,
+                    ce: CollectorElevator,
+                    cr: CollectorRollers,
+                    a: Agitator,
+                    f: ShooterFlywheel,
+                    t: GearTilter,
+                    ex: CollectorExtender,
+                    sh: ShooterShifter,
+                    lt: LoadTray): FiniteTask = {
+    new DriveBeyondStraight(
+      Inches(39.4), // originally short by 1 ft
+      Inches(3),
+      hopperTurnThreshold,
+      hopperAutoDriveSpeed
+    ).withTimeout(Seconds(4)).then(
+      new WaitTask(Seconds(0.5)).andUntilDone(
+        new DriveOpenLoop(
+          Signal.constant(Percent(40)),
+          Signal.constant(Percent(0))
+        )
+      )
+    )
+  }
 
   def leftHopperAndShoot(implicit d: Drivetrain,
                          g: GearGrabber,
@@ -117,26 +161,11 @@ class AutoGenerator(r: CoreRobot) {
       shooterFlywheelProps.map(_.midShootSpeedRight)
     ).and(new ShiftShooter(Signal.constant(ShooterShiftLeft)))
 
-    new DriveDistanceStraight(
-      Inches(66.125), // decreased by 8 inches after match 13
-      Inches(3),
-      Degrees(10),
-      hopperAutoDriveSpeed
-    ).withTimeout(Seconds(8)).then(new RotateByAngle(
+    hopperForward.then(new RotateByAngle(
       Degrees(-90),
-      Degrees(10),
+      hopperTurnThreshold,
       5
-    ).withTimeout(Seconds(5))).then(
-      new DriveBeyondStraight(
-        Inches(39.4), // originally short by 1 ft
-        Inches(3),
-        Degrees(10),
-        hopperAutoDriveSpeed
-      ).withTimeout(Seconds(4))
-    ).then(new WaitTask(Seconds(0.5)).andUntilDone(new DriveOpenLoop(
-      Signal.constant(Percent(40)),
-      Signal.constant(Percent(0))
-    ))).andUntilDone(
+    ).withTimeout(Seconds(3))).then(hopperRam).andUntilDone(
       new WaitTask(Seconds(6)).then(shooting)
     ).then(shooting)
   }
@@ -156,26 +185,11 @@ class AutoGenerator(r: CoreRobot) {
       shooterFlywheelProps.map(_.midShootSpeedRight)
     ).and(new ShiftShooter(Signal.constant(ShooterShiftRight)))
 
-    new DriveDistanceStraight(
-      Inches(66.125),
-      Inches(3),
-      Degrees(10),
-      hopperAutoDriveSpeed
-    ).withTimeout(Seconds(8)).then(new RotateByAngle(
+    hopperForward.then(new RotateByAngle(
       Degrees(90),
-      Degrees(5),
+      hopperTurnThreshold,
       5
-    ).withTimeout(Seconds(5))).then(
-      new DriveBeyondStraight(
-        Inches(39.4),
-        Inches(3),
-        Degrees(10),
-        hopperAutoDriveSpeed
-      ).withTimeout(Seconds(4))
-    ).then(new WaitTask(Seconds(0.5)).andUntilDone(new DriveOpenLoop(
-      Signal.constant(Percent(40)),
-      Signal.constant(Percent(0))
-    ))).andUntilDone(
+    ).withTimeout(Seconds(3))).then(hopperRam).andUntilDone(
       new WaitTask(Seconds(6)).then(shooting)
     ).then(shooting)
   }
