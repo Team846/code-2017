@@ -174,9 +174,9 @@ class ButtonMappings(r: CoreRobot) {
       * Climbs
       * Both trigger bottoms for operator joystick and driver joystick pressed
       */
-    val climbPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.TriggerBottom)
-      .and(driverHardware.driverJoystick.buttonPressed(JoystickButtons.TriggerBottom))
-    climbPressed.foreach(ClimberTasks.climb.and(new SelectCamera(LeftCam)))
+//    val climbPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.TriggerBottom)
+//      .and(driverHardware.driverJoystick.buttonPressed(JoystickButtons.TriggerBottom))
+//    climbPressed.foreach(ClimberTasks.climb.and(new SelectCamera(LeftCam)))
 
   }
 

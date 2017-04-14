@@ -1,6 +1,8 @@
 package com.lynbrookrobotics.seventeen
 
-import edu.wpi.first.wpilibj.RobotBase
+import com.lynbrookrobotics.potassium.frc.WPIClock
+import edu.wpi.first.wpilibj.{RobotBase, Threads}
+import squants.time.Milliseconds
 
 import scala.collection.mutable
 import scala.reflect.io.File
@@ -511,19 +513,50 @@ class LaunchRobot extends RobotBase {
     var startTime = 0L
 
     var dataSize = 0
-    val notfier = new Notifier(() => {
-      data.+=(Utility.getFPGATime)
-      dataSize += 1
-      if (dataSize == maxDataSize) {
-        writer.println("startTime: " + startTime)
-        data.foreach(l => writer.println(l))
-        writer.flush()
-        writer.close()
-      }
-    })
-    startTime = Utility.getFPGATime
-    notfier.startPeriodic(0.005)
 
+    var first = true
+//    val notfier = new Notifier(() => {
+//      if (first) {
+//        Thread.currentThread().setName("Some-Notifier-Thread")
+//
+////        Thread.currentThread().setPriority(1)
+//        Threads.setCurrentThreadPriority(true, 1)
+//        first = false
+//      }
+//
+//      data.+=(Utility.getFPGATime)
+//      dataSize += 1
+//      if (dataSize == maxDataSize) {
+//        writer.println("new thread id: " + Thread.currentThread().getId + s"name ${Thread.currentThread().getName} priority ${Thread.currentThread().getPriority}")
+//        data.foreach(l => writer.println(l))
+//        writer.flush()
+//        writer.close()
+//      }
+//    })
+
+    val clock = WPIClock(Milliseconds(5)) { dt =>
+//      if (first) {
+//          Thread.currentThread().setName("Some-Notifier-Thread")
+//
+//  //        Thread.currentThread().setPriority(1)
+//          Threads.setCurrentThreadPriority(true, 1)
+//          first = false
+//        }
+
+        data.+=(Utility.getFPGATime)
+        dataSize += 1
+        if (dataSize == maxDataSize) {
+          writer.println("constatn thunk period thread id: " + Thread.currentThread().getId + s"name ${Thread.currentThread().getName} priority ${Thread.currentThread().getPriority}")
+          data.foreach(l => writer.println(l))
+          writer.flush()
+          writer.close()
+        }
+    }
+    data.append(Utility.getFPGATime)
+    data.append(-1)
+
+    data.append(Utility.getFPGATime)
+    data.append(-1)
     while (true) {}
   }
 }
