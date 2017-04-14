@@ -9,6 +9,8 @@ name := "code-2017"
 
 version := "0.1.0-SNAPSHOT"
 
+offline := true
+
 lazy val commons = project
 lazy val vision = project.dependsOn(commons).enablePlugins(AssemblyPlugin)
 
