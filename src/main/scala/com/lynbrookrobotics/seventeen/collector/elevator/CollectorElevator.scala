@@ -2,8 +2,8 @@ package com.lynbrookrobotics.seventeen.collector.elevator
 
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.{Component, Signal}
-import squants.{Dimensionless, Percent}
 import squants.time.Milliseconds
+import squants.{Dimensionless, Percent}
 
 class CollectorElevator(implicit hardware: CollectorElevatorHardware, clock: Clock)
   extends Component[Dimensionless](Milliseconds(5)) {

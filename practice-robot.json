@@ -195,7 +195,7 @@
         }
       },
       "currentLimit": [
-        90,
+        50,
         "Percent$"
       ],
       "defaultLookAheadDistance": [

@@ -1,7 +1,7 @@
 package com.lynbrookrobotics.seventeen.gear.grabber
 
-import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 import com.lynbrookrobotics.potassium.Signal
+import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 
 class OpenGrabber(implicit grabber: GearGrabber) extends ContinuousTask {
   override protected def onStart(): Unit = {

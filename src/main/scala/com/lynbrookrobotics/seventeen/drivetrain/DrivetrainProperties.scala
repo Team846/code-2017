@@ -1,10 +1,10 @@
 package com.lynbrookrobotics.seventeen.drivetrain
 
 import com.lynbrookrobotics.potassium.commons.drivetrain._
-import squants.{Dimensionless, Length}
 import squants.motion.{Acceleration, RadiansPerSecond, Velocity}
 import squants.space.Inches
 import squants.time.Seconds
+import squants.{Dimensionless, Length}
 
 case class DrivetrainProperties(maxLeftVelocity: Velocity, maxRightVelocity: Velocity,
                                 maxAcceleration: Acceleration,

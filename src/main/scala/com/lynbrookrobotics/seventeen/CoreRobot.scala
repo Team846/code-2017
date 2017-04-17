@@ -1,39 +1,35 @@
 package com.lynbrookrobotics.seventeen
 
+import akka.actor.ActorSystem
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.server.Route
+import akka.stream.ActorMaterializer
+import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
+import com.lynbrookrobotics.potassium.clock.Clock
+import com.lynbrookrobotics.potassium.events.ImpulseEvent
+import com.lynbrookrobotics.potassium.tasks.{FiniteTask, Task}
+import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.seventeen.agitator.Agitator
 import com.lynbrookrobotics.seventeen.camselect.CamSelect
 import com.lynbrookrobotics.seventeen.climber.puller.ClimberPuller
 import com.lynbrookrobotics.seventeen.collector.elevator.CollectorElevator
 import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
 import com.lynbrookrobotics.seventeen.collector.rollers.CollectorRollers
+import com.lynbrookrobotics.seventeen.drivetrain._
 import com.lynbrookrobotics.seventeen.gear.grabber.GearGrabber
 import com.lynbrookrobotics.seventeen.gear.tilter.GearTilter
-import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
-import com.lynbrookrobotics.seventeen.shooter.shifter.{ShooterShiftLeft, ShooterShiftRight, ShooterShifter}
-import com.lynbrookrobotics.potassium.{Component, Signal}
-import com.lynbrookrobotics.potassium.clock.Clock
-import com.lynbrookrobotics.potassium.events.ImpulseEvent
-import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
-
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.Try
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.server.Route
-import akka.stream.ActorMaterializer
-import com.typesafe.config.ConfigFactory
-import com.lynbrookrobotics.potassium.lighting.LightingComponent
-import com.lynbrookrobotics.potassium.commons.cartesianPosition.XYPosition
-import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, FiniteTask, Task}
-import com.lynbrookrobotics.potassium.units.Point
-import com.lynbrookrobotics.seventeen.drivetrain._
 import com.lynbrookrobotics.seventeen.lighting.{SerialComms, StatusLightingComponent}
 import com.lynbrookrobotics.seventeen.loadtray.LoadTray
+import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
+import com.lynbrookrobotics.seventeen.shooter.shifter.ShooterShifter
+import com.typesafe.config.ConfigFactory
 import edu.wpi.first.wpilibj.DriverStation.Alliance
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj._
-import squants.space.{Feet, Inches}
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.util.Try
 
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit)
                (implicit val config: Signal[RobotConfig], hardware: RobotHardware, val clock: Clock, val polling: ImpulseEvent) {
@@ -124,21 +120,21 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     */
   val lightingStatus: () => Int = () => {
     val gearState = gearGrabber.isDefined && gearGrabberHardware.proximitySensor.getVoltage > gearGrabberProps.get.detectingDistance.value
-    if (climberPuller.isDefined && climberPullerHardware.motorA.get() > 0){
+    if (climberPuller.isDefined && climberPullerHardware.motorA.get() > 0) {
       9
     } else if (gearState) {
       5
-    } else if (ds.getMatchTime >= 135){
+    } else if (ds.getMatchTime >= 135) {
       16
-    } else if (ds.isDisabled){
+    } else if (ds.isDisabled) {
       1
-    } else if (ds.isAutonomous){
-      if (ds.getAlliance == Alliance.Blue){
+    } else if (ds.isAutonomous) {
+      if (ds.getAlliance == Alliance.Blue) {
         8
       } else {
         10
       }
-    } else if(shooterFlywheel.isDefined && shooterFlywheelHardware.leftVelocity.get.toHertz > 0 ) {
+    } else if (shooterFlywheel.isDefined && shooterFlywheelHardware.leftVelocity.get.toHertz > 0) {
       7
     } else {
       0
@@ -197,9 +193,11 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
               gearTilter.foreach { implicit t =>
                 collectorExtender.foreach { implicit ex =>
                   shooterShifter.foreach { implicit sh =>
-                    prepTask(generator.shootCenterGear)
-                    prepTask(generator.leftHopperAndShoot)
-                    prepTask(generator.rightHopperAndShoot)
+                    loadTray.foreach { implicit lt =>
+                      prepTask(generator.shootCenterGear)
+                      prepTask(generator.leftHopperAndShoot)
+                      prepTask(generator.rightHopperAndShoot)
+                    }
                   }
                 }
               }
@@ -233,7 +231,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
           }
         }
       }.getOrElse(FiniteTask.empty.toContinuous)
-    }  else if (autoID == 3) {
+    } else if (autoID == 3) {
       drivetrain.flatMap { implicit dr =>
         gearGrabber.flatMap { implicit gg =>
           gearTilter.map { implicit t =>
@@ -257,8 +255,10 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
               agitator.flatMap { implicit a =>
                 shooterFlywheel.flatMap { implicit f =>
                   gearTilter.flatMap { implicit t =>
-                    collectorExtender.map { implicit ex =>
-                      generator.shootCenterGear.toContinuous
+                    collectorExtender.flatMap { implicit ex =>
+                      loadTray.map { implicit lt =>
+                        generator.shootCenterGear.toContinuous
+                      }
                     }
                   }
                 }
@@ -276,8 +276,10 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
                 shooterFlywheel.flatMap { implicit f =>
                   gearTilter.flatMap { implicit t =>
                     collectorExtender.flatMap { implicit ex =>
-                      shooterShifter.map { implicit sh =>
-                        generator.leftHopperAndShoot
+                      shooterShifter.flatMap { implicit sh =>
+                        loadTray.map { implicit lt =>
+                          generator.leftHopperAndShoot
+                        }
                       }
                     }
                   }
@@ -296,8 +298,10 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
                 shooterFlywheel.flatMap { implicit f =>
                   gearTilter.flatMap { implicit t =>
                     collectorExtender.flatMap { implicit ex =>
-                      shooterShifter.map { implicit sh =>
-                        generator.rightHopperAndShoot
+                      shooterShifter.flatMap { implicit sh =>
+                        loadTray.map { implicit lt =>
+                          generator.rightHopperAndShoot
+                        }
                       }
                     }
                   }
@@ -311,7 +315,29 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
       drivetrain.map { implicit dr =>
         generator.slowCrossLine.toContinuous
       }.getOrElse(FiniteTask.empty.toContinuous)
-    } else {
+    } else if (autoID == 9) {
+      drivetrain.flatMap { implicit dr =>
+        gearGrabber.flatMap { implicit gg =>
+          collectorElevator.flatMap { implicit ce =>
+            collectorRollers.flatMap { implicit cr =>
+              agitator.flatMap { implicit a =>
+                shooterFlywheel.flatMap { implicit f =>
+                  gearTilter.flatMap { implicit t =>
+                    collectorExtender.flatMap { implicit ex =>
+                      shooterShifter.flatMap { implicit sh =>
+                        loadTray.map { implicit lt =>
+                          generator.smallTestShot
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }.getOrElse(FiniteTask.empty.toContinuous)
+      } else {
       FiniteTask.empty.toContinuous
     }
   })

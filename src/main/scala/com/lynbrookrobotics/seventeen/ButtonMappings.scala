@@ -1,27 +1,29 @@
 package com.lynbrookrobotics.seventeen
 
-import com.lynbrookrobotics.potassium.{Signal, SignalLike}
-import com.lynbrookrobotics.seventeen.camselect._
-import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{SpinAtVelocity, WhileAtDoubleVelocity}
-import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
+import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.frc.Implicits._
-import com.lynbrookrobotics.potassium.tasks.ContinuousTask
-import com.lynbrookrobotics.potassium.tasks.Task
+import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, Task}
 import com.lynbrookrobotics.seventeen.agitator.SpinAgitator
+import com.lynbrookrobotics.seventeen.camselect._
 import com.lynbrookrobotics.seventeen.climber.ClimberTasks
 import com.lynbrookrobotics.seventeen.collector.CollectorTasks
-import com.lynbrookrobotics.seventeen.collector.elevator.LoadIntoStorage
-import com.lynbrookrobotics.seventeen.collector.rollers.RollBallsInCollector
+import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtenderExtended
 import com.lynbrookrobotics.seventeen.gear.GearTasks
 import com.lynbrookrobotics.seventeen.gear.grabber.OpenGrabber
+import com.lynbrookrobotics.seventeen.loadtray.ExtendTray
+import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
+import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{SpinAtVelocity, WhileAtDoubleVelocity}
+import com.lynbrookrobotics.seventeen.shooter.shifter.{ShooterShiftLeft, ShooterShiftRight}
+import edu.wpi.first.wpilibj.Utility
+import squants.Percent
+import squants.time.{Frequency, Microseconds, Milliseconds, RevolutionsPerMinute}
+import com.lynbrookrobotics.seventeen.gear.tilter.ExtendTilter
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheelProperties
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight}
-import edu.wpi.first.wpilibj.Utility
-import squants.Dimensionless
-import squants.time.{Frequency, Microseconds, Milliseconds, RevolutionsPerMinute}
-import squants.Time
+import squants.time.{Frequency, RevolutionsPerMinute}
 
 class ButtonMappings(r: CoreRobot) {
+
   import r._
 
   var curFlywheelSpeedLeft: Frequency = if (config.get.shooterFlywheel != null) {
@@ -35,10 +37,10 @@ class ButtonMappings(r: CoreRobot) {
   val flywheelSpeedLeft = Signal(curFlywheelSpeedLeft)
   val flywheelSpeedRight = Signal(curFlywheelSpeedRight)
 
-  shooterFlywheel.zip(collectorElevator).zip(collectorRollers).zip(shooterShifter).zip(agitator).zip(collectorExtender).foreach { t =>
-    implicit val (((((fly, elev), roll), shift), agitator), ex) = t
+  shooterFlywheel.zip(collectorElevator).zip(collectorRollers).zip(shooterShifter).zip(agitator).zip(collectorExtender).zip(loadTray).foreach { t =>
+    implicit val ((((((fly, elev), roll), shift), agitator), ex), lt) = t
 
-    val time = Signal{
+    val time = Signal {
       Microseconds(Utility.getFPGATime)
     }
 
@@ -62,10 +64,29 @@ class ButtonMappings(r: CoreRobot) {
       */
     val shiftShooterRightPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.TriggerRight)
     shiftShooterRightPressed.foreach(() => shift.currentState = ShooterShiftRight)
+
+    driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightTwo)
+      .foreach(new ContinuousTask {
+        override protected def onStart(): Unit = {
+          agitator.setController(Signal.constant(Percent(50)).toPeriodic)
+          elev.setController(Signal.constant(-Percent(50)).toPeriodic)
+          roll.setController(Signal.constant(-Percent(50)).toPeriodic)
+          ex.setController(Signal.constant(CollectorExtenderExtended).toPeriodic)
+        }
+
+        override protected def onEnd(): Unit = {
+          agitator.resetToDefault()
+          elev.resetToDefault()
+          roll.resetToDefault()
+          ex.resetToDefault()
+        }
+
+
+      })
   }
 
   shooterFlywheel.foreach { implicit fly =>
-    val time = Signal{
+    val time = Signal {
       Milliseconds(System.currentTimeMillis())
     }
 
@@ -123,25 +144,38 @@ class ButtonMappings(r: CoreRobot) {
   gearGrabber.zip(gearTilter).foreach { t =>
     implicit val (grabber, tilt) = t
 
-    /**
-      * Grabs gear
-      * RightFive pressed
-      */
-    val grabGearPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightFive)
-    grabGearPressed.onStart.foreach(() => {
-      Task.executeTask(GearTasks.loadGearFromGroundAbortable(JoystickButtons.RightFive))
-    })
+    val bothPressed = Signal(driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFour)
+      && driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFive)).filter(identity)
+
+    val onlyRightFourPressed = Signal(driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFour)
+      && !driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFive)).filter(identity)
+
+    val onlyRightFivePressed = Signal(!driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFour)
+      && driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFive)).filter(identity)
 
     /**
       * Releases gear
-      * RightSix pressed
+      * only RightFour pressed
       */
-    val releaseGearPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightSix)
-    releaseGearPressed.foreach(new OpenGrabber)
+    onlyRightFourPressed.foreach(new OpenGrabber)
+
+    /**
+      * extends collector
+      * only RightFive pressed
+      */
+    onlyRightFivePressed.foreach(new ExtendTilter)
+
+    /**
+      * Extends collector and opens grabber
+      * both RightFour and RightFive pressed
+      */
+    bothPressed.foreach(
+      new OpenGrabber().and(new ExtendTilter())
+    )
   }
 
-  collectorElevator.zip(collectorRollers).zip(collectorExtender).foreach { t =>
-    implicit val ((elevator, roller), extend) = t
+  collectorElevator.zip(collectorRollers).zip(collectorExtender).zip(loadTray).foreach { t =>
+    implicit val (((elevator, roller), extend), loadTray) = t
 
     /**
       * Collects fuel
@@ -181,6 +215,7 @@ class ButtonMappings(r: CoreRobot) {
   }
 
   r.agitator.foreach { implicit a =>
+
     /**
       * Runs agitator counterclockwise
       * RightOne pressed
@@ -188,5 +223,10 @@ class ButtonMappings(r: CoreRobot) {
     val runAgitatorCounterclockwisePressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightOne)
     runAgitatorCounterclockwisePressed.
       foreach(new SpinAgitator)
+  }
+
+  r.loadTray.foreach { implicit l =>
+    driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftSix).
+      foreach(new ExtendTray())
   }
 }

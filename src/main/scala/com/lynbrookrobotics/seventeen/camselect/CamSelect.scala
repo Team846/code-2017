@@ -5,8 +5,11 @@ import com.lynbrookrobotics.potassium.{Component, PeriodicSignal, Signal}
 import squants.time.Milliseconds
 
 trait CamSelectState
+
 case object LeftCam extends CamSelectState
+
 case object RightCam extends CamSelectState
+
 case object DriverCam extends CamSelectState
 
 class CamSelect(implicit hardware: CamSelectHardware, clock: Clock) extends Component[CamSelectState](Milliseconds(5)) {

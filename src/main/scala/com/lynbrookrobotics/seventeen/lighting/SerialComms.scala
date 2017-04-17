@@ -3,7 +3,7 @@ package com.lynbrookrobotics.seventeen.lighting
 import com.lynbrookrobotics.potassium.lighting.TwoWayComm
 import edu.wpi.first.wpilibj.SerialPort
 
-class SerialComms(serialPort: SerialPort) extends TwoWayComm{
+class SerialComms(serialPort: SerialPort) extends TwoWayComm {
 
   var connected = false;
 
@@ -31,6 +31,7 @@ class SerialComms(serialPort: SerialPort) extends TwoWayComm{
       }
     }
   }
+
   override def pullLog(): String = {
     try {
       serialPort.readString()

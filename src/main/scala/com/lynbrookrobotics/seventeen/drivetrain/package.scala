@@ -1,10 +1,8 @@
 package com.lynbrookrobotics.seventeen
 
-import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.commons.drivetrain._
-import com.lynbrookrobotics.potassium.frc.WPIClock
 import com.lynbrookrobotics.potassium.frc.Implicits._
-import squants.{Each, Time}
+import squants.Each
 import squants.time.Milliseconds
 
 package object drivetrain extends TwoSidedDrive(Milliseconds(5)) {
@@ -32,7 +30,8 @@ package object drivetrain extends TwoSidedDrive(Milliseconds(5)) {
       ArcadeControlsClosed(
         hardware.driverHardware.driverJoystick.y.map(-_).map(s =>
           Each(Math.copySign((s * s).toEach, s.toEach))),
-        hardware.driverHardware.driverWheel.x
+        hardware.driverHardware.driverWheel.x.map(s =>
+          Each(Math.copySign((s * s).toEach, s.toEach)))
       )
     } else {
       NoOperation
