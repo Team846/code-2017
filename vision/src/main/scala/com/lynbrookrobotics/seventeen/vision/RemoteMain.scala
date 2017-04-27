@@ -18,6 +18,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import edu.wpi.cscore._
 
 object RemoteMain extends App {
+  //noinspection ScalaStyle
   override def main(args: Array[String]) = {
     implicit val actorSystem = ActorSystem("host")
     implicit val materializer = ActorMaterializer()

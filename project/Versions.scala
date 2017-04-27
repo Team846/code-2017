@@ -1,3 +1,3 @@
 object Versions {
-  val potassiumVersion = "0.1.0-90dbfdfc"
+  val potassiumVersion = "0.1.0-9d947a1c"
 }
