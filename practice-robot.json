@@ -391,7 +391,7 @@
         "RevolutionsPerMinute$"
       ],
       "currentLimit": [
-        0,
+        50,
         "Percent$"
       ],
       "speedTolerance": [
