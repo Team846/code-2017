@@ -1,5 +1,7 @@
 package com.lynbrookrobotics.seventeen
 
+import javafx.scene.input.RotateEvent
+
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.frc.Implicits._
 import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, Task}
@@ -12,7 +14,7 @@ import com.lynbrookrobotics.seventeen.gear.GearTasks
 import com.lynbrookrobotics.seventeen.gear.grabber.OpenGrabber
 import com.lynbrookrobotics.seventeen.loadtray.ExtendTray
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
-import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{SpinAtVelocity, WhileAtDoubleVelocity}
+import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{WhileAtDoubleVelocity, WhileAtVelocity}
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShooterShiftLeft, ShooterShiftRight}
 import edu.wpi.first.wpilibj.Utility
 import squants.Percent
@@ -138,7 +140,10 @@ class ButtonMappings(r: CoreRobot) {
       * LeftFive pressed
       */
     val flywheelOverridePressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftFive)
-    flywheelOverridePressed.foreach(new SpinAtVelocity(driverHardware.operatorJoystick.y.map(_.toEach * shooterFlywheelProps.get.maxVelocityLeft)))
+    flywheelOverridePressed.foreach(
+      new WhileAtVelocity(
+        driverHardware.operatorJoystick.y.map(_.toEach * shooterFlywheelProps.get.maxVelocityLeft),
+        RevolutionsPerMinute(0)).toContinuous)
   }
 
   gearGrabber.zip(gearTilter).foreach { t =>
@@ -208,8 +213,8 @@ class ButtonMappings(r: CoreRobot) {
       * Climbs
       * Both trigger bottoms for operator joystick and driver joystick pressed
       */
-    val climbPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.TriggerBottom)
-      .and(driverHardware.driverJoystick.buttonPressed(JoystickButtons.TriggerBottom))
+    val climbPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.TriggerBottom) &&
+      driverHardware.driverJoystick.buttonPressed(JoystickButtons.TriggerBottom)
     climbPressed.foreach(ClimberTasks.climb.and(new SelectCamera(LeftCam)))
 
   }
