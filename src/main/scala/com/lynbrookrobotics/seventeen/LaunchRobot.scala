@@ -498,6 +498,7 @@ class LaunchRobot extends RobotBase {
     HAL.observeUserProgramStarting()
 
     while (true) {
+      println("HERE")
       ds.waitForData()
       eventPollingSource.fire()
     }

@@ -22,6 +22,7 @@ import com.lynbrookrobotics.seventeen.lighting.{SerialComms, StatusLightingCompo
 import com.lynbrookrobotics.seventeen.loadtray.LoadTray
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
 import com.lynbrookrobotics.seventeen.shooter.shifter.ShooterShifter
+import com.lynbrookrobotics.seventeen.timing.Timing
 import com.typesafe.config.ConfigFactory
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj._
@@ -159,7 +160,8 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     shooterFlywheel,
     shooterShifter,
     loadTray,
-    lighting
+    lighting,
+    Some(new Timing)
   ).flatten
 
   new ButtonMappings(this)
