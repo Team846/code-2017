@@ -4,8 +4,12 @@ import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.commons.drivetrain.MathUtilities
 import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
-import squants.time.Milliseconds
-import squants.{Each, Percent}
+import edu.wpi.first.wpilibj.Timer
+import squants.time.{Frequency, Milliseconds}
+import squants.{Dimensionless, Each, Percent}
+
+import scala.collection.mutable
+import scala.reflect.io.File
 
 
 class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], hardware: ShooterFlywheelHardware, clock: Clock, driverHardware: DriverHardware)
@@ -33,6 +37,11 @@ class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], ha
     }
   }
 
+  val leftLogger = new ShotLogger("Left")
+  val rightLogger = new ShotLogger("Right")
+  val allLogger = new mutable.Queue[(Double, Frequency, Frequency)]()
+  val fileInst = File(s"/tmp/${System.currentTimeMillis()}-shotLog.tsv")
+
   override def applySignal(signal: DoubleFlywheelSignal): Unit = {
     val leftVelocityPercent = Each(hardware.leftVelocity.get / properties.get.maxVelocityLeft)
     val rightVelocityPercent = Each(hardware.rightVelocity.get / properties.get.maxVelocityRight)
@@ -42,5 +51,21 @@ class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], ha
 
     hardware.leftMotor.set(voltageFactor * leftOut.toEach)
     hardware.rightMotor.set(voltageFactor * rightOut.toEach)
+
+    allLogger.enqueue((Timer.getFPGATimestamp, hardware.leftVelocity.get, hardware.rightVelocity.get))
+    if (allLogger.size > 25000) {
+      println("WRITING LOGS - SYSTEM WILL FREEZE")
+      val out = fileInst.bufferedWriter(true)
+      allLogger.foreach(i =>
+        out.append(s"\n${i._1}\t${i._2}\t${i._3}")
+      )
+      out.flush()
+      out.close()
+      allLogger.clear()
+    }
+    if (signal.left > Percent(50) && signal.right > Percent(50)) {
+      leftLogger.log(signal.left - leftVelocityPercent)
+      rightLogger.log(signal.right - rightVelocityPercent)
+    }
   }
 }
