@@ -1,7 +1,5 @@
 package com.lynbrookrobotics.seventeen
 
-import javafx.scene.input.RotateEvent
-
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.frc.Implicits._
 import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, Task}
