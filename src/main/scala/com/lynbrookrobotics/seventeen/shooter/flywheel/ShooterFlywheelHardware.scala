@@ -20,7 +20,11 @@ case class ShooterFlywheelHardware(leftMotor: Talon,
 object ShooterFlywheelHardware {
   def apply(config: ShooterFlywheelConfig): ShooterFlywheelHardware = {
     ShooterFlywheelHardware(
-      new Talon(config.ports.leftMotor),
+      {
+        val it = new Talon(config.ports.leftMotor)
+        it.setInverted(true)
+        it
+      },
       new Talon(config.ports.rightMotor),
       new Counter(config.ports.leftHall),
       new Counter(config.ports.rightHall)
