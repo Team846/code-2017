@@ -11,10 +11,10 @@ case class ShooterFlywheelHardware(leftMotor: Talon,
                                    leftHall: Counter,
                                    rightHall: Counter) extends DoubleFlywheelHardware {
   override val leftVelocity: Signal[Frequency] =
-    leftHall.frequency
+    leftHall.frequency.map(_ / 2)
 
   override val rightVelocity: Signal[Frequency] =
-    rightHall.frequency
+    rightHall.frequency.map(_ / 2)
 }
 
 object ShooterFlywheelHardware {
