@@ -1,6 +1,6 @@
 package com.lynbrookrobotics.seventeen.shooter.flywheel
 
-import com.lynbrookrobotics.potassium.Signal
+import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.commons.flywheel.DoubleFlywheelHardware
 import com.lynbrookrobotics.potassium.frc.Implicits._
 import edu.wpi.first.wpilibj.{Counter, Talon}
@@ -10,11 +10,11 @@ case class ShooterFlywheelHardware(leftMotor: Talon,
                                    rightMotor: Talon,
                                    leftHall: Counter,
                                    rightHall: Counter) extends DoubleFlywheelHardware {
-  override val leftVelocity: Signal[Frequency] =
-    leftHall.frequency.map(_ / 2) // 2 magnets on the roller
+  override val leftVelocity: Stream[Frequency] = ???
+    //leftHall.frequency.map(_ / 2) // 2 magnets on the roller
 
-  override val rightVelocity: Signal[Frequency] =
-    rightHall.frequency.map(_ / 2)  // 2 magnets on the roller
+  override val rightVelocity: Stream[Frequency] = ???
+//    rightHall.frequency.map(_ / 2)  // 2 magnets on the roller
 
 }
 

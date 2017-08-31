@@ -5,7 +5,8 @@ import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 
 class ExtendCollector(implicit extender: CollectorExtender) extends ContinuousTask {
   override protected def onStart(): Unit = {
-    extender.setController(Signal.constant(CollectorExtenderExtended).toPeriodic)
+    ???
+//    extender.setController(Signal.constant(CollectorExtenderExtended).toPeriodic)
   }
 
   override protected def onEnd(): Unit = {

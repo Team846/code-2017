@@ -5,7 +5,8 @@ import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 
 class RetractTilter(implicit tilter: GearTilter) extends ContinuousTask {
   override protected def onStart(): Unit = {
-    tilter.setController(Signal.constant(GearTilterRetracted).toPeriodic)
+    ???
+//    tilter.setController(Signal.constant(GearTilterRetracted).toPeriodic)
   }
 
   override protected def onEnd(): Unit = {

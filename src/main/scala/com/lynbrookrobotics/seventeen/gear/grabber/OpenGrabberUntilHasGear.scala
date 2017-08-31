@@ -8,11 +8,12 @@ class OpenGrabberUntilHasGear(implicit hardware: GearGrabberHardware, grabber: G
   val proximitySensor = hardware.proximitySensor
 
   override protected def onStart(): Unit = {
-    grabber.setController(Signal.constant(GearGrabberOpen).toPeriodic.withCheck { _ =>
-      if (proximitySensor.getVoltage > props.get.detectingDistance.toVolts) {
-        finished()
-      }
-    })
+    ???
+//    grabber.setController(Signal.constant(GearGrabberOpen).toPeriodic.withCheck { _ =>
+//      if (proximitySensor.getVoltage > props.get.detectingDistance.toVolts) {
+//        finished()
+//      }
+//    })
   }
 
   override protected def onEnd(): Unit = {

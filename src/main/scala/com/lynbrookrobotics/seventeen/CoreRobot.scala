@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
+import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimePushNumeric, TimeSeriesNumeric}
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
 import com.lynbrookrobotics.potassium.tasks.{FiniteTask, Task}
@@ -42,11 +42,28 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   lazy val drivetrain: Option[Drivetrain] =
     if (config.get.drivetrain != null) Some(new Drivetrain) else None
 
+  // TODO: Next 20 lines are fast quick fixes to be replaced
+
+  val leftPositionPush = new TimePushNumeric("Left Ground")
+  val rightPositionPush = new TimePushNumeric("Right Ground")
+
+  val turnVelocityPush = new TimePushNumeric("Turn Velocity")
+  val turnPositionPush = new TimePushNumeric("Rotational Position")
+
+
+  val enableDash = false
+  if (enableDash) {
+    drivetrainHardware.leftPosition.foreach(v => leftPositionPush.pushValue(v.toFeet))
+    drivetrainHardware.rightPosition.foreach(v => rightPositionPush.pushValue(v.toFeet))
+    drivetrainHardware.turnVelocity.foreach(v => turnVelocityPush.pushValue(v.toDegreesPerSecond))
+    drivetrainHardware.turnPosition.foreach(v => turnPositionPush.pushValue(v.toDegrees))
+  }
+
   // Agitator
   implicit val agitatorHardware = hardware.agitator
   implicit val agitatorProps = config.map(_.agitator.properties)
   lazy val agitator: Option[Agitator] =
-    if (config.get.agitator != null) Some(new Agitator) else None
+    /*if (config.get.agitator != null) Some(new Agitator) else */None
 
   // CamSelect
   implicit val camSelectHardware = hardware.camSelect
@@ -58,61 +75,61 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   implicit val climberPullerHardware = hardware.climberPuller
   implicit val climberPullerProps = config.map(_.climberPuller.props)
   lazy val climberPuller: Option[ClimberPuller] =
-    if (config.get.climberPuller != null) Some(new ClimberPuller) else None
+    /*if (config.get.climberPuller != null) Some(new ClimberPuller) else*/ None
 
   // Collector Elevator
   implicit val collectorElevatorHardware = hardware.collectorElevator
   implicit val collectorElevatorProps = config.map(_.collectorElevator.properties)
   lazy val collectorElevator: Option[CollectorElevator] =
-    if (config.get.collectorElevator != null) Some(new CollectorElevator) else None
+    /*if (config.get.collectorElevator != null) Some(new CollectorElevator) else */None
 
   // Collector Extender
   implicit val collectorExtenderHardware = hardware.collectorExtender
   lazy val collectorExtender: Option[CollectorExtender] =
-    if (config.get.collectorExtender != null) {
+    /*if (config.get.collectorExtender != null) {
       implicit val gt = () => gearTilter
       implicit val lt = () => loadTray
       Some(new CollectorExtender)
-    } else None
+    } else*/ None
 
   // Collector Rollers
   implicit val collectorRollersHardware = hardware.collectorRollers
   implicit val collectorRollersProps = config.map(_.collectorRollers.properties)
   lazy val collectorRollers: Option[CollectorRollers] =
-    if (config.get.collectorRollers != null) Some(new CollectorRollers) else None
+    /*if (config.get.collectorRollers != null) Some(new CollectorRollers) else*/ None
 
   // Gear Grabber
   implicit val gearGrabberHardware = hardware.gearGrabber
   implicit val gearGrabberProps = config.map(_.gearGrabber.props)
   lazy val gearGrabber: Option[GearGrabber] =
-    if (config.get.gearGrabber != null) Some(new GearGrabber) else None
+    /*if (config.get.gearGrabber != null) Some(new GearGrabber) else*/ None
 
   // Gear Tilter
   implicit val gearTilterHardware = hardware.gearTilter
   lazy val gearTilter: Option[GearTilter] =
-    if (config.get.gearTilter != null) {
+    /*if (config.get.gearTilter != null) {
       implicit val ce = () => collectorExtender
       Some(new GearTilter)
-    } else None
+    } else*/ None
 
   // Shooter Flywheel
   implicit val shooterFlywheelHardware = hardware.shooterFlywheel
   implicit val shooterFlywheelProps = config.map(_.shooterFlywheel.props)
   lazy val shooterFlywheel: Option[ShooterFlywheel] =
-    if (config.get.shooterFlywheel != null) Some(new ShooterFlywheel) else None
+    /*if (config.get.shooterFlywheel != null) Some(new ShooterFlywheel) else */None
 
   // Shooter Shifter
   implicit val shooterShifterHardware = hardware.shooterShifter
   lazy val shooterShifter: Option[ShooterShifter] =
-    if (config.get.shooterShifter != null) Some(new ShooterShifter) else None
+    /*if (config.get.shooterShifter != null) Some(new ShooterShifter) else*/ None
 
   // Load Tray
   implicit val loadTrayHardware = hardware.loadTray
   lazy val loadTray: Option[LoadTray] =
-    if (config.get.loadTray != null) {
+    /*if (config.get.loadTray != null) {
       implicit val ce = () => collectorExtender
       Some(new LoadTray)
-    } else None
+    } else */None
 
   // Lighting
   /**
@@ -133,8 +150,8 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
         8
       } else {
         10
-      }
-    } else if (shooterFlywheel.isDefined && shooterFlywheelHardware.leftVelocity.get.toHertz > 0) {
+      } // TODO: yuuuup, definately wrong
+    } else if (false/*shooterFlywheel.isDefined && shooterFlywheelHardware.leftVelocity.toHertz > 0*/) {
       7
     } else {
       0
@@ -142,7 +159,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   }
 
   val serialPort = Try(new SerialPort(9600, SerialPort.Port.kUSB)).toOption
-  val comms: Option[SerialComms] = serialPort.map(new SerialComms(_))
+  val comms: Option[SerialComms] = None// serialPort.map(new SerialComms(_))
   val lighting: Option[StatusLightingComponent] = comms.map(c => new StatusLightingComponent(lightingStatus, c))
 
   new Compressor().start()
@@ -389,68 +406,61 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     ))
 
     drivetrain.foreach { d =>
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Ground")(
-        drivetrainHardware.leftPosition.get.toFeet
-      ))
 
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Ground")(
-        drivetrainHardware.rightPosition.get.toFeet
-      ))
+      board.datasetGroup("Drivetrain").addDataset(leftPositionPush)
 
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Wheel Rotation")(
-        (drivetrainHardware.leftEncoder.angle.get * drivetrainProps.get.gearRatio).toDegrees
-      ))
+      board.datasetGroup("Drivetrain").addDataset(rightPositionPush)
 
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Wheel Rotation")(
-        (drivetrainHardware.rightEncoder.angle.get * drivetrainProps.get.gearRatio).toDegrees
-      ))
+//      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Left Wheel Rotation")(
+//        (drivetrainHardware.leftEncoder.angle.get * drivetrainProps.get.gearRatio).toDegrees
+//      ))
+//
+//      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Right Wheel Rotation")(
+//        (drivetrainHardware.rightEncoder.angle.get * drivetrainProps.get.gearRatio).toDegrees
+//      ))
 
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Turn Velocity")(
-        drivetrainHardware.turnVelocity.get.toDegreesPerSecond
-      ))
+      board.datasetGroup("Drivetrain").addDataset(turnVelocityPush)
 
-      board.datasetGroup("Drivetrain").addDataset(new TimeSeriesNumeric("Rotational Position")(
-        drivetrainHardware.turnPosition.get.toDegrees
-      ))
+      board.datasetGroup("Drivetrain").addDataset(turnVelocityPush)
     }
 
-    shooterFlywheel.foreach { d =>
-      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Left Speed")(
-        shooterFlywheelHardware.leftVelocity.get.toRevolutionsPerMinute
-      ))
+//    shooterFlywheel.foreach { d =>
+//      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Left Speed")(
+//        shooterFlywheelHardware.leftVelocity.get.toRevolutionsPerMinute
+//      ))
+//
+//      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right Speed")(
+//        shooterFlywheelHardware.rightVelocity.get.toRevolutionsPerMinute
+//      ))
+//
+//      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Left Out")(
+//        shooterFlywheelHardware.leftMotor.get()
+//      ))
+//
+//      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right Out")(
+//        shooterFlywheelHardware.rightMotor.get()
+//      ))
+//
+//      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right - Left")(
+//        (shooterFlywheelHardware.rightVelocity.get - shooterFlywheelHardware.leftVelocity.get)
+//          .toRevolutionsPerMinute
+//      ))
+//    }
 
-      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right Speed")(
-        shooterFlywheelHardware.rightVelocity.get.toRevolutionsPerMinute
-      ))
-
-      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Left Out")(
-        shooterFlywheelHardware.leftMotor.get()
-      ))
-
-      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right Out")(
-        shooterFlywheelHardware.rightMotor.get()
-      ))
-
-      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right - Left")(
-        (shooterFlywheelHardware.rightVelocity.get - shooterFlywheelHardware.leftVelocity.get)
-          .toRevolutionsPerMinute
-      ))
-    }
-
-    climberPuller.foreach { c =>
-      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor A")(
-        hardware.pdp.getCurrent(3)
-      ))
-
-      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor B")(
-        hardware.pdp.getCurrent(2)
-      ))
-    }
-
-    gearGrabber.foreach { g =>
-      board.datasetGroup("Grabber").addDataset(new TimeSeriesNumeric("IR Distance")(
-        hardware.gearGrabber.proximitySensor.getVoltage
-      ))
-    }
+//    climberPuller.foreach { c =>
+//      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor A")(
+//        hardware.pdp.getCurrent(3)
+//      ))
+//
+//      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor B")(
+//        hardware.pdp.getCurrent(2)
+//      ))
+//    }
+//
+//    gearGrabber.foreach { g =>
+//      board.datasetGroup("Grabber").addDataset(new TimeSeriesNumeric("IR Distance")(
+//        hardware.gearGrabber.proximitySensor.getVoltage
+//      ))
+//    }
   }
 }

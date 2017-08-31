@@ -3,6 +3,8 @@ package com.lynbrookrobotics.seventeen.drivetrain
 
 import com.ctre.CANTalon
 import com.lynbrookrobotics.potassium.Signal
+import com.lynbrookrobotics.potassium.streams.Stream
+import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.commons.drivetrain.TwoSidedDriveHardware
 import com.lynbrookrobotics.potassium.frc.Implicits._
 import com.lynbrookrobotics.potassium.frc.TalonEncoder
@@ -13,7 +15,13 @@ import edu.wpi.first.wpilibj.SPI
 import squants.motion.{AngularVelocity, DegreesPerSecond}
 import squants.space.Degrees
 import squants.time.{Milliseconds, Seconds}
-import squants.{Angle, Each, Length, Velocity}
+import squants.{Angle, Each, Length, Time, Velocity}
+
+sealed case class DrivetrainData(leftTurnVelocity: AngularVelocity,
+                                  rightTurnVelocity: AngularVelocity,
+                                  leftTurnPosition: Angle,
+                                  rightTurnPosition: Angle,
+                                  gyroVelocities: Value3D[AngularVelocity])
 
 case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
                               rightBack: CANTalon, rightFront: CANTalon,
@@ -27,21 +35,36 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
   val wheelRadius = props.wheelDiameter / 2
   val track = props.track
 
-  override val leftVelocity: Signal[Velocity] = leftEncoder.angularVelocity.map(av =>
+  implicit val clock: Clock = ???
+  val period: Time = ???
+
+  val rootDataStream = Stream.periodic(period)(
+    DrivetrainData(
+      leftEncoder.getAngularVelocity,
+      rightEncoder.getAngularVelocity,
+
+      leftEncoder.getAngle,
+      rightEncoder.getAngle,
+
+      gyro.getVelocities
+    )
+  )
+
+  override val leftVelocity: Stream[Velocity] = rootDataStream.map(_.leftTurnVelocity).map(av =>
     wheelRadius * (av.toRadiansPerSecond * props.gearRatio) / Seconds(1))
-  override val rightVelocity: Signal[Velocity] = rightEncoder.angularVelocity.map(av =>
+  override val rightVelocity: Stream[Velocity] = rootDataStream.map(_.rightTurnVelocity).map(av =>
     wheelRadius * (av.toRadiansPerSecond * props.gearRatio) / Seconds(1))
 
-  val leftPosition: Signal[Length] = leftEncoder.angle.map(a =>
+  val leftPosition: Stream[Length] = rootDataStream.map(_.leftTurnPosition).map(a =>
     a.toRadians * props.gearRatio * wheelRadius)
-  val rightPosition: Signal[Length] = rightEncoder.angle.map(a =>
+  val rightPosition: Stream[Length] = rootDataStream.map(_.rightTurnPosition).map(a =>
     a.toRadians * props.gearRatio * wheelRadius)
 
-  val pos = gyro.position.toPollingSignal(Milliseconds(5))
+  override lazy val turnVelocity: Stream[AngularVelocity] = rootDataStream.map(_.gyroVelocities).map(_.z)
+  override lazy val turnPosition: Stream[Angle] = turnVelocity.integral
 
-  override lazy val turnVelocity: Signal[AngularVelocity] = gyro.velocityZ.peek.
-    map(_.getOrElse(DegreesPerSecond(0)))
-  override lazy val turnPosition: Signal[Angle] = pos.map(_.map(_.z).getOrElse(Degrees(0)))
+  turnPosition.foreach(_ => println("turn position"))
+  forwardPosition.foreach(_ => println("forward position"))
 }
 
 object DrivetrainHardware {

@@ -13,9 +13,9 @@ class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], ha
 
   val NominalVoltage = 11.9
 
-  override def defaultController = Signal.constant(
+  override def defaultController = ???/*Signal.constant(
     DoubleFlywheelSignal(Percent(0), Percent(0))
-  ).toPeriodic
+  ).toPeriodic*/
 
   /**
     * Compensate for reduced battery voltage
@@ -34,13 +34,14 @@ class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], ha
   }
 
   override def applySignal(signal: DoubleFlywheelSignal): Unit = {
-    val leftVelocityPercent = Each(hardware.leftVelocity.get / properties.get.maxVelocityLeft)
-    val rightVelocityPercent = Each(hardware.rightVelocity.get / properties.get.maxVelocityRight)
-
-    val leftOut = MathUtilities.limitCurrentOutput(signal.left, leftVelocityPercent, properties.get.currentLimit, properties.get.currentLimit)
-    val rightOut = MathUtilities.limitCurrentOutput(signal.right, rightVelocityPercent, properties.get.currentLimit, properties.get.currentLimit)
-
-    hardware.leftMotor.set(voltageFactor * leftOut.toEach)
-    hardware.rightMotor.set(voltageFactor * rightOut.toEach)
+    ???
+//    val leftVelocityPercent = Each(hardware.leftVelocity.get / properties.get.maxVelocityLeft)
+//    val rightVelocityPercent = Each(hardware.rightVelocity.get / properties.get.maxVelocityRight)
+//
+//    val leftOut = MathUtilities.limitCurrentOutput(signal.left, leftVelocityPercent, properties.get.currentLimit, properties.get.currentLimit)
+//    val rightOut = MathUtilities.limitCurrentOutput(signal.right, rightVelocityPercent, properties.get.currentLimit, properties.get.currentLimit)
+//
+//    hardware.leftMotor.set(voltageFactor * leftOut.toEach)
+//    hardware.rightMotor.set(voltageFactor * rightOut.toEach)
   }
 }

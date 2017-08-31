@@ -25,15 +25,15 @@ object ShooterTasks {
                       collectorRollersProperties: Signal[CollectorRollersProperties],
                       flywheelHardware: ShooterFlywheelHardware): ContinuousTask = {
     val wrapper = new WhileAtDoubleVelocity(
-      shootSpeedLeft,
-      shootSpeedRight,
+      /*shootSpeedLeft*/???,
+      /*shootSpeedRight*/???,
       flywheelProperties.get.speedTolerance
     )
 
     wrapper(
       new SpinAgitator()
         .and(new LoadIntoStorage())
-        .and(new RollBallsInCollector(collectorRollersProperties.map(_.highRollerSpeedOutput)))
+        .and(???/*new RollBallsInCollector(collectorRollersProperties.map(_.highRollerSpeedOutput))*/)
         .and(new ExtendCollector())
     ).and(new ExtendTray())
   }

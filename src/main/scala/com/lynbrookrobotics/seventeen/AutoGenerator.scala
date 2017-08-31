@@ -139,8 +139,8 @@ class AutoGenerator(r: CoreRobot) {
     ).withTimeout(Seconds(4)).then(
       new WaitTask(Seconds(0.5)).andUntilDone(
         new DriveOpenLoop(
-          Signal.constant(Percent(40)),
-          Signal.constant(Percent(0))
+          drivetrainHardware.forwardPosition.mapToConstant(Percent(40)),
+          drivetrainHardware.forwardPosition.mapToConstant(Percent(0))
         )
       )
     )
@@ -224,9 +224,9 @@ class AutoGenerator(r: CoreRobot) {
   }
 
   def centerGearAndCrossLine(implicit d: Drivetrain, g: GearGrabber, t: GearTilter): FiniteTask = {
-    val initialTurnPosition = drivetrainHardware.turnPosition.get
-
-    val relativeTurn = drivetrainHardware.turnPosition.map(_ - initialTurnPosition)
+    val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
+      curr - init
+    })
 
     val xyPosition = XYPosition(
       relativeTurn,
