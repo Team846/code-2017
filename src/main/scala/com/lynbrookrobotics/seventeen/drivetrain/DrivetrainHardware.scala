@@ -7,7 +7,7 @@ import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.commons.drivetrain.TwoSidedDriveHardware
 import com.lynbrookrobotics.potassium.frc.Implicits._
-import com.lynbrookrobotics.potassium.frc.TalonEncoder
+import com.lynbrookrobotics.potassium.frc.{TalonEncoder, WPIClock}
 import com.lynbrookrobotics.potassium.sensors.imu.{ADIS16448, DigitalGyro}
 import com.lynbrookrobotics.potassium.units._
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
@@ -27,16 +27,14 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
                               rightBack: CANTalon, rightFront: CANTalon,
                               gyro: DigitalGyro,
                               props: DrivetrainProperties,
-                              driverHardware: DriverHardware)
+                              driverHardware: DriverHardware,
+                              period: Time)
   extends TwoSidedDriveHardware {
   val leftEncoder = new TalonEncoder(leftBack, Degrees(360) / Each(8192))
   val rightEncoder = new TalonEncoder(rightBack, -Degrees(360) / Each(8192))
 
   val wheelRadius = props.wheelDiameter / 2
   val track = props.track
-
-  implicit val clock: Clock = ???
-  val period: Time = ???
 
   val rootDataStream = Stream.periodic(period)(
     DrivetrainData(
@@ -48,7 +46,7 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
 
       gyro.getVelocities
     )
-  )
+  )(WPIClock)
 
   override val leftVelocity: Stream[Velocity] = rootDataStream.map(_.leftTurnVelocity).map(av =>
     wheelRadius * (av.toRadiansPerSecond * props.gearRatio) / Seconds(1))
@@ -76,7 +74,8 @@ object DrivetrainHardware {
       new CANTalon(config.ports.rightFront),
       new ADIS16448(new SPI(SPI.Port.kMXP), null),
       config.properties,
-      driverHardware
+      driverHardware,
+      Milliseconds(5)
     )
   }
 }
