@@ -10,10 +10,10 @@ case class ShooterFlywheelHardware(leftMotor: Talon,
                                    rightMotor: Talon,
                                    leftHall: Counter,
                                    rightHall: Counter) extends DoubleFlywheelHardware {
-  override val leftVelocity: Stream[Frequency] = ???
+  override lazy val leftVelocity: Stream[Frequency] = ???
     //leftHall.frequency.map(_ / 2) // 2 magnets on the roller
 
-  override val rightVelocity: Stream[Frequency] = ???
+  override lazy val rightVelocity: Stream[Frequency] = ???
 //    rightHall.frequency.map(_ / 2)  // 2 magnets on the roller
 
 }

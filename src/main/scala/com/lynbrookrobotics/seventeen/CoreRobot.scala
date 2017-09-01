@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
+import com.lynbrookrobotics.seventeen.drivetrain.unicycleTasks.RotateToAngle
 import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimePushNumeric, TimeSeriesNumeric}
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
@@ -26,6 +27,8 @@ import com.typesafe.config.ConfigFactory
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj._
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+import squants.Percent
+import squants.space.{Degrees, Feet}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -367,6 +370,14 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     }
 
     components.foreach(_.resetToDefault())
+
+    drivetrain.foreach{ implicit  d =>
+      val task = new RotateToAngle(
+        Degrees(90),
+        Degrees(2))
+
+      task.init()
+    }
   }
 
   enabled.onEnd.foreach { () =>

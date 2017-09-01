@@ -61,8 +61,7 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
   override lazy val turnVelocity: Stream[AngularVelocity] = rootDataStream.map(_.gyroVelocities).map(_.z)
   override lazy val turnPosition: Stream[Angle] = turnVelocity.integral
 
-  turnPosition.foreach(_ => println("turn position"))
-  forwardPosition.foreach(_ => println("forward position"))
+  val cancel = turnPosition.zipWithDt.foreach(v => println(s"dt: ${v._2.toMilliseconds}"))
 }
 
 object DrivetrainHardware {

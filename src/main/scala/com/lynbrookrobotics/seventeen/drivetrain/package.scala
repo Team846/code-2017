@@ -32,7 +32,7 @@ package object drivetrain extends TwoSidedDrive(Milliseconds(5)) {
   override protected def controlMode(implicit hardware: DrivetrainHardware,
                                      props: DrivetrainProperties): UnicycleControlMode = {
     if (hardware.driverHardware.station.isEnabled && hardware.driverHardware.station.isOperatorControl) {
-      ???
+      NoOperation
       //      ArcadeControlsClosed(
 //        hardware.driverHardware.driverJoystick.y.map(-_).map(s =>
 //          Each(Math.copySign((s * s).toEach, s.toEach))),

@@ -10,7 +10,6 @@ import com.lynbrookrobotics.potassium.frc.Implicits._
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.hal.HAL
 import upickle.default._
-import com.lynbrookrobotics.seventeen.drivetrain.unicycleTasks._
 import com.lynbrookrobotics.potassium.config.SquantsPickling._
 import squants.Percent
 
@@ -88,16 +87,6 @@ class LaunchRobot extends RobotBase {
       "Finished preloading and establishing connections. " +
       "Wait 5 seconds to allow for sensor calibration\n")
 
-    implicit val drivetrainHardware = coreRobot.drivetrainHardware
-    implicit val drivetrainComp = coreRobot.drivetrain.get
-    implicit val driveProps = coreRobot.drivetrainProps
-
-    val task = new DriveOpenLoop(
-      drivetrainHardware.forwardPosition.mapToConstant(Percent(100)),
-      drivetrainHardware.forwardPosition.mapToConstant(Percent(0)))
-
-    task.init()
-    
     while (true) {
       ds.waitForData()
       eventPollingSource.fire()
