@@ -4,7 +4,7 @@ import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.{Component, PeriodicSignal, Signal}
 import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
-import squants.time.Milliseconds
+import squants.time.{Milliseconds, Seconds}
 
 sealed trait GearTilterState
 
@@ -15,7 +15,9 @@ case object GearTilterRetracted extends GearTilterState
 class GearTilter(implicit hardware: GearTilterHardware,
                  collectorExtenderF: () => Option[CollectorExtender],
                  clock: Clock) extends Component[GearTilterState](Milliseconds(5)) {
-  override def defaultController: Stream[GearTilterState] = ??? //Signal.constant(GearTilterRetracted).toPeriodic
+  override def defaultController: Stream[GearTilterState] = Stream.periodic(Seconds(1)) {
+    GearTilterRetracted
+  }
 
   lazy val collectorExtender = collectorExtenderF()
 

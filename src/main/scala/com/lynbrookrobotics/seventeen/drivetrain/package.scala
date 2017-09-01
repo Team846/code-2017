@@ -2,11 +2,13 @@ package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.potassium.commons.drivetrain._
 import com.lynbrookrobotics.potassium.frc.Implicits._
+import squants.Each
 import squants.time.Milliseconds
 
 package object drivetrain extends TwoSidedDrive(Milliseconds(5)) {
   type Hardware = DrivetrainHardware
   type Properties = DrivetrainProperties
+
 
   override protected def output(hardware: DrivetrainHardware,
                                 signal: TwoSidedSignal): Unit = {
@@ -32,13 +34,12 @@ package object drivetrain extends TwoSidedDrive(Milliseconds(5)) {
   override protected def controlMode(implicit hardware: DrivetrainHardware,
                                      props: DrivetrainProperties): UnicycleControlMode = {
     if (hardware.driverHardware.station.isEnabled && hardware.driverHardware.station.isOperatorControl) {
-      NoOperation
-      //      ArcadeControlsClosed(
-//        hardware.driverHardware.driverJoystick.y.map(-_).map(s =>
-//          Each(Math.copySign((s * s).toEach, s.toEach))),
-//        hardware.driverHardware.driverWheel.x.map(s =>
-//          Each(Math.copySign((s * s).toEach, s.toEach)))
-//      )
+      ArcadeControlsClosed(
+        hardware.driverHardware.joystickStream.map(v => -v.driver.y).map(s =>
+          Each(Math.copySign((s * s).toEach, s.toEach))),
+        hardware.driverHardware.joystickStream.map(v => -v.driverWheel.x).map(s =>
+          Each(Math.copySign((s * s).toEach, s.toEach)))
+      )
     } else {
       NoOperation
     }

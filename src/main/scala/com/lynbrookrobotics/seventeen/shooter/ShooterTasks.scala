@@ -10,10 +10,11 @@ import com.lynbrookrobotics.seventeen.loadtray.{ExtendTray, LoadTray}
 import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks._
 import com.lynbrookrobotics.seventeen.shooter.flywheel.{ShooterFlywheel, ShooterFlywheelHardware, ShooterFlywheelProperties}
 import squants.time.Frequency
+import com.lynbrookrobotics.potassium.streams.Stream
 
 object ShooterTasks {
-  def continuousShoot(shootSpeedLeft: Signal[Frequency],
-                      shootSpeedRight: Signal[Frequency])
+  def continuousShoot(shootSpeedLeft: Stream[Frequency],
+                      shootSpeedRight: Stream[Frequency])
                      (implicit collectorElevator: CollectorElevator,
                       collectorRollers: CollectorRollers,
                       agitator: Agitator, flywheel: ShooterFlywheel,
@@ -25,15 +26,15 @@ object ShooterTasks {
                       collectorRollersProperties: Signal[CollectorRollersProperties],
                       flywheelHardware: ShooterFlywheelHardware): ContinuousTask = {
     val wrapper = new WhileAtDoubleVelocity(
-      /*shootSpeedLeft*/???,
-      /*shootSpeedRight*/???,
+      shootSpeedLeft,
+      shootSpeedRight,
       flywheelProperties.get.speedTolerance
     )
 
     wrapper(
       new SpinAgitator()
         .and(new LoadIntoStorage())
-        .and(???/*new RollBallsInCollector(collectorRollersProperties.map(_.highRollerSpeedOutput))*/)
+        .and(new RollBallsInCollector(shootSpeedLeft.map(_ => collectorRollersProperties.get.highRollerSpeedOutput)))
         .and(new ExtendCollector())
     ).and(new ExtendTray())
   }

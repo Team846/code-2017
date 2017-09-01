@@ -4,8 +4,9 @@ import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.commons.drivetrain.MathUtilities
 import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
-import squants.time.Milliseconds
+import squants.time.{Milliseconds, Seconds}
 import squants.{Each, Percent}
+import com.lynbrookrobotics.potassium.streams.Stream
 
 
 class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], hardware: ShooterFlywheelHardware, clock: Clock, driverHardware: DriverHardware)
@@ -13,9 +14,9 @@ class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], ha
 
   val NominalVoltage = 11.9
 
-  override def defaultController = ???/*Signal.constant(
-    DoubleFlywheelSignal(Percent(0), Percent(0))
-  ).toPeriodic*/
+  override def defaultController = Stream.periodic(Seconds(1)) {
+    DoubleFlywheelSignal(Each(0), Each(0))
+  }
 
   /**
     * Compensate for reduced battery voltage
@@ -34,7 +35,6 @@ class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], ha
   }
 
   override def applySignal(signal: DoubleFlywheelSignal): Unit = {
-    ???
 //    val leftVelocityPercent = Each(hardware.leftVelocity.get / properties.get.maxVelocityLeft)
 //    val rightVelocityPercent = Each(hardware.rightVelocity.get / properties.get.maxVelocityRight)
 //
@@ -43,5 +43,8 @@ class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], ha
 //
 //    hardware.leftMotor.set(voltageFactor * leftOut.toEach)
 //    hardware.rightMotor.set(voltageFactor * rightOut.toEach)
+
+    hardware.leftMotor.set(signal.left.toEach)
+    hardware.rightMotor.set(signal.right.toEach)
   }
 }

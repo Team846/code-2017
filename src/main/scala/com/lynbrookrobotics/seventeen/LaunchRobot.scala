@@ -63,21 +63,23 @@ class LaunchRobot extends RobotBase {
       }
     )
 
+    println("preloading")
     ClassPath.from(Thread.currentThread().getContextClassLoader).
-      getTopLevelClassesRecursive("com.lynbrookrobotics").
-      forEach(c => println(s"preloaded ${c.getName}"))
+      getTopLevelClassesRecursive("com.lynbrookrobotics")//.
+//      forEach(c => println(s"preloaded ${c.getName}"))
 
     ClassPath.from(Thread.currentThread().getContextClassLoader).
-      getTopLevelClassesRecursive("squants").
-      forEach(c => println(s"preloaded ${c.getName}"))
+      getTopLevelClassesRecursive("squants")//.
+//      forEach(c => println(s"preloaded ${c.getName}"))
 
     ClassPath.from(Thread.currentThread().getContextClassLoader).
-      getTopLevelClassesRecursive("edu.wpi.first.wpilibj").
-      forEach(c => println(s"preloaded ${c.getName}"))
+      getTopLevelClassesRecursive("edu.wpi.first.wpilibj")//.
+//      forEach(c => println(s"preloaded ${c.getName}"))
 
     ClassPath.from(Thread.currentThread().getContextClassLoader).
-      getTopLevelClassesRecursive("com.ctre").
-      forEach(c => println(s"preloaded ${c.getName}"))
+      getTopLevelClassesRecursive("com.ctre")//.
+//      forEach(c => println(s"preloaded ${c.getName}"))
+    println("preloading finished")
 
     coreRobot.comms.foreach(_.connect())
 
@@ -90,6 +92,7 @@ class LaunchRobot extends RobotBase {
     while (true) {
       ds.waitForData()
       eventPollingSource.fire()
+      coreRobot.driverHardware.driverStationUpdate.apply()
     }
   }
 }

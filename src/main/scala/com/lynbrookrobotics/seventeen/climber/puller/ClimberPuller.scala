@@ -16,7 +16,9 @@ case class CurrentMode(current: ElectricCurrent) extends ClimberControlMode
 case class PWMMode(value: Dimensionless) extends ClimberControlMode
 
 class ClimberPuller(implicit hardware: ClimberPullerHardware, clock: Clock) extends Component[ClimberControlMode](Milliseconds(5)) {
-  override def defaultController: Stream[ClimberControlMode] = ??? //Signal.constant(new PWMMode(Percent(0))).toPeriodic
+  override def defaultController: Stream[ClimberControlMode] = Stream.periodic(Seconds(1)) {
+    PWMMode(Percent(0))
+  }
 
   override def applySignal(signal: ClimberControlMode): Unit = {
     signal match {

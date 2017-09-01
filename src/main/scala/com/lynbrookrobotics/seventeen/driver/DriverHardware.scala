@@ -1,8 +1,25 @@
 package com.lynbrookrobotics.seventeen.driver
 
 import edu.wpi.first.wpilibj.{DriverStation, Joystick}
+import com.lynbrookrobotics.potassium.streams.Stream
+import edu.wpi.first.wpilibj.Joystick.AxisType
+import squants.Dimensionless
 
-case class DriverHardware(driverJoystick: Joystick, operatorJoystick: Joystick, driverWheel: Joystick, launchpad: Joystick, station: DriverStation)
+import com.lynbrookrobotics.potassium.frc.Implicits._
+
+case class JoystickState(x: Dimensionless, y: Dimensionless)
+case class JoystickValues(driver: JoystickState, driverWheel: JoystickState, operator: JoystickState)
+
+case class DriverHardware(driverJoystick: Joystick, operatorJoystick: Joystick, driverWheel: Joystick, launchpad: Joystick, station: DriverStation) {
+  val (driverStationTicks, driverStationUpdate) = Stream.manual[Unit]
+  val joystickStream = driverStationTicks.map { _ =>
+    JoystickValues(
+      driver = JoystickState(driverJoystick.x, driverJoystick.y),
+      driverWheel = JoystickState(driverWheel.x, driverWheel.y),
+      operator = JoystickState(operatorJoystick.x, operatorJoystick.y)
+    )
+  }
+}
 
 object DriverHardware {
   def apply(config: DriverConfig): DriverHardware = {

@@ -78,61 +78,61 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   implicit val climberPullerHardware = hardware.climberPuller
   implicit val climberPullerProps = config.map(_.climberPuller.props)
   lazy val climberPuller: Option[ClimberPuller] =
-    /*if (config.get.climberPuller != null) Some(new ClimberPuller) else*/ None
+    if (config.get.climberPuller != null) Some(new ClimberPuller) else None
 
   // Collector Elevator
   implicit val collectorElevatorHardware = hardware.collectorElevator
   implicit val collectorElevatorProps = config.map(_.collectorElevator.properties)
   lazy val collectorElevator: Option[CollectorElevator] =
-    /*if (config.get.collectorElevator != null) Some(new CollectorElevator) else */None
+    if (config.get.collectorElevator != null) Some(new CollectorElevator) else None
 
   // Collector Extender
   implicit val collectorExtenderHardware = hardware.collectorExtender
   lazy val collectorExtender: Option[CollectorExtender] =
-    /*if (config.get.collectorExtender != null) {
+    if (config.get.collectorExtender != null) {
       implicit val gt = () => gearTilter
       implicit val lt = () => loadTray
       Some(new CollectorExtender)
-    } else*/ None
+    } else None
 
   // Collector Rollers
   implicit val collectorRollersHardware = hardware.collectorRollers
   implicit val collectorRollersProps = config.map(_.collectorRollers.properties)
   lazy val collectorRollers: Option[CollectorRollers] =
-    /*if (config.get.collectorRollers != null) Some(new CollectorRollers) else*/ None
+    if (config.get.collectorRollers != null) Some(new CollectorRollers) else None
 
   // Gear Grabber
   implicit val gearGrabberHardware = hardware.gearGrabber
   implicit val gearGrabberProps = config.map(_.gearGrabber.props)
   lazy val gearGrabber: Option[GearGrabber] =
-    /*if (config.get.gearGrabber != null) Some(new GearGrabber) else*/ None
+    if (config.get.gearGrabber != null) Some(new GearGrabber) else None
 
   // Gear Tilter
   implicit val gearTilterHardware = hardware.gearTilter
   lazy val gearTilter: Option[GearTilter] =
-    /*if (config.get.gearTilter != null) {
+    if (config.get.gearTilter != null) {
       implicit val ce = () => collectorExtender
       Some(new GearTilter)
-    } else*/ None
+    } else None
 
   // Shooter Flywheel
   implicit val shooterFlywheelHardware = hardware.shooterFlywheel
   implicit val shooterFlywheelProps = config.map(_.shooterFlywheel.props)
   lazy val shooterFlywheel: Option[ShooterFlywheel] =
-    /*if (config.get.shooterFlywheel != null) Some(new ShooterFlywheel) else */None
+    if (config.get.shooterFlywheel != null) Some(new ShooterFlywheel) else None
 
   // Shooter Shifter
   implicit val shooterShifterHardware = hardware.shooterShifter
   lazy val shooterShifter: Option[ShooterShifter] =
-    /*if (config.get.shooterShifter != null) Some(new ShooterShifter) else*/ None
+    if (config.get.shooterShifter != null) Some(new ShooterShifter) else None
 
   // Load Tray
   implicit val loadTrayHardware = hardware.loadTray
   lazy val loadTray: Option[LoadTray] =
-    /*if (config.get.loadTray != null) {
+    if (config.get.loadTray != null) {
       implicit val ce = () => collectorExtender
       Some(new LoadTray)
-    } else */None
+    } else None
 
   // Lighting
   /**
@@ -370,14 +370,6 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     }
 
     components.foreach(_.resetToDefault())
-
-    drivetrain.foreach{ implicit  d =>
-      val task = new RotateToAngle(
-        Degrees(90),
-        Degrees(2))
-
-      task.init()
-    }
   }
 
   enabled.onEnd.foreach { () =>
