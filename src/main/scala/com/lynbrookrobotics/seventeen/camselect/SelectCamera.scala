@@ -8,7 +8,7 @@ import squants.time.Seconds
 
 class SelectCamera(camera: CamSelectState)(implicit camSelect: CamSelect, clock: Clock) extends ContinuousTask {
   override def onStart(): Unit = {
-    camSelect.setController(Stream.periodic(Seconds(0.5))(camera))
+    camSelect.setController(Stream.periodic(Seconds(0.01))(camera))
   }
 
   override def onEnd(): Unit = {

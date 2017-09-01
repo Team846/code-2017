@@ -8,7 +8,7 @@ import squants.time.Seconds
 
 class OpenGrabber(implicit grabber: GearGrabber, clock: Clock) extends ContinuousTask {
   override protected def onStart(): Unit = {
-    grabber.setController(Stream.periodic(Seconds(0.5))(GearGrabberOpen))
+    grabber.setController(Stream.periodic(Seconds(0.01))(GearGrabberOpen))
   }
 
   override protected def onEnd(): Unit = {

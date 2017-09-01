@@ -66,7 +66,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   implicit val agitatorHardware = hardware.agitator
   implicit val agitatorProps = config.map(_.agitator.properties)
   lazy val agitator: Option[Agitator] =
-    /*if (config.get.agitator != null) Some(new Agitator) else */None
+    if (config.get.agitator != null) Some(new Agitator) else None
 
   // CamSelect
   implicit val camSelectHardware = hardware.camSelect

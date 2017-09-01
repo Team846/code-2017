@@ -8,7 +8,7 @@ import squants.time.{Milliseconds, Seconds}
 import squants.{Dimensionless, Each, Percent}
 
 class Agitator(implicit hardware: AgitatorHardware, clock: Clock) extends Component[Dimensionless](Milliseconds(5)) {
-  override def defaultController: Stream[Dimensionless] = Stream.periodic(Seconds(1)) {
+  override def defaultController: Stream[Dimensionless] = Stream.periodic(Seconds(0.01)) {
     Each(0)
   }
 

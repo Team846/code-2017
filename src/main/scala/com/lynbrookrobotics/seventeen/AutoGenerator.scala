@@ -28,8 +28,8 @@ class AutoGenerator(r: CoreRobot) {
 
   val gearPegDistance = Inches(109)
 
-  val midShootSpeedLeft = Stream.periodic(Seconds(0.5))(shooterFlywheelProps.get.midShootSpeedLeft)
-  val midShootSpeedRight = Stream.periodic(Seconds(0.5))(shooterFlywheelProps.get.midShootSpeedRight)
+  val midShootSpeedLeft = Stream.periodic(Seconds(0.01))(shooterFlywheelProps.get.midShootSpeedLeft)
+  val midShootSpeedRight = Stream.periodic(Seconds(0.01))(shooterFlywheelProps.get.midShootSpeedRight)
 
   def slowCrossLine(implicit d: Drivetrain): FiniteTask = {
     new DriveDistanceStraight(
@@ -164,7 +164,7 @@ class AutoGenerator(r: CoreRobot) {
     val shooting = ShooterTasks.continuousShoot(
       midShootSpeedLeft,
       midShootSpeedRight
-    ).and(new ShiftShooter(Signal.constant(ShooterShiftLeft)))
+    ).and(new ShiftShooter(midShootSpeedLeft.mapToConstant(ShooterShiftLeft)))
 
     hopperForward.then(new RotateByAngle(
       Degrees(-90),
@@ -188,7 +188,7 @@ class AutoGenerator(r: CoreRobot) {
     val shooting = ShooterTasks.continuousShoot(
       midShootSpeedLeft,
       midShootSpeedRight
-    ).and(new ShiftShooter(Signal.constant(ShooterShiftRight)))
+    ).and(new ShiftShooter(midShootSpeedLeft.mapToConstant(ShooterShiftRight)))
 
     hopperForward.then(new RotateByAngle(
       Degrees(90),

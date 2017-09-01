@@ -1,6 +1,7 @@
 package com.lynbrookrobotics.seventeen.shooter
 
 import com.lynbrookrobotics.potassium.Signal
+import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 import com.lynbrookrobotics.seventeen.agitator.{Agitator, AgitatorProperties, SpinAgitator}
 import com.lynbrookrobotics.seventeen.collector.elevator.{CollectorElevator, CollectorElevatorProperties, LoadIntoStorage}
@@ -24,7 +25,8 @@ object ShooterTasks {
                       flywheelProperties: Signal[ShooterFlywheelProperties],
                       collectorElevatorProperties: Signal[CollectorElevatorProperties],
                       collectorRollersProperties: Signal[CollectorRollersProperties],
-                      flywheelHardware: ShooterFlywheelHardware): ContinuousTask = {
+                      flywheelHardware: ShooterFlywheelHardware,
+                      clock: Clock): ContinuousTask = {
     val wrapper = new WhileAtDoubleVelocity(
       shootSpeedLeft,
       shootSpeedRight,

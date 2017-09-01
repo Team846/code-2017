@@ -8,7 +8,7 @@ import squants.time.Seconds
 
 class ExtendTilter(implicit tilter: GearTilter, clock: Clock) extends ContinuousTask {
   override protected def onStart(): Unit = {
-    tilter.setController(Stream.periodic(Seconds(0.5))(GearTilterExtended))
+    tilter.setController(Stream.periodic(Seconds(0.01))(GearTilterExtended))
   }
 
   override protected def onEnd(): Unit = {

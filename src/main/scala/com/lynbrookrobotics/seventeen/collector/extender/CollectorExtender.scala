@@ -16,7 +16,7 @@ case object CollectorExtenderRetracted extends CollectorExtenderState
 class CollectorExtender(implicit hardware: CollectorExtenderHardware,
                         gearTilterF: () => Option[GearTilter],
                         clock: Clock) extends Component[CollectorExtenderState](Milliseconds(5)) {
-  override def defaultController: Stream[CollectorExtenderState] = Stream.periodic(Seconds(1)) {
+  override def defaultController: Stream[CollectorExtenderState] = Stream.periodic(Seconds(0.01)) {
     CollectorExtenderRetracted
   }
 

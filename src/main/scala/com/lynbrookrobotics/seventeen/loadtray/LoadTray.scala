@@ -14,7 +14,7 @@ case object LoadTrayRetracted extends LoadTrayState
 
 class LoadTray(implicit hardware: LoadTrayHardware,
                clock: Clock) extends Component[LoadTrayState](Milliseconds(5)) {
-  override def defaultController: Stream[LoadTrayState] = Stream.periodic(Seconds(1)) {
+  override def defaultController: Stream[LoadTrayState] = Stream.periodic(Seconds(0.01)) {
     LoadTrayRetracted
   }
 

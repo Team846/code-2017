@@ -405,5 +405,9 @@
       "pneumatic": 3
     }
   },
-  "loadTray": null
+  "loadTray": {
+    "port": {
+      "pneumatic": 4
+    }
+  }
 }

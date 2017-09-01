@@ -15,7 +15,7 @@ class ShooterShifter(implicit hardware: ShooterShifterHardware, clock: Clock) ex
   var currentState: ShooterShifterState = ShooterShiftRight
 
   override def defaultController: Stream[ShooterShifterState] = {
-    Stream.periodic(Seconds(0.1)) {
+    Stream.periodic(Seconds(0.01)) {
       currentState
     }
   }

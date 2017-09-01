@@ -1,12 +1,12 @@
 package com.lynbrookrobotics.seventeen.shooter.shifter
 
-import com.lynbrookrobotics.potassium.Signal
+import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.tasks.ContinuousTask
+import com.lynbrookrobotics.potassium.streams.Stream
 
-class ShiftShooter(direction: Signal[ShooterShifterState])(implicit shifter: ShooterShifter) extends ContinuousTask {
+class ShiftShooter(direction: Stream[ShooterShifterState])(implicit shifter: ShooterShifter, clock: Clock) extends ContinuousTask {
   override protected def onStart(): Unit = {
-    ???
-//    shifter.setController(direction.toPeriodic)
+    shifter.setController(direction)
   }
 
   override protected def onEnd(): Unit = {

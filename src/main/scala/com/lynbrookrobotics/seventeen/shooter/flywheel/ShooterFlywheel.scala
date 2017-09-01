@@ -14,7 +14,7 @@ class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], ha
 
   val NominalVoltage = 11.9
 
-  override def defaultController = Stream.periodic(Seconds(1)) {
+  override def defaultController = Stream.periodic(Seconds(0.01)) {
     DoubleFlywheelSignal(Each(0), Each(0))
   }
 

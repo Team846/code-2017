@@ -34,11 +34,13 @@ class ButtonMappings(r: CoreRobot) {
     config.get.shooterFlywheel.props.midShootSpeedRight
   } else RevolutionsPerMinute(0)
 
-  val flywheelSpeedLeft = Stream.periodic(Seconds(0.5))(curFlywheelSpeedLeft)
-  val flywheelSpeedRight = Stream.periodic(Seconds(0.5))(curFlywheelSpeedRight)
+  val flywheelSpeedLeft = Stream.periodic(Seconds(0.01))(curFlywheelSpeedLeft)
+  val flywheelSpeedRight = Stream.periodic(Seconds(0.01))(curFlywheelSpeedRight)
 
+  println(shooterFlywheel, collectorElevator, collectorRollers, shooterShifter, agitator, collectorExtender, loadTray)
   shooterFlywheel.zip(collectorElevator).zip(collectorRollers).zip(shooterShifter).zip(agitator).zip(collectorExtender).zip(loadTray).foreach { t =>
     implicit val ((((((fly, elev), roll), shift), agitator), ex), lt) = t
+    println("setting up shooter flywheel")
 
     val time = Signal {
       Microseconds(Utility.getFPGATime)
@@ -180,7 +182,7 @@ class ButtonMappings(r: CoreRobot) {
   collectorElevator.zip(collectorRollers).zip(collectorExtender).zip(loadTray).foreach { t =>
     implicit val (((elevator, roller), extend), loadTray) = t
 
-    val highRollSpeedStream = Stream.periodic(Seconds(0.5)) {
+    val highRollSpeedStream = Stream.periodic(Seconds(0.01)) {
       collectorRollersProps.get.highRollerSpeedOutput
     }
 
@@ -206,7 +208,7 @@ class ButtonMappings(r: CoreRobot) {
       * RightThree pressed
       */
     val slowCollectFuelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightThree)
-    val slowRollSpeedStream = Stream.periodic(Seconds(0.5)) {
+    val slowRollSpeedStream = Stream.periodic(Seconds(0.01)) {
       collectorRollersProps.get.lowRollerSpeedOutput
     }
      slowCollectFuelPressed.foreach(CollectorTasks.collect(slowRollSpeedStream))

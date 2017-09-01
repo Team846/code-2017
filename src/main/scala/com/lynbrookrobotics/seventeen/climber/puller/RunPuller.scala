@@ -8,9 +8,10 @@ import squants.time.Seconds
 
 class RunPuller(implicit puller: ClimberPuller, props: Signal[ClimberPullerProperties], clock: Clock)
   extends ContinuousTask {
+  val controlStream: Stream[ClimberControlMode] = Stream.periodic(Seconds(0.01))(PWMMode(props.get.climbSpeed))
   override protected def onStart(): Unit = {
     println("climbing!")
-    puller.setController(Stream.periodic(Seconds(0.5))(PWMMode(props.get.climbSpeed)))
+    puller.setController(controlStream)
   }
 
   override protected def onEnd(): Unit = {

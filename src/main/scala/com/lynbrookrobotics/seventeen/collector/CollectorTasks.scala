@@ -1,6 +1,7 @@
 package com.lynbrookrobotics.seventeen.collector
 
 import com.lynbrookrobotics.potassium.Signal
+import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 import com.lynbrookrobotics.seventeen.collector.elevator.{CollectorElevator, CollectorElevatorProperties, LoadIntoStorage}
@@ -15,7 +16,8 @@ object CollectorTasks {
                                                       rollers: CollectorRollers,
                                                       loadTray: LoadTray,
                                                       elevatorProps: Signal[CollectorElevatorProperties],
-                                                      rollerProps: Signal[CollectorRollersProperties]): ContinuousTask = {
+                                                      rollerProps: Signal[CollectorRollersProperties],
+                                                      clock: Clock): ContinuousTask = {
     new ExtendCollector()
       .and(new RollBallsInCollector(collectingSpeed))
       .and(new LoadIntoStorage())

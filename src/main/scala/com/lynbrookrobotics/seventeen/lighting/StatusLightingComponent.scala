@@ -7,7 +7,7 @@ import com.lynbrookrobotics.potassium.{Component, PeriodicSignal, Signal}
 import squants.time.{Milliseconds, Seconds}
 
 class StatusLightingComponent(f: () => Int, comms: TwoWayComm)(implicit clock: Clock) extends Component[() => Int](Milliseconds(5)) {
-  override def defaultController: Stream[() => Int] = Stream.periodic(Seconds(1))(f)
+  override def defaultController: Stream[() => Int] = Stream.periodic(Seconds(0.01))(f)
 
   def applySignal(signal: () => Int): Unit = {
     if (comms.isConnected) {

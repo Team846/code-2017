@@ -15,7 +15,7 @@ case object GearTilterRetracted extends GearTilterState
 class GearTilter(implicit hardware: GearTilterHardware,
                  collectorExtenderF: () => Option[CollectorExtender],
                  clock: Clock) extends Component[GearTilterState](Milliseconds(5)) {
-  override def defaultController: Stream[GearTilterState] = Stream.periodic(Seconds(1)) {
+  override def defaultController: Stream[GearTilterState] = Stream.periodic(Seconds(0.01)) {
     GearTilterRetracted
   }
 

@@ -8,7 +8,7 @@ import squants.time.Seconds
 
 class RetractTilter(implicit tilter: GearTilter, clock: Clock) extends ContinuousTask {
   override protected def onStart(): Unit = {
-    tilter.setController(Stream.periodic(Seconds(0.5))(GearTilterRetracted))
+    tilter.setController(Stream.periodic(Seconds(0.01))(GearTilterRetracted))
   }
 
   override protected def onEnd(): Unit = {

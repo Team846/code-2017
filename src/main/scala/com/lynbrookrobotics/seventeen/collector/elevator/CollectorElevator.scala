@@ -8,7 +8,7 @@ import squants.{Dimensionless, Percent}
 
 class CollectorElevator(implicit hardware: CollectorElevatorHardware, clock: Clock)
   extends Component[Dimensionless](Milliseconds(5)) {
-  override def defaultController = Stream.periodic(Seconds(1))(Percent(0))
+  override def defaultController = Stream.periodic(Seconds(0.01))(Percent(0))
 
   override def applySignal(signal: Dimensionless): Unit = {
     hardware.motor.set(signal.toEach)

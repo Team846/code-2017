@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.hal.HAL
 import upickle.default._
 import com.lynbrookrobotics.potassium.config.SquantsPickling._
+import com.lynbrookrobotics.potassium.frc.WPIClock
 import squants.Percent
 
 class LaunchRobot extends RobotBase {
@@ -37,6 +38,8 @@ class LaunchRobot extends RobotBase {
   private implicit val config = Signal {
     parsedConfig.value
   }
+
+  implicit val clock = WPIClock
 
   private implicit val hardware = RobotHardware(config.get)
 
