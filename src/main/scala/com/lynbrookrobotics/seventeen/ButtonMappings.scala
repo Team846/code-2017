@@ -67,24 +67,22 @@ class ButtonMappings(r: CoreRobot) {
     val shiftShooterRightPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.TriggerRight)
     shiftShooterRightPressed.foreach(() => shift.currentState = ShooterShiftRight)
 
-//    driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightTwo)
-//      .foreach(new ContinuousTask {
-//        override protected def onStart(): Unit = {
-////          agitator.setController(Signal.constant(Percent(50)).toPeriodic)
-//          //elev.setController(Signal.constant(-Percent(50)).toPeriodic)
-////          roll.setController(Signal.constant(-Percent(50)).toPeriodic)
-////          ex.setController(Signal.constant(CollectorExtenderExtended).toPeriodic)
-//        }
-//
-//        override protected def onEnd(): Unit = {
-//          agitator.resetToDefault()
-//          elev.resetToDefault()
-//          roll.resetToDefault()
-//          ex.resetToDefault()
-//        }
-//
-//
-//      })
+    driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightTwo)
+      .foreach(new ContinuousTask {
+        override protected def onStart(): Unit = {
+          agitator.setController(coreTicks.mapToConstant(Percent(50)))
+          elev.setController(coreTicks.mapToConstant(-Percent(50)))
+          roll.setController(coreTicks.mapToConstant(-Percent(50)))
+          ex.setController(coreTicks.mapToConstant(CollectorExtenderExtended))
+        }
+
+        override protected def onEnd(): Unit = {
+          agitator.resetToDefault()
+          elev.resetToDefault()
+          roll.resetToDefault()
+          ex.resetToDefault()
+        }
+      })
   }
 
   shooterFlywheel.foreach { implicit fly =>
