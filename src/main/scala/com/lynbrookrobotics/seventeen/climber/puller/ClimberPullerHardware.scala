@@ -6,9 +6,12 @@ case class ClimberPullerHardware(motorA: CANTalon, motorB: CANTalon)
 
 object ClimberPullerHardware {
   def apply(config: ClimberPullerConfig): ClimberPullerHardware = {
-    ClimberPullerHardware(
-      new CANTalon(config.ports.motorChannelA),
-      new CANTalon(config.ports.motorChannelB)
-    )
+    val a = new CANTalon(config.ports.motorChannelA)
+    val b = new CANTalon(config.ports.motorChannelB)
+
+    a.setInverted(true)
+    b.setInverted(true)
+
+    ClimberPullerHardware(a, b)
   }
 }

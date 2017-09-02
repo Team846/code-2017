@@ -11,16 +11,21 @@ case class ShooterFlywheelHardware(leftMotor: Talon,
                                    leftHall: Counter,
                                    rightHall: Counter) extends DoubleFlywheelHardware {
   override val leftVelocity: Signal[Frequency] =
-    leftHall.frequency
+    leftHall.frequency.map(_ / 2) // 2 magnets on the roller
 
   override val rightVelocity: Signal[Frequency] =
-    rightHall.frequency
+    rightHall.frequency.map(_ / 2)  // 2 magnets on the roller
+
 }
 
 object ShooterFlywheelHardware {
   def apply(config: ShooterFlywheelConfig): ShooterFlywheelHardware = {
     ShooterFlywheelHardware(
-      new Talon(config.ports.leftMotor),
+      {
+        val it = new Talon(config.ports.leftMotor)
+        it.setInverted(true)
+        it
+      },
       new Talon(config.ports.rightMotor),
       new Counter(config.ports.leftHall),
       new Counter(config.ports.rightHall)
