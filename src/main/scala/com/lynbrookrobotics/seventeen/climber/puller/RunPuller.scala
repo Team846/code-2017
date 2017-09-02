@@ -6,9 +6,9 @@ import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 import com.lynbrookrobotics.potassium.streams.Stream
 import squants.time.Seconds
 
-class RunPuller(implicit puller: ClimberPuller, props: Signal[ClimberPullerProperties], clock: Clock)
+class RunPuller(implicit puller: ClimberPuller, props: Signal[ClimberPullerProperties])
   extends ContinuousTask {
-  val controlStream: Stream[ClimberControlMode] = Stream.periodic(Seconds(0.01))(PWMMode(props.get.climbSpeed))
+  val controlStream: Stream[ClimberControlMode] = puller.coreTicks.map(_ => PWMMode(props.get.climbSpeed))
   override protected def onStart(): Unit = {
     println("climbing!")
     puller.setController(controlStream)

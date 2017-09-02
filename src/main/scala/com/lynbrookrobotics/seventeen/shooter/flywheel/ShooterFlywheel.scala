@@ -9,12 +9,14 @@ import squants.{Each, Percent}
 import com.lynbrookrobotics.potassium.streams.Stream
 
 
-class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], hardware: ShooterFlywheelHardware, clock: Clock, driverHardware: DriverHardware)
+class ShooterFlywheel(val coreTicks: Stream[Unit])
+                     (implicit properties: Signal[ShooterFlywheelProperties],
+                      hardware: ShooterFlywheelHardware, driverHardware: DriverHardware)
   extends Component[DoubleFlywheelSignal](Milliseconds(5)) {
 
   val NominalVoltage = 11.9
 
-  override def defaultController = Stream.periodic(Seconds(0.01)) {
+  override def defaultController = coreTicks.mapToConstant {
     DoubleFlywheelSignal(Each(0), Each(0))
   }
 

@@ -13,12 +13,9 @@ case object CollectorExtenderExtended extends CollectorExtenderState
 
 case object CollectorExtenderRetracted extends CollectorExtenderState
 
-class CollectorExtender(implicit hardware: CollectorExtenderHardware,
-                        gearTilterF: () => Option[GearTilter],
-                        clock: Clock) extends Component[CollectorExtenderState](Milliseconds(5)) {
-  override def defaultController: Stream[CollectorExtenderState] = Stream.periodic(Seconds(0.01)) {
-    CollectorExtenderRetracted
-  }
+class CollectorExtender(val coreTicks: Stream[Unit])(implicit hardware: CollectorExtenderHardware,
+                        gearTilterF: () => Option[GearTilter]) extends Component[CollectorExtenderState](Milliseconds(5)) {
+  override def defaultController: Stream[CollectorExtenderState] = coreTicks.mapToConstant(CollectorExtenderRetracted)
 
   lazy val gearTilter = gearTilterF()
 

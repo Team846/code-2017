@@ -6,8 +6,7 @@ import com.lynbrookrobotics.seventeen.climber.puller.{ClimberPuller, ClimberPull
 
 object ClimberTasks {
   def climb(implicit puller: ClimberPuller,
-            pullerProps: Signal[ClimberPullerProperties],
-            clock: Clock) = {
+            pullerProps: Signal[ClimberPullerProperties]) = {
     new RunPuller()
   }
 }

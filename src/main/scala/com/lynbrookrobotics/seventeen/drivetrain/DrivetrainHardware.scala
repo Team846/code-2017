@@ -28,7 +28,7 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
                               gyro: DigitalGyro,
                               props: DrivetrainProperties,
                               driverHardware: DriverHardware,
-                              period: Time)
+                              period: Time)(implicit clock: Clock)
   extends TwoSidedDriveHardware {
   val leftEncoder = new TalonEncoder(leftBack, Degrees(360) / Each(8192))
   val rightEncoder = new TalonEncoder(rightBack, -Degrees(360) / Each(8192))
@@ -46,7 +46,7 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
 
       gyro.getVelocities
     )
-  )(WPIClock)
+  )
 
   override val leftVelocity: Stream[Velocity] = rootDataStream.map(_.leftTurnVelocity).map(av =>
     wheelRadius * (av.toRadiansPerSecond * props.gearRatio) / Seconds(1))
@@ -63,7 +63,7 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
 }
 
 object DrivetrainHardware {
-  def apply(config: DrivetrainConfig, driverHardware: DriverHardware): DrivetrainHardware = {
+  def apply(config: DrivetrainConfig, driverHardware: DriverHardware)(implicit clock: Clock): DrivetrainHardware = {
     DrivetrainHardware(
       new CANTalon(config.ports.leftBack),
       new CANTalon(config.ports.leftFront),

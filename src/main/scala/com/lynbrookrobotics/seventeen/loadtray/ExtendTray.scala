@@ -6,9 +6,9 @@ import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 import com.lynbrookrobotics.potassium.streams.Stream
 import squants.time.Seconds
 
-class ExtendTray(implicit extender: LoadTray, clock: Clock) extends ContinuousTask {
+class ExtendTray(implicit extender: LoadTray) extends ContinuousTask {
   override protected def onStart(): Unit = {
-    extender.setController(Stream.periodic(Seconds(0.01))(LoadTrayExtended))
+    extender.setController(extender.coreTicks.mapToConstant(LoadTrayExtended))
   }
 
   override protected def onEnd(): Unit = {

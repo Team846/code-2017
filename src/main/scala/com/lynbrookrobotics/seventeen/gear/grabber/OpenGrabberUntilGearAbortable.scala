@@ -13,7 +13,7 @@ class OpenGrabberUntilGearAbortable(button: Int)(implicit hardware: GearGrabberH
   val proximitySensor = hardware.proximitySensor
 
   override protected def onStart(): Unit = {
-    grabber.setController(Stream.periodic[GearGrabberState](Seconds(0.01))(GearGrabberOpen).withCheck { _ =>
+    grabber.setController(grabber.coreTicks.mapToConstant[GearGrabberState](GearGrabberOpen).withCheck { _ =>
       if (proximitySensor.getVoltage > props.get.detectingDistance.toVolts ||
           !driverHardware.operatorJoystick.getRawButton(button)) {
         finished()

@@ -11,14 +11,10 @@ case object ShooterShiftLeft extends ShooterShifterState
 
 case object ShooterShiftRight extends ShooterShifterState
 
-class ShooterShifter(implicit hardware: ShooterShifterHardware, clock: Clock) extends Component[ShooterShifterState](Milliseconds(5)) {
+class ShooterShifter(val coreTicks: Stream[Unit])(implicit hardware: ShooterShifterHardware) extends Component[ShooterShifterState](Milliseconds(5)) {
   var currentState: ShooterShifterState = ShooterShiftRight
 
-  override def defaultController: Stream[ShooterShifterState] = {
-    Stream.periodic(Seconds(0.01)) {
-      currentState
-    }
-  }
+  override def defaultController: Stream[ShooterShifterState] = coreTicks.map(_ => currentState)
 
   override def applySignal(signal: ShooterShifterState): Unit = {
     hardware.pneumatic.set(signal == ShooterShiftLeft)

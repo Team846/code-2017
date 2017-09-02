@@ -28,8 +28,8 @@ class AutoGenerator(r: CoreRobot) {
 
   val gearPegDistance = Inches(109)
 
-  val midShootSpeedLeft = Stream.periodic(Seconds(0.01))(shooterFlywheelProps.get.midShootSpeedLeft)
-  val midShootSpeedRight = Stream.periodic(Seconds(0.01))(shooterFlywheelProps.get.midShootSpeedRight)
+  val midShootSpeedLeft = r.coreTicks.map(_ => shooterFlywheelProps.get.midShootSpeedLeft)
+  val midShootSpeedRight = r.coreTicks.map(_ => shooterFlywheelProps.get.midShootSpeedRight)
 
   def slowCrossLine(implicit d: Drivetrain): FiniteTask = {
     new DriveDistanceStraight(

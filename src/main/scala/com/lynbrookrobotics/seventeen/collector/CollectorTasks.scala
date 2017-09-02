@@ -16,8 +16,7 @@ object CollectorTasks {
                                                       rollers: CollectorRollers,
                                                       loadTray: LoadTray,
                                                       elevatorProps: Signal[CollectorElevatorProperties],
-                                                      rollerProps: Signal[CollectorRollersProperties],
-                                                      clock: Clock): ContinuousTask = {
+                                                      rollerProps: Signal[CollectorRollersProperties]): ContinuousTask = {
     new ExtendCollector()
       .and(new RollBallsInCollector(collectingSpeed))
       .and(new LoadIntoStorage())

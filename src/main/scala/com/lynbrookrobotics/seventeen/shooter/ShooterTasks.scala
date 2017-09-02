@@ -25,8 +25,7 @@ object ShooterTasks {
                       flywheelProperties: Signal[ShooterFlywheelProperties],
                       collectorElevatorProperties: Signal[CollectorElevatorProperties],
                       collectorRollersProperties: Signal[CollectorRollersProperties],
-                      flywheelHardware: ShooterFlywheelHardware,
-                      clock: Clock): ContinuousTask = {
+                      flywheelHardware: ShooterFlywheelHardware): ContinuousTask = {
     val wrapper = new WhileAtDoubleVelocity(
       shootSpeedLeft,
       shootSpeedRight,

@@ -13,6 +13,8 @@ import upickle.default._
 import com.lynbrookrobotics.potassium.config.SquantsPickling._
 import com.lynbrookrobotics.potassium.frc.WPIClock
 import squants.Percent
+import com.lynbrookrobotics.potassium.streams.Stream
+import squants.time.Seconds
 
 class LaunchRobot extends RobotBase {
   val targetFile = new File("/home/lvuser/robot-config.json")
@@ -25,8 +27,8 @@ class LaunchRobot extends RobotBase {
     val ret: RobotConfig = try {
       read[RobotConfig](string)
     } catch {
-      case _ =>
-        println("BAD BAD DEFAULTING CONFIG")
+      case e: Throwable =>
+        println(s"Exception when reading config: $e")
         read[RobotConfig](DefaultConfig.defaultConfig)
     }
 
@@ -50,39 +52,35 @@ class LaunchRobot extends RobotBase {
   private val eventPollingSource = new ImpulseEventSource
   private implicit val eventPolling = eventPollingSource.event
 
+  def preload(pkg: String): Unit = {
+    ClassPath.from(Thread.currentThread().getContextClassLoader).
+      getTopLevelClassesRecursive("com.lynbrookrobotics")
+    println(s"Preloaded $pkg")
+  }
+
   override def startCompetition(): Unit = {
     WakeOnLan.awaken("B8:AE:ED:7E:78:E1")
 
     coreRobot = new CoreRobot(
       Signal(configFile.value),
       newS => {
-        //        println(newS.toString.substring(0, 200))
         val oldS = configFile.value
         try {
           configFile.value = newS
         } catch {
-          case _ => configFile.value = oldS
+          case e: Throwable =>
+            println(s"Unable to set new value for config, exception $e")
+            configFile.value = oldS
         }
-      }
+      },
+      Stream.periodic(Seconds(0.01))(())
     )
 
-    println("preloading")
-    ClassPath.from(Thread.currentThread().getContextClassLoader).
-      getTopLevelClassesRecursive("com.lynbrookrobotics")//.
-//      forEach(c => println(s"preloaded ${c.getName}"))
-
-    ClassPath.from(Thread.currentThread().getContextClassLoader).
-      getTopLevelClassesRecursive("squants")//.
-//      forEach(c => println(s"preloaded ${c.getName}"))
-
-    ClassPath.from(Thread.currentThread().getContextClassLoader).
-      getTopLevelClassesRecursive("edu.wpi.first.wpilibj")//.
-//      forEach(c => println(s"preloaded ${c.getName}"))
-
-    ClassPath.from(Thread.currentThread().getContextClassLoader).
-      getTopLevelClassesRecursive("com.ctre")//.
-//      forEach(c => println(s"preloaded ${c.getName}"))
-    println("preloading finished")
+    println("Preloading")
+    preload("com.lynbrookrobotics")
+    preload("squants")
+    preload("edu.wpi.first.wpilibj")
+    preload("com.ctre")
 
     coreRobot.comms.foreach(_.connect())
 

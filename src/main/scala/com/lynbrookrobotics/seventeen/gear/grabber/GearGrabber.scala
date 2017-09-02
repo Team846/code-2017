@@ -11,11 +11,8 @@ case object GearGrabberOpen extends GearGrabberState
 
 case object GearGrabberClosed extends GearGrabberState
 
-class GearGrabber(implicit hardware: GearGrabberHardware,
-                  clock: Clock) extends Component[GearGrabberState](Milliseconds(5)) {
-  override def defaultController: Stream[GearGrabberState] = Stream.periodic(Seconds(0.01)) {
-    GearGrabberClosed
-  }
+class GearGrabber(val coreTicks: Stream[Unit])(implicit hardware: GearGrabberHardware) extends Component[GearGrabberState](Milliseconds(5)) {
+  override def defaultController: Stream[GearGrabberState] = coreTicks.mapToConstant(GearGrabberClosed)
 
   override def applySignal(signal: GearGrabberState): Unit = {
     hardware.pneumatic.set(signal == GearGrabberOpen)

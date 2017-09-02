@@ -4,13 +4,16 @@ import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.clock.JavaClock
 import com.lynbrookrobotics.potassium.config.TwoWaySignal
 import com.lynbrookrobotics.potassium.events.ImpulseEventSource
+import com.lynbrookrobotics.potassium.streams.Stream
 import upickle.default._
-
 import com.lynbrookrobotics.potassium.config.SquantsPickling._
+import squants.time.Seconds
+
+import scala.io.Source
 
 object TestLaunchRobot extends App {
   protected val configFile = TwoWaySignal[String]("")
-  configFile.value = "{\"driver\":{\"driverPort\":0,\"operatorPort\":1,\"driverWheelPort\":2},\"drivetrain\":{\"ports\":{\"leftBack\":4,\"leftFront\":3,\"rightBack\":0,\"rightFront\":1},\"properties\":{\"maxLeftVelocity\":[22.9,\"ft/s\"],\"maxRightVelocity\":[27,\"ft/s\"]}}}"
+  configFile.value = Source.fromFile("competition-robot.json").getLines().mkString("\n")
   protected val parsedConfig = configFile.map(string => read[RobotConfig](string))(
     (_, newValue) => write(newValue)
   )
@@ -31,13 +34,9 @@ object TestLaunchRobot extends App {
       try {
         configFile.value = newS
       } catch {
-        case _ => configFile.value = oldS
+        case _: Throwable => configFile.value = oldS
       }
-    }
+    },
+    Stream.periodic(Seconds(0.01))(())
   )
-
-  while (true) {
-    println(parsedConfig.value)
-    Thread.sleep(1000)
-  }
 }

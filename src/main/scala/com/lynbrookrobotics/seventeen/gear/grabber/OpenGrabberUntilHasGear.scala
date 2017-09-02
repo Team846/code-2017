@@ -7,12 +7,11 @@ import com.lynbrookrobotics.potassium.streams.Stream
 import squants.time.Seconds
 
 class OpenGrabberUntilHasGear(implicit hardware: GearGrabberHardware, grabber: GearGrabber,
-                              props: Signal[GearGrabberProperties],
-                              clock: Clock) extends FiniteTask {
+                              props: Signal[GearGrabberProperties]) extends FiniteTask {
   val proximitySensor = hardware.proximitySensor
 
   override protected def onStart(): Unit = {
-    grabber.setController(Stream.periodic[GearGrabberState](Seconds(0.01))(GearGrabberOpen).withCheck { _ =>
+    grabber.setController(grabber.coreTicks.mapToConstant[GearGrabberState](GearGrabberOpen).withCheck { _ =>
       if (proximitySensor.getVoltage > props.get.detectingDistance.toVolts) {
         finished()
       }

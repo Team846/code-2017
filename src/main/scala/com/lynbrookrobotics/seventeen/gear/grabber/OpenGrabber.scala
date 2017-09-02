@@ -6,9 +6,9 @@ import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 import com.lynbrookrobotics.potassium.streams.Stream
 import squants.time.Seconds
 
-class OpenGrabber(implicit grabber: GearGrabber, clock: Clock) extends ContinuousTask {
+class OpenGrabber(implicit grabber: GearGrabber) extends ContinuousTask {
   override protected def onStart(): Unit = {
-    grabber.setController(Stream.periodic(Seconds(0.01))(GearGrabberOpen))
+    grabber.setController(grabber.coreTicks.mapToConstant(GearGrabberOpen))
   }
 
   override protected def onEnd(): Unit = {

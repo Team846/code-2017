@@ -12,12 +12,9 @@ case object GearTilterExtended extends GearTilterState
 
 case object GearTilterRetracted extends GearTilterState
 
-class GearTilter(implicit hardware: GearTilterHardware,
-                 collectorExtenderF: () => Option[CollectorExtender],
-                 clock: Clock) extends Component[GearTilterState](Milliseconds(5)) {
-  override def defaultController: Stream[GearTilterState] = Stream.periodic(Seconds(0.01)) {
-    GearTilterRetracted
-  }
+class GearTilter(val coreTicks: Stream[Unit])(implicit hardware: GearTilterHardware,
+                 collectorExtenderF: () => Option[CollectorExtender]) extends Component[GearTilterState](Milliseconds(5)) {
+  override def defaultController: Stream[GearTilterState] = coreTicks.mapToConstant(GearTilterRetracted)
 
   lazy val collectorExtender = collectorExtenderF()
 

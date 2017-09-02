@@ -33,8 +33,9 @@ import squants.space.{Degrees, Feet}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.Try
+import com.lynbrookrobotics.potassium.streams.Stream
 
-class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit)
+class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit, val coreTicks: Stream[Unit])
                (implicit val config: Signal[RobotConfig], hardware: RobotHardware, val clock: Clock, val polling: ImpulseEvent) {
   implicit val driverHardware = hardware.driver
   val ds = driverHardware.station
@@ -66,25 +67,25 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   implicit val agitatorHardware = hardware.agitator
   implicit val agitatorProps = config.map(_.agitator.properties)
   lazy val agitator: Option[Agitator] =
-    if (config.get.agitator != null) Some(new Agitator) else None
+    if (config.get.agitator != null) Some(new Agitator(coreTicks)) else None
 
   // CamSelect
   implicit val camSelectHardware = hardware.camSelect
   implicit val camselectProps = config.map(_.camSelect.properties)
-  implicit val camSelect: CamSelect = new CamSelect
+  implicit val camSelect: CamSelect = new CamSelect(coreTicks)
 
 
   // Climber Puller
   implicit val climberPullerHardware = hardware.climberPuller
   implicit val climberPullerProps = config.map(_.climberPuller.props)
   lazy val climberPuller: Option[ClimberPuller] =
-    if (config.get.climberPuller != null) Some(new ClimberPuller) else None
+    if (config.get.climberPuller != null) Some(new ClimberPuller(coreTicks)) else None
 
   // Collector Elevator
   implicit val collectorElevatorHardware = hardware.collectorElevator
   implicit val collectorElevatorProps = config.map(_.collectorElevator.properties)
   lazy val collectorElevator: Option[CollectorElevator] =
-    if (config.get.collectorElevator != null) Some(new CollectorElevator) else None
+    if (config.get.collectorElevator != null) Some(new CollectorElevator(coreTicks)) else None
 
   // Collector Extender
   implicit val collectorExtenderHardware = hardware.collectorExtender
@@ -92,46 +93,46 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     if (config.get.collectorExtender != null) {
       implicit val gt = () => gearTilter
       implicit val lt = () => loadTray
-      Some(new CollectorExtender)
+      Some(new CollectorExtender(coreTicks))
     } else None
 
   // Collector Rollers
   implicit val collectorRollersHardware = hardware.collectorRollers
   implicit val collectorRollersProps = config.map(_.collectorRollers.properties)
   lazy val collectorRollers: Option[CollectorRollers] =
-    if (config.get.collectorRollers != null) Some(new CollectorRollers) else None
+    if (config.get.collectorRollers != null) Some(new CollectorRollers(coreTicks)) else None
 
   // Gear Grabber
   implicit val gearGrabberHardware = hardware.gearGrabber
   implicit val gearGrabberProps = config.map(_.gearGrabber.props)
   lazy val gearGrabber: Option[GearGrabber] =
-    if (config.get.gearGrabber != null) Some(new GearGrabber) else None
+    if (config.get.gearGrabber != null) Some(new GearGrabber(coreTicks)) else None
 
   // Gear Tilter
   implicit val gearTilterHardware = hardware.gearTilter
   lazy val gearTilter: Option[GearTilter] =
     if (config.get.gearTilter != null) {
       implicit val ce = () => collectorExtender
-      Some(new GearTilter)
+      Some(new GearTilter(coreTicks))
     } else None
 
   // Shooter Flywheel
   implicit val shooterFlywheelHardware = hardware.shooterFlywheel
   implicit val shooterFlywheelProps = config.map(_.shooterFlywheel.props)
   lazy val shooterFlywheel: Option[ShooterFlywheel] =
-    if (config.get.shooterFlywheel != null) Some(new ShooterFlywheel) else None
+    if (config.get.shooterFlywheel != null) Some(new ShooterFlywheel(coreTicks)) else None
 
   // Shooter Shifter
   implicit val shooterShifterHardware = hardware.shooterShifter
   lazy val shooterShifter: Option[ShooterShifter] =
-    if (config.get.shooterShifter != null) Some(new ShooterShifter) else None
+    if (config.get.shooterShifter != null) Some(new ShooterShifter(coreTicks)) else None
 
   // Load Tray
   implicit val loadTrayHardware = hardware.loadTray
   lazy val loadTray: Option[LoadTray] =
     if (config.get.loadTray != null) {
       implicit val ce = () => collectorExtender
-      Some(new LoadTray)
+      Some(new LoadTray(coreTicks))
     } else None
 
   // Lighting
@@ -163,7 +164,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
   val serialPort = Try(new SerialPort(9600, SerialPort.Port.kUSB)).toOption
   val comms: Option[SerialComms] = None// serialPort.map(new SerialComms(_))
-  val lighting: Option[StatusLightingComponent] = comms.map(c => new StatusLightingComponent(lightingStatus, c))
+  val lighting: Option[StatusLightingComponent] = comms.map(c => new StatusLightingComponent(lightingStatus, c, coreTicks))
 
   new Compressor().start()
 
