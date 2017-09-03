@@ -17,11 +17,11 @@ import squants.space.Degrees
 import squants.time.{Milliseconds, Seconds}
 import squants.{Angle, Each, Length, Time, Velocity}
 
-sealed case class DrivetrainData(leftTurnVelocity: AngularVelocity,
-                                  rightTurnVelocity: AngularVelocity,
-                                  leftTurnPosition: Angle,
-                                  rightTurnPosition: Angle,
-                                  gyroVelocities: Value3D[AngularVelocity])
+case class DrivetrainData(leftEncoderVelocity: AngularVelocity,
+                          rightEncoderVelocity: AngularVelocity,
+                          leftEncoderRotation: Angle,
+                          rightEncoderRotation: Angle,
+                          gyroVelocities: Value3D[AngularVelocity])
 
 case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
                               rightBack: CANTalon, rightFront: CANTalon,
@@ -48,14 +48,14 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
     )
   )
 
-  override val leftVelocity: Stream[Velocity] = rootDataStream.map(_.leftTurnVelocity).map(av =>
+  override val leftVelocity: Stream[Velocity] = rootDataStream.map(_.leftEncoderVelocity).map(av =>
     wheelRadius * (av.toRadiansPerSecond * props.gearRatio) / Seconds(1))
-  override val rightVelocity: Stream[Velocity] = rootDataStream.map(_.rightTurnVelocity).map(av =>
+  override val rightVelocity: Stream[Velocity] = rootDataStream.map(_.rightEncoderVelocity).map(av =>
     wheelRadius * (av.toRadiansPerSecond * props.gearRatio) / Seconds(1))
 
-  val leftPosition: Stream[Length] = rootDataStream.map(_.leftTurnPosition).map(a =>
+  val leftPosition: Stream[Length] = rootDataStream.map(_.leftEncoderRotation).map(a =>
     a.toRadians * props.gearRatio * wheelRadius)
-  val rightPosition: Stream[Length] = rootDataStream.map(_.rightTurnPosition).map(a =>
+  val rightPosition: Stream[Length] = rootDataStream.map(_.rightEncoderRotation).map(a =>
     a.toRadians * props.gearRatio * wheelRadius)
 
   override lazy val turnVelocity: Stream[AngularVelocity] = rootDataStream.map(_.gyroVelocities).map(_.z)
