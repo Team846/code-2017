@@ -1,30 +1,20 @@
 package com.lynbrookrobotics.seventeen
 
+import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.potassium.commons.drivetrain._
 import com.lynbrookrobotics.potassium.frc.Implicits._
 import squants.Each
 import squants.time.Milliseconds
 
-package object drivetrain extends TwoSidedDrive(Milliseconds(5)) {
+import com.lynbrookrobotics.potassium.streams.Stream
+
+package object drivetrain extends TwoSidedDrive(Milliseconds(5)) { self =>
   type Hardware = DrivetrainHardware
   type Properties = DrivetrainProperties
 
 
   override protected def output(hardware: DrivetrainHardware,
                                 signal: TwoSidedSignal): Unit = {
-//    val leftVelocityPercent = Each(hardware.leftVelocity.get / hardware.props.maxLeftVelocity)
-//    val rightVelocityPercent = Each(hardware.rightVelocity.get / hardware.props.maxRightVelocity)
-//
-//    val leftOut = MathUtilities.limitCurrentOutput(signal.left,
-//      leftVelocityPercent, hardware.props.currentLimit, hardware.props.currentLimit)
-//    val rightOut = MathUtilities.limitCurrentOutput(signal.right,
-//      rightVelocityPercent, hardware.props.currentLimit, hardware.props.currentLimit)
-
-//    hardware.leftBack.set(leftOut.toEach)
-//    hardware.leftFront.set(leftOut.toEach)
-//    hardware.rightBack.set(rightOut.toEach)
-//    hardware.rightFront.set(rightOut.toEach)
-
     hardware.leftBack.set(signal.left.toEach)
     hardware.leftFront.set(signal.left.toEach)
     hardware.rightBack.set(signal.right.toEach)
@@ -42,6 +32,30 @@ package object drivetrain extends TwoSidedDrive(Milliseconds(5)) {
       )
     } else {
       NoOperation
+    }
+  }
+
+  class Drivetrain(implicit hardware: Hardware, props: Signal[Properties]) extends Component[TwoSidedSignal](Milliseconds(5)) {
+    override def setController(controller: Stream[TwoSidedSignal]): Unit = {
+      val currentLimited = controller.zip(hardware.leftVelocity).zip(hardware.rightVelocity).map { case ((control, leftVelocity), rightVelocity) =>
+        val leftVelocityPercent = Each(leftVelocity / hardware.props.maxLeftVelocity)
+        val rightVelocityPercent = Each(rightVelocity / hardware.props.maxRightVelocity)
+
+        val leftOut = MathUtilities.limitCurrentOutput(control.left,
+          leftVelocityPercent, hardware.props.currentLimit, hardware.props.currentLimit)
+        val rightOut = MathUtilities.limitCurrentOutput(control.right,
+          rightVelocityPercent, hardware.props.currentLimit, hardware.props.currentLimit)
+
+        TwoSidedSignal(leftOut, rightOut)
+      }
+
+      super.setController(currentLimited)
+    }
+
+    override def defaultController: Stream[TwoSidedSignal] = self.defaultController
+
+    override def applySignal(signal: TwoSidedSignal): Unit = {
+      output(hardware, signal)
     }
   }
 }
