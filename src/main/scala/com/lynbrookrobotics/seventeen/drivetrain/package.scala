@@ -37,7 +37,7 @@ package object drivetrain extends TwoSidedDrive(Milliseconds(5)) {
       ArcadeControlsClosed(
         hardware.driverHardware.joystickStream.map(v => -v.driver.y).map(s =>
           Each(Math.copySign((s * s).toEach, s.toEach))),
-        hardware.driverHardware.joystickStream.map(v => -v.driverWheel.x).map(s =>
+        hardware.driverHardware.joystickStream.map(v => v.driverWheel.x).map(s =>
           Each(Math.copySign((s * s).toEach, s.toEach)))
       )
     } else {

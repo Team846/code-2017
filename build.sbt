@@ -3,7 +3,7 @@ enablePlugins(FRCPlugin, TravisScalaStylePlugin)
 organization := "com.lynbrookrobotics"
 teamNumber := 846
 
-scalaVersion := "2.12.1"
+scalaVersion := "2.12.3"
 
 name := "code-2017"
 

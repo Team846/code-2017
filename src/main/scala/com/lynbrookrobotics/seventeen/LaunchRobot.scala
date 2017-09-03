@@ -76,11 +76,11 @@ class LaunchRobot extends RobotBase {
       Stream.periodic(Seconds(0.01))(())
     )
 
-    println("Preloading")
-    preload("com.lynbrookrobotics")
-    preload("squants")
-    preload("edu.wpi.first.wpilibj")
-    preload("com.ctre")
+//    println("Preloading")
+//    preload("com.lynbrookrobotics")
+//    preload("squants")
+//    preload("edu.wpi.first.wpilibj")
+//    preload("com.ctre")
 
     coreRobot.comms.foreach(_.connect())
 
