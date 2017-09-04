@@ -138,7 +138,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   }
 
   val serialPort = Try(new SerialPort(9600, SerialPort.Port.kUSB)).toOption
-  val comms: Option[SerialComms] = None// serialPort.map(new SerialComms(_))
+  val comms: Option[SerialComms] = serialPort.map(new SerialComms(_))
   val lighting: Option[StatusLightingComponent] = comms.map(c => new StatusLightingComponent(lightingStatus, c, coreTicks))
 
   new Compressor().start()
