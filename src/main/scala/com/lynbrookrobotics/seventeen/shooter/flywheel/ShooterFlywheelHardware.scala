@@ -1,25 +1,27 @@
 package com.lynbrookrobotics.seventeen.shooter.flywheel
 
-import com.lynbrookrobotics.potassium.Signal
+import com.lynbrookrobotics.potassium.clock.Clock
+import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.commons.flywheel.DoubleFlywheelHardware
 import com.lynbrookrobotics.potassium.frc.Implicits._
 import edu.wpi.first.wpilibj.{Counter, Talon}
-import squants.time.Frequency
+import squants.time.{Frequency, Milliseconds}
 
 case class ShooterFlywheelHardware(leftMotor: Talon,
                                    rightMotor: Talon,
                                    leftHall: Counter,
-                                   rightHall: Counter) extends DoubleFlywheelHardware {
-  override val leftVelocity: Signal[Frequency] =
-    leftHall.frequency.map(_ / 2) // 2 magnets on the roller
+                                   rightHall: Counter)(implicit clock: Clock) extends DoubleFlywheelHardware {
+  val velocities: Stream[(Frequency, Frequency)] = Stream.periodic(Milliseconds(5)) {
+    (leftHall.frequency / 2, rightHall.frequency / 2)
+  }
+  override lazy val leftVelocity: Stream[Frequency] = velocities.map(_._1)
 
-  override val rightVelocity: Signal[Frequency] =
-    rightHall.frequency.map(_ / 2)  // 2 magnets on the roller
+  override lazy val rightVelocity: Stream[Frequency] = velocities.map(_._2)
 
 }
 
 object ShooterFlywheelHardware {
-  def apply(config: ShooterFlywheelConfig): ShooterFlywheelHardware = {
+  def apply(config: ShooterFlywheelConfig)(implicit clock: Clock): ShooterFlywheelHardware = {
     ShooterFlywheelHardware(
       {
         val it = new Talon(config.ports.leftMotor)

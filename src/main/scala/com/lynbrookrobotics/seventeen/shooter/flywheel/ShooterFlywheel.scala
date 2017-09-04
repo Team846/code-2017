@@ -1,21 +1,21 @@
 package com.lynbrookrobotics.seventeen.shooter.flywheel
 
-import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.commons.drivetrain.MathUtilities
 import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
 import squants.time.Milliseconds
-import squants.{Each, Percent}
+import squants.Each
+import com.lynbrookrobotics.potassium.streams.Stream
 
-
-class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], hardware: ShooterFlywheelHardware, clock: Clock, driverHardware: DriverHardware)
+class ShooterFlywheel(val coreTicks: Stream[Unit])
+                     (implicit properties: Signal[ShooterFlywheelProperties],
+                      hardware: ShooterFlywheelHardware, driverHardware: DriverHardware)
   extends Component[DoubleFlywheelSignal](Milliseconds(5)) {
-
   val NominalVoltage = 11.9
 
-  override def defaultController = Signal.constant(
-    DoubleFlywheelSignal(Percent(0), Percent(0))
-  ).toPeriodic
+  override def defaultController: Stream[DoubleFlywheelSignal] = coreTicks.mapToConstant {
+    DoubleFlywheelSignal(Each(0), Each(0))
+  }
 
   /**
     * Compensate for reduced battery voltage
@@ -33,14 +33,21 @@ class ShooterFlywheel(implicit properties: Signal[ShooterFlywheelProperties], ha
     }
   }
 
+  override def setController(controller: Stream[DoubleFlywheelSignal]): Unit = {
+    super.setController(controller.zipAsync(hardware.velocities).map { case (signal, (leftVelocity, rightVelocity)) =>
+      // current limiting
+      val leftVelocityPercent = Each(leftVelocity / properties.get.maxVelocityLeft)
+      val rightVelocityPercent = Each(rightVelocity / properties.get.maxVelocityRight)
+
+      val leftOut = MathUtilities.limitCurrentOutput(signal.left, leftVelocityPercent, properties.get.currentLimit, properties.get.currentLimit)
+      val rightOut = MathUtilities.limitCurrentOutput(signal.right, rightVelocityPercent, properties.get.currentLimit, properties.get.currentLimit)
+
+      DoubleFlywheelSignal(voltageFactor * leftOut, voltageFactor * rightOut)
+    })
+  }
+
   override def applySignal(signal: DoubleFlywheelSignal): Unit = {
-    val leftVelocityPercent = Each(hardware.leftVelocity.get / properties.get.maxVelocityLeft)
-    val rightVelocityPercent = Each(hardware.rightVelocity.get / properties.get.maxVelocityRight)
-
-    val leftOut = MathUtilities.limitCurrentOutput(signal.left, leftVelocityPercent, properties.get.currentLimit, properties.get.currentLimit)
-    val rightOut = MathUtilities.limitCurrentOutput(signal.right, rightVelocityPercent, properties.get.currentLimit, properties.get.currentLimit)
-
-    hardware.leftMotor.set(voltageFactor * leftOut.toEach)
-    hardware.rightMotor.set(voltageFactor * rightOut.toEach)
+    hardware.leftMotor.set(signal.left.toEach)
+    hardware.rightMotor.set(signal.right.toEach)
   }
 }

@@ -1,14 +1,17 @@
 package com.lynbrookrobotics.seventeen.gear.grabber
 
 import com.lynbrookrobotics.potassium.Signal
+import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.tasks.FiniteTask
+import com.lynbrookrobotics.potassium.streams.Stream
+import squants.time.Seconds
 
 class OpenGrabberUntilHasGear(implicit hardware: GearGrabberHardware, grabber: GearGrabber,
                               props: Signal[GearGrabberProperties]) extends FiniteTask {
   val proximitySensor = hardware.proximitySensor
 
   override protected def onStart(): Unit = {
-    grabber.setController(Signal.constant(GearGrabberOpen).toPeriodic.withCheck { _ =>
+    grabber.setController(grabber.coreTicks.mapToConstant[GearGrabberState](GearGrabberOpen).withCheck { _ =>
       if (proximitySensor.getVoltage > props.get.detectingDistance.toVolts) {
         finished()
       }

@@ -1,8 +1,9 @@
 package com.lynbrookrobotics.seventeen.camselect
 
 import com.lynbrookrobotics.potassium.clock.Clock
-import com.lynbrookrobotics.potassium.{Component, PeriodicSignal, Signal}
-import squants.time.Milliseconds
+import com.lynbrookrobotics.potassium.streams.Stream
+import com.lynbrookrobotics.potassium.Component
+import squants.time.{Milliseconds, Seconds}
 
 trait CamSelectState
 
@@ -12,9 +13,8 @@ case object RightCam extends CamSelectState
 
 case object DriverCam extends CamSelectState
 
-class CamSelect(implicit hardware: CamSelectHardware, clock: Clock) extends Component[CamSelectState](Milliseconds(5)) {
-  override def defaultController: PeriodicSignal[CamSelectState] =
-    Signal.constant(DriverCam).toPeriodic
+class CamSelect(val coreTicks: Stream[Unit])(implicit hardware: CamSelectHardware) extends Component[CamSelectState](Milliseconds(5)) {
+  override def defaultController: Stream[CamSelectState] = coreTicks.mapToConstant(DriverCam)
 
   override def applySignal(signal: CamSelectState): Unit = {
     if (hardware != null) {

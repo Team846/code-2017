@@ -16,40 +16,36 @@ import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{WhileAtDou
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShooterShiftLeft, ShooterShiftRight}
 import edu.wpi.first.wpilibj.Utility
 import squants.Percent
-import squants.time.{Frequency, Microseconds, Milliseconds, RevolutionsPerMinute}
+import squants.time._
 import com.lynbrookrobotics.seventeen.gear.tilter.ExtendTilter
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheelProperties
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight}
-import squants.time.{Frequency, RevolutionsPerMinute}
+import com.lynbrookrobotics.potassium.streams.Stream
 
 class ButtonMappings(r: CoreRobot) {
 
   import r._
 
-  var curFlywheelSpeedLeft: Frequency = if (config.get.shooterFlywheel != null) {
+  var curFlywheelTargetLeft: Frequency = if (config.get.shooterFlywheel != null) {
     config.get.shooterFlywheel.props.midShootSpeedLeft
   } else RevolutionsPerMinute(0)
 
-  var curFlywheelSpeedRight: Frequency = if (config.get.shooterFlywheel != null) {
+  var curFlywheelTargetRight: Frequency = if (config.get.shooterFlywheel != null) {
     config.get.shooterFlywheel.props.midShootSpeedRight
   } else RevolutionsPerMinute(0)
 
-  val flywheelSpeedLeft = Signal(curFlywheelSpeedLeft)
-  val flywheelSpeedRight = Signal(curFlywheelSpeedRight)
+  val flywheelTargetLeft = r.coreTicks.map(_ => curFlywheelTargetLeft)
+  val flywheelTargetRight = r.coreTicks.map(_ => curFlywheelTargetRight)
 
   shooterFlywheel.zip(collectorElevator).zip(collectorRollers).zip(shooterShifter).zip(agitator).zip(collectorExtender).zip(loadTray).foreach { t =>
     implicit val ((((((fly, elev), roll), shift), agitator), ex), lt) = t
-
-    val time = Signal {
-      Microseconds(Utility.getFPGATime)
-    }
 
     /**
       * Shoots fuel at high speed
       * Trigger pressed
       */
     val shootFuelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.Trigger)
-    shootFuelPressed.foreach(ShooterTasks.continuousShoot(flywheelSpeedLeft, flywheelSpeedRight))
+    shootFuelPressed.foreach(ShooterTasks.continuousShoot(flywheelTargetLeft, flywheelTargetRight))
 
     /**
       * Shifts shooter to left
@@ -68,10 +64,10 @@ class ButtonMappings(r: CoreRobot) {
     driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightTwo)
       .foreach(new ContinuousTask {
         override protected def onStart(): Unit = {
-          agitator.setController(Signal.constant(Percent(50)).toPeriodic)
-          elev.setController(Signal.constant(-Percent(50)).toPeriodic)
-          roll.setController(Signal.constant(-Percent(50)).toPeriodic)
-          ex.setController(Signal.constant(CollectorExtenderExtended).toPeriodic)
+          agitator.setController(coreTicks.mapToConstant(Percent(50)))
+          elev.setController(coreTicks.mapToConstant(-Percent(50)))
+          roll.setController(coreTicks.mapToConstant(-Percent(50)))
+          ex.setController(coreTicks.mapToConstant(CollectorExtenderExtended))
         }
 
         override protected def onEnd(): Unit = {
@@ -80,8 +76,6 @@ class ButtonMappings(r: CoreRobot) {
           roll.resetToDefault()
           ex.resetToDefault()
         }
-
-
       })
   }
 
@@ -96,8 +90,8 @@ class ButtonMappings(r: CoreRobot) {
       */
     val setLowFlywheelSpeed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftOne)
     setLowFlywheelSpeed.foreach(() => {
-      curFlywheelSpeedLeft = config.get.shooterFlywheel.props.lowShootSpeedLeft
-      curFlywheelSpeedRight = config.get.shooterFlywheel.props.lowShootSpeedRight
+      curFlywheelTargetLeft = config.get.shooterFlywheel.props.lowShootSpeedLeft
+      curFlywheelTargetRight = config.get.shooterFlywheel.props.lowShootSpeedRight
     })
 
     /**
@@ -106,8 +100,8 @@ class ButtonMappings(r: CoreRobot) {
       */
     val setMidFlywheelSpeed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftTwo)
     setMidFlywheelSpeed.foreach(() => {
-      curFlywheelSpeedLeft = config.get.shooterFlywheel.props.midShootSpeedLeft
-      curFlywheelSpeedRight = config.get.shooterFlywheel.props.midShootSpeedRight
+      curFlywheelTargetLeft = config.get.shooterFlywheel.props.midShootSpeedLeft
+      curFlywheelTargetRight = config.get.shooterFlywheel.props.midShootSpeedRight
     })
 
     /**
@@ -116,8 +110,8 @@ class ButtonMappings(r: CoreRobot) {
       */
     val setHighFlywheelSpeed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftThree)
     setHighFlywheelSpeed.foreach(() => {
-      curFlywheelSpeedLeft = config.get.shooterFlywheel.props.fastShootSpeedLeft
-      curFlywheelSpeedRight = config.get.shooterFlywheel.props.fastShootSpeedRight
+      curFlywheelTargetLeft = config.get.shooterFlywheel.props.fastShootSpeedLeft
+      curFlywheelTargetRight = config.get.shooterFlywheel.props.fastShootSpeedRight
     })
 
     /**
@@ -126,7 +120,7 @@ class ButtonMappings(r: CoreRobot) {
       */
     val runFlywheelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftFour)
     runFlywheelPressed.foreach(new WhileAtDoubleVelocity(
-      flywheelSpeedLeft, flywheelSpeedRight, RevolutionsPerMinute(0)).apply(new ContinuousTask {
+      flywheelTargetLeft, flywheelTargetRight, RevolutionsPerMinute(0)).apply(new ContinuousTask {
       override protected def onEnd() = {}
 
       override protected def onStart() = {}
@@ -140,7 +134,7 @@ class ButtonMappings(r: CoreRobot) {
     val flywheelOverridePressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftFive)
     flywheelOverridePressed.foreach(
       new WhileAtVelocity(
-        driverHardware.operatorJoystick.y.map(_.toEach * shooterFlywheelProps.get.maxVelocityLeft),
+        driverHardware.joystickStream.map(s => s.operator.y.toEach * shooterFlywheelProps.get.maxVelocityLeft),
         RevolutionsPerMinute(0)).toContinuous)
   }
 
@@ -180,13 +174,15 @@ class ButtonMappings(r: CoreRobot) {
   collectorElevator.zip(collectorRollers).zip(collectorExtender).zip(loadTray).foreach { t =>
     implicit val (((elevator, roller), extend), loadTray) = t
 
+    val highRollTargetStream = r.coreTicks.map(_ => collectorRollersProps.get.highRollerSpeedOutput)
+
     /**
       * Collects fuel
       * Collects at high speed
       * Trigger for driver joystick pressed
       */
     val driverCollectFuelPressed = driverHardware.driverJoystick.buttonPressed(JoystickButtons.Trigger)
-    driverCollectFuelPressed.foreach(CollectorTasks.collect(collectorRollersProps.map(_.highRollerSpeedOutput)))
+    driverCollectFuelPressed.foreach(CollectorTasks.collect(highRollTargetStream))
 
     /**
       * Collects fuel
@@ -194,7 +190,7 @@ class ButtonMappings(r: CoreRobot) {
       * RightFour pressed
       */
     val collectFuelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightFour)
-    collectFuelPressed.foreach(CollectorTasks.collect(collectorRollersProps.map(_.highRollerSpeedOutput)))
+    collectFuelPressed.foreach(CollectorTasks.collect(highRollTargetStream))
 
     /**
       * Collects fuel
@@ -202,7 +198,8 @@ class ButtonMappings(r: CoreRobot) {
       * RightThree pressed
       */
     val slowCollectFuelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightThree)
-    slowCollectFuelPressed.foreach(CollectorTasks.collect(collectorRollersProps.map(_.lowRollerSpeedOutput)))
+    val slowRollTargetStream = r.coreTicks.map(_ => collectorRollersProps.get.lowRollerSpeedOutput)
+     slowCollectFuelPressed.foreach(CollectorTasks.collect(slowRollTargetStream))
   }
 
   climberPuller.foreach { t =>

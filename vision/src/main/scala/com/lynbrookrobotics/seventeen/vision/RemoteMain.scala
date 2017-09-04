@@ -1,33 +1,16 @@
 package com.lynbrookrobotics.seventeen.vision
 
-import scala.collection.mutable.Buffer
-import com.lynbrookrobotics.potassium.clock._
-import com.lynbrookrobotics.potassium.remote._
-import com.lynbrookrobotics.potassium.vision._
-import org.opencv.core._
-import akka.actor._
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.server.Route
-import akka.stream.ActorMaterializer
 import com.lynbrookrobotics.funkydashboard._
-import com.lynbrookrobotics.seventeen.commons.VisionTargets
-
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import edu.wpi.cscore._
 
-object RemoteMain extends App {
-  implicit val actorSystem = ActorSystem("host")
-  implicit val materializer = ActorMaterializer()
+import scala.util.Try
 
-  val dashboard = Future {
-    val dashboard = new FunkyDashboard
-    Http().bindAndHandle(Route.handlerFlow(dashboard.route), "0.0.0.0", 8080).map { _ =>
-      println("Funky Dashboard is up!")
-      dashboard
-    }
-  }.flatten
+object RemoteMain extends App {
+  val dashboard = Try {
+    val dashboard = new FunkyDashboard(125, 80808)
+    dashboard.start()
+    dashboard
+  }
 
   // val leftProcessedProvider =
   //   new RemoteSignalProvider[VisionTargets]("left-processed", VisionPipeline.leftCameraProcessed)

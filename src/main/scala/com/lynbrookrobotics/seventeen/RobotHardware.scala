@@ -1,5 +1,6 @@
 package com.lynbrookrobotics.seventeen
 
+import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.seventeen.agitator.AgitatorHardware
 import com.lynbrookrobotics.seventeen.camselect.CamSelectHardware
 import com.lynbrookrobotics.seventeen.climber.puller.ClimberPullerHardware
@@ -31,7 +32,7 @@ case class RobotHardware(driver: DriverHardware,
                          pdp: PowerDistributionPanel)
 
 object RobotHardware {
-  def apply(robotConfig: RobotConfig): RobotHardware = {
+  def apply(robotConfig: RobotConfig)(implicit clock: Clock): RobotHardware = {
     val driver = DriverHardware(robotConfig.driver)
 
     import robotConfig._

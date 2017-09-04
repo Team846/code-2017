@@ -8,11 +8,10 @@ import com.lynbrookrobotics.seventeen.driver.DriverHardware
 class OpenGrabberUntilReleased(implicit hardware: GearGrabberHardware, grabber: GearGrabber,
                                props: Signal[GearGrabberProperties], driverHardware: DriverHardware,
                                polling: ImpulseEvent) extends FiniteTask {
-
   val proximitySensor = hardware.proximitySensor
 
   override protected def onStart(): Unit = {
-    grabber.setController(Signal.constant(GearGrabberOpen).toPeriodic.withCheck { _ =>
+    grabber.setController(grabber.coreTicks.mapToConstant[GearGrabberState](GearGrabberOpen).withCheck { _ =>
       if (proximitySensor.getVoltage < props.get.detectingDistance.toVolts) {
         finished()
       }

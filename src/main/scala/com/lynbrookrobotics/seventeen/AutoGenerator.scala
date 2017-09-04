@@ -19,6 +19,7 @@ import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShif
 import squants.Percent
 import squants.space.{Degrees, Feet, Inches}
 import squants.time.Seconds
+import com.lynbrookrobotics.potassium.streams.Stream
 
 class AutoGenerator(r: CoreRobot) {
   import r._
@@ -26,6 +27,9 @@ class AutoGenerator(r: CoreRobot) {
   val robotLength = Inches(28.313 + 7 /* bumpers */)
 
   val gearPegDistance = Inches(109)
+
+  val midShootSpeedLeft = r.coreTicks.map(_ => shooterFlywheelProps.get.midShootSpeedLeft)
+  val midShootSpeedRight = r.coreTicks.map(_ => shooterFlywheelProps.get.midShootSpeedRight)
 
   def slowCrossLine(implicit d: Drivetrain): FiniteTask = {
     new DriveDistanceStraight(
@@ -139,8 +143,8 @@ class AutoGenerator(r: CoreRobot) {
     ).withTimeout(Seconds(4)).then(
       new WaitTask(Seconds(0.5)).andUntilDone(
         new DriveOpenLoop(
-          Signal.constant(Percent(40)),
-          Signal.constant(Percent(0))
+          drivetrainHardware.forwardPosition.mapToConstant(Percent(40)),
+          drivetrainHardware.forwardPosition.mapToConstant(Percent(0))
         )
       )
     )
@@ -156,10 +160,11 @@ class AutoGenerator(r: CoreRobot) {
                          ex: CollectorExtender,
                          sh: ShooterShifter,
                          lt: LoadTray): ContinuousTask = {
+
     val shooting = ShooterTasks.continuousShoot(
-      shooterFlywheelProps.map(_.midShootSpeedLeft),
-      shooterFlywheelProps.map(_.midShootSpeedRight)
-    ).and(new ShiftShooter(Signal.constant(ShooterShiftLeft)))
+      midShootSpeedLeft,
+      midShootSpeedRight
+    ).and(new ShiftShooter(midShootSpeedLeft.mapToConstant(ShooterShiftLeft)))
 
     hopperForward.then(new RotateByAngle(
       Degrees(-90),
@@ -181,9 +186,9 @@ class AutoGenerator(r: CoreRobot) {
                           sh: ShooterShifter,
                           lt: LoadTray): ContinuousTask = {
     val shooting = ShooterTasks.continuousShoot(
-      shooterFlywheelProps.map(_.midShootSpeedLeft),
-      shooterFlywheelProps.map(_.midShootSpeedRight)
-    ).and(new ShiftShooter(Signal.constant(ShooterShiftRight)))
+      midShootSpeedLeft,
+      midShootSpeedRight
+    ).and(new ShiftShooter(midShootSpeedLeft.mapToConstant(ShooterShiftRight)))
 
     hopperForward.then(new RotateByAngle(
       Degrees(90),
@@ -224,9 +229,9 @@ class AutoGenerator(r: CoreRobot) {
   }
 
   def centerGearAndCrossLine(implicit d: Drivetrain, g: GearGrabber, t: GearTilter): FiniteTask = {
-    val initialTurnPosition = drivetrainHardware.turnPosition.get
-
-    val relativeTurn = drivetrainHardware.turnPosition.map(_ - initialTurnPosition)
+    val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
+      curr - init
+    })
 
     val xyPosition = XYPosition(
       relativeTurn,
@@ -280,8 +285,8 @@ class AutoGenerator(r: CoreRobot) {
                       lt: LoadTray): FiniteTask = {
     new WaitTask(Seconds(3)).andUntilDone(
       ShooterTasks.continuousShoot(
-        shooterFlywheelProps.map(_.midShootSpeedLeft),
-        shooterFlywheelProps.map(_.midShootSpeedRight)
+        midShootSpeedLeft,
+        midShootSpeedRight
       )
     ).then(centerGear)
   }

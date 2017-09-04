@@ -1,6 +1,7 @@
 package com.lynbrookrobotics.seventeen.shooter
 
 import com.lynbrookrobotics.potassium.Signal
+import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 import com.lynbrookrobotics.seventeen.agitator.{Agitator, AgitatorProperties, SpinAgitator}
 import com.lynbrookrobotics.seventeen.collector.elevator.{CollectorElevator, CollectorElevatorProperties, LoadIntoStorage}
@@ -10,10 +11,11 @@ import com.lynbrookrobotics.seventeen.loadtray.{ExtendTray, LoadTray}
 import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks._
 import com.lynbrookrobotics.seventeen.shooter.flywheel.{ShooterFlywheel, ShooterFlywheelHardware, ShooterFlywheelProperties}
 import squants.time.Frequency
+import com.lynbrookrobotics.potassium.streams.Stream
 
 object ShooterTasks {
-  def continuousShoot(shootSpeedLeft: Signal[Frequency],
-                      shootSpeedRight: Signal[Frequency])
+  def continuousShoot(shootSpeedLeft: Stream[Frequency],
+                      shootSpeedRight: Stream[Frequency])
                      (implicit collectorElevator: CollectorElevator,
                       collectorRollers: CollectorRollers,
                       agitator: Agitator, flywheel: ShooterFlywheel,
@@ -33,7 +35,7 @@ object ShooterTasks {
     wrapper(
       new SpinAgitator()
         .and(new LoadIntoStorage())
-        .and(new RollBallsInCollector(collectorRollersProperties.map(_.highRollerSpeedOutput)))
+        .and(new RollBallsInCollector(shootSpeedLeft.map(_ => collectorRollersProperties.get.highRollerSpeedOutput)))
         .and(new ExtendCollector())
     ).and(new ExtendTray())
   }
