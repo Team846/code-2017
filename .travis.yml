@@ -6,6 +6,5 @@ branches:
     - master
 script:
   - sbt test
-  - 'if [[ $TRAVIS_PULL_REQUEST != "false" ]]; then bash ./style-checks.sh; fi'
 jdk: oraclejdk8
 after_success:
