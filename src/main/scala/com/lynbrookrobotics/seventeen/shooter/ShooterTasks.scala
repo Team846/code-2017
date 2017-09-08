@@ -2,7 +2,7 @@ package com.lynbrookrobotics.seventeen.shooter
 
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.clock.Clock
-import com.lynbrookrobotics.potassium.tasks.ContinuousTask
+import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, WaitTask}
 import com.lynbrookrobotics.seventeen.agitator.{Agitator, AgitatorProperties, SpinAgitator}
 import com.lynbrookrobotics.seventeen.collector.elevator.{CollectorElevator, CollectorElevatorProperties, LoadIntoStorage}
 import com.lynbrookrobotics.seventeen.collector.extender.{CollectorExtender, ExtendCollector}
@@ -10,7 +10,7 @@ import com.lynbrookrobotics.seventeen.collector.rollers.{CollectorRollers, Colle
 import com.lynbrookrobotics.seventeen.loadtray.{ExtendTray, LoadTray}
 import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks._
 import com.lynbrookrobotics.seventeen.shooter.flywheel.{ShooterFlywheel, ShooterFlywheelHardware, ShooterFlywheelProperties}
-import squants.time.Frequency
+import squants.time.{Frequency, Seconds}
 import com.lynbrookrobotics.potassium.streams.Stream
 
 object ShooterTasks {
@@ -25,7 +25,8 @@ object ShooterTasks {
                       flywheelProperties: Signal[ShooterFlywheelProperties],
                       collectorElevatorProperties: Signal[CollectorElevatorProperties],
                       collectorRollersProperties: Signal[CollectorRollersProperties],
-                      flywheelHardware: ShooterFlywheelHardware): ContinuousTask = {
+                      flywheelHardware: ShooterFlywheelHardware,
+                      clock: Clock): ContinuousTask = {
     val wrapper = new WhileAtDoubleVelocity(
       shootSpeedLeft,
       shootSpeedRight,
@@ -33,10 +34,12 @@ object ShooterTasks {
     )
 
     wrapper(
-      new SpinAgitator()
-        .and(new LoadIntoStorage())
-        .and(new RollBallsInCollector(shootSpeedLeft.map(_ => collectorRollersProperties.get.highRollerSpeedOutput)))
-        .and(new ExtendCollector())
+      (new WaitTask(Seconds(0.5)).then(new SpinAgitator()))
+        .and(
+          new LoadIntoStorage()
+          .and(new RollBallsInCollector(shootSpeedLeft.map(_ => collectorRollersProperties.get.highRollerSpeedOutput)))
+          .and(new ExtendCollector())
+        )
     ).and(new ExtendTray())
   }
 }
