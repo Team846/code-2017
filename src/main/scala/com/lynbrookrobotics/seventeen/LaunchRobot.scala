@@ -54,7 +54,7 @@ class LaunchRobot extends RobotBase {
 
   def preload(pkg: String): Unit = {
     ClassPath.from(Thread.currentThread().getContextClassLoader).
-      getTopLevelClassesRecursive("com.lynbrookrobotics")
+      getTopLevelClassesRecursive(pkg)
     println(s"Preloaded $pkg")
   }
 
