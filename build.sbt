@@ -1,4 +1,4 @@
-enablePlugins(FRCPlugin, TravisScalaStylePlugin)
+enablePlugins(FRCPlugin)
 
 organization := "com.lynbrookrobotics"
 teamNumber := 846

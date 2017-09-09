@@ -377,6 +377,9 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     ))
 
     drivetrain.foreach { d =>
+      board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.leftVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Left Ground Velocity"))
+      board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.rightVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Right Ground Velocity"))
+
       board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.leftPosition.map(_.toFeet).toTimeSeriesNumeric("Left Ground"))
       board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.rightPosition.map(_.toFeet).toTimeSeriesNumeric("Right Ground"))
 
