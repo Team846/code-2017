@@ -52,9 +52,9 @@ class LaunchRobot extends RobotBase {
   private val eventPollingSource = new ImpulseEventSource
   private implicit val eventPolling = eventPollingSource.event
 
+  private val classpath = ClassPath.from(Thread.currentThread().getContextClassLoader)
   def preload(pkg: String): Unit = {
-    ClassPath.from(Thread.currentThread().getContextClassLoader).
-      getTopLevelClassesRecursive("com.lynbrookrobotics")
+    classpath.getTopLevelClassesRecursive(pkg)
     println(s"Preloaded $pkg")
   }
 
