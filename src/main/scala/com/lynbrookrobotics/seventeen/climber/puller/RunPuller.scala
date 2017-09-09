@@ -10,7 +10,6 @@ class RunPuller(implicit puller: ClimberPuller, props: Signal[ClimberPullerPrope
   extends ContinuousTask {
   val controlStream: Stream[ClimberControlMode] = puller.coreTicks.map(_ => PWMMode(props.get.climbSpeed))
   override protected def onStart(): Unit = {
-    println("climbing!")
     puller.setController(controlStream)
   }
 
