@@ -1,10 +1,11 @@
 package com.lynbrookrobotics.seventeen
 
-import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
 import com.lynbrookrobotics.potassium.tasks.{FiniteTask, Task}
 import com.lynbrookrobotics.potassium.{Component, Signal}
+import com.lynbrookrobotics.potassium.streams.Stream
+
 import com.lynbrookrobotics.seventeen.agitator.Agitator
 import com.lynbrookrobotics.seventeen.camselect.CamSelect
 import com.lynbrookrobotics.seventeen.climber.puller.ClimberPuller
@@ -18,14 +19,16 @@ import com.lynbrookrobotics.seventeen.lighting.{SerialComms, StatusLightingCompo
 import com.lynbrookrobotics.seventeen.loadtray.LoadTray
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
 import com.lynbrookrobotics.seventeen.shooter.shifter.ShooterShifter
-import edu.wpi.first.wpilibj.DriverStation.Alliance
+
+import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
+
 import edu.wpi.first.wpilibj._
+import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Try
-import com.lynbrookrobotics.potassium.streams.Stream
+import java.lang.Runtime
 
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit, val coreTicks: Stream[Unit])
                (implicit val config: Signal[RobotConfig], hardware: RobotHardware, val clock: Clock, val polling: ImpulseEvent) {
@@ -363,6 +366,12 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   import CoreRobot._
 
   dashboard.foreach { board =>
+    println("Funky Dashboard is up!")
+    Runtime.getRuntime().addShutdownHook(new Thread(() => {
+      println("Shutting down Funky Dashboard")
+      board.stop()
+    }))
+
     board.datasetGroup("Config").addDataset(new JsonEditor("Robot Config")(
       configFileValue.get,
       updateConfigFile
