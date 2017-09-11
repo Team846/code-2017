@@ -33,13 +33,18 @@ object ShooterTasks {
       flywheelProperties.get.speedTolerance
     )
 
-    wrapper(
-      (new WaitTask(Seconds(0.5)).then(new SpinAgitator()))
-        .and(
-          new LoadIntoStorage()
-          .and(new RollBallsInCollector(shootSpeedLeft.map(_ => collectorRollersProperties.get.highRollerSpeedOutput)))
-          .and(new ExtendCollector())
-        )
-    ).and(new ExtendTray())
+    val runCollector = new LoadIntoStorage()
+      .and(new RollBallsInCollector(shootSpeedLeft.map(_ => collectorRollersProperties.get.highRollerSpeedOutput)))
+      .and(new ExtendCollector())
+
+    // wait 0.5 seconds for the collector to spin up, but start spinning up the flywheel too
+    val spinUp = new WaitTask(Seconds(0.5)).andUntilDone(wrapper.toContinuous.and(runCollector))
+
+    spinUp.then(
+      wrapper(
+        // once we are at speed, we continue running the collector but also start the agitator
+        new SpinAgitator().and(runCollector)
+      )
+    ).and(new ExtendTray()) // extend the tray while we are trying to shoot
   }
 }
