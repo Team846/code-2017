@@ -352,7 +352,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     components.foreach(_.resetToDefault())
   }
 
-  val dashboard = Try {
+  val dashboard = Future {
     val dashboard = new FunkyDashboard(125, 8080)
     dashboard.start()
     dashboard
