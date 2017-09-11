@@ -26,6 +26,8 @@ import edu.wpi.first.wpilibj._
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 
+import scala.util.Try
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import java.lang.Runtime
