@@ -20,7 +20,9 @@ class GearTilter(val coreTicks: Stream[Unit])(implicit hardware: GearTilterHardw
   lazy val collectorExtender = collectorExtenderF()
 
   private var curLastExtendTime: Long = 0
+  private var curLastRetractTime: Long = 0
   val lastExtendTime = Signal(curLastExtendTime)
+  val lastRetractTime = Signal(curLastRetractTime)
 
   lazy val collectorExtended = collectorExtender.map(_.lastExtendTime.
     map(t => System.currentTimeMillis() - t <= 1000)).
@@ -30,20 +32,24 @@ class GearTilter(val coreTicks: Stream[Unit])(implicit hardware: GearTilterHardw
   val lastOpenTime = Signal(curLastOpenTime)
 
   lazy val gearOpened = gearGrabber.map(_.lastOpenTime.
-    map(t => System.currentTimeMillis() - t <= 1000)).
+    map(t => System.currentTimeMillis() - t <= 50/*1000*/)).
     getOrElse(Signal.constant(false))
 
   override def applySignal(signal: GearTilterState): Unit = {
-    if (gearOpened.get) {
-      hardware.pneumatic.set(true)
+    val outWithSafety = if (gearOpened.get) {
+      GearTilterExtended
     } else if (collectorExtended.get) {
-      hardware.pneumatic.set(false)
+      GearTilterRetracted
     } else {
-      hardware.pneumatic.set(signal == GearTilterExtended)
+      signal
+    }
 
-      if (signal == GearTilterExtended) {
-        curLastExtendTime = System.currentTimeMillis()
-      }
+    hardware.pneumatic.set(outWithSafety == GearTilterExtended)
+
+    if (outWithSafety == GearTilterExtended) {
+      curLastExtendTime = System.currentTimeMillis()
+    } else {
+      curLastRetractTime = System.currentTimeMillis()
     }
   }
 }

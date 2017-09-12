@@ -21,19 +21,21 @@ class GearGrabber(val coreTicks: Stream[Unit])(implicit hardware: GearGrabberHar
   private var curLastOpenedTime: Long = 0
   val lastOpenTime = Signal(curLastOpenedTime)
 
-  lazy val gearExtended = gearTilter.map(_.lastExtendTime
-    .map(t => System.currentTimeMillis() - t <= 1000))
-    .getOrElse(Signal.constant(false))
+  lazy val gearRetracted = gearTilter.map(_.lastRetractTime
+    .map(t => System.currentTimeMillis() - t <= 50/*1000*/))
+    .getOrElse(Signal.constant(true))
 
   override def applySignal(signal: GearGrabberState): Unit = {
-    if (!gearExtended.get) {
-      hardware.pneumatic.set(false)
+    val outWithSafety = if (gearRetracted.get) {
+      GearGrabberClosed
     } else {
-      hardware.pneumatic.set(signal == GearGrabberOpen)
+      signal
+    }
 
-      if (signal == GearGrabberOpen) {
-        curLastOpenedTime = System.currentTimeMillis()
-      }
+    hardware.pneumatic.set(outWithSafety == GearGrabberOpen)
+
+    if (outWithSafety == GearGrabberOpen) {
+      curLastOpenedTime = System.currentTimeMillis()
     }
   }
 }
