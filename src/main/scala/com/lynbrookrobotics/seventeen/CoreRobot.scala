@@ -85,14 +85,17 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   // Gear Grabber
   implicit val gearGrabberHardware = hardware.gearGrabber
   implicit val gearGrabberProps = config.map(_.gearGrabber.props)
-  lazy val gearGrabber: Option[GearGrabber] =
+  lazy val gearGrabber: Option[GearGrabber] = {
+    implicit val gt = () => gearTilter
     if (config.get.gearGrabber != null) Some(new GearGrabber(coreTicks)) else None
+  }
 
   // Gear Tilter
   implicit val gearTilterHardware = hardware.gearTilter
-  lazy val gearTilter: Option[GearTilter] =
+  implicit lazy val gearTilter: Option[GearTilter] =
     if (config.get.gearTilter != null) {
       implicit val ce = () => collectorExtender
+      implicit val gg = () => gearGrabber
       Some(new GearTilter(coreTicks))
     } else None
 

@@ -5,8 +5,8 @@ import com.lynbrookrobotics.potassium.commons.drivetrain._
 import com.lynbrookrobotics.potassium.frc.Implicits._
 import squants.Each
 import squants.time.Milliseconds
-
 import com.lynbrookrobotics.potassium.streams.Stream
+import squants.electro.Volts
 
 package object drivetrain extends TwoSidedDrive(Milliseconds(5)) { self =>
   type Hardware = DrivetrainHardware
@@ -54,8 +54,11 @@ package object drivetrain extends TwoSidedDrive(Milliseconds(5)) { self =>
 
     override def defaultController: Stream[TwoSidedSignal] = self.defaultController
 
+    val normalDrivetrainVoltage = Volts(12)
+
     override def applySignal(signal: TwoSidedSignal): Unit = {
-      output(hardware, signal)
+      val compFactor = normalDrivetrainVoltage / Volts(hardware.driverHardware.station.getBatteryVoltage)
+      output(hardware, TwoSidedSignal(signal.left * compFactor, signal.right * compFactor))
     }
   }
 }
