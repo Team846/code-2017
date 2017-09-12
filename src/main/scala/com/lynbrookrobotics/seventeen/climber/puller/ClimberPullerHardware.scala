@@ -9,6 +9,9 @@ object ClimberPullerHardware {
     val a = new CANTalon(config.ports.motorChannelA)
     val b = new CANTalon(config.ports.motorChannelB)
 
+    a.setInverted(true)
+    b.setInverted(true)
+
     ClimberPullerHardware(a, b)
   }
 }
