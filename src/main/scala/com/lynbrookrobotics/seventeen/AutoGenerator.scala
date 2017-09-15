@@ -76,7 +76,7 @@ class AutoGenerator(r: CoreRobot) {
         Degrees(5),
         5
       ).withTimeout(Seconds(5))).then(new DriveDistanceStraight(
-        Inches(45.9),
+        Inches(19.75),
         Inches(3),
         Degrees(10),
         Percent(30)
@@ -96,7 +96,7 @@ class AutoGenerator(r: CoreRobot) {
         Degrees(5),
         5
       ).withTimeout(Seconds(5))).then(new DriveDistanceStraight(
-        Inches(45.9),
+        Inches(19.75),
         Inches(3),
         Degrees(10),
         Percent(30)
