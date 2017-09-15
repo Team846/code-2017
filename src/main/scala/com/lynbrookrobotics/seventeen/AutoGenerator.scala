@@ -150,6 +150,28 @@ class AutoGenerator(r: CoreRobot) {
     )
   }
 
+  def shootLeftAndDriveBack(implicit d: Drivetrain,
+                        g: GearGrabber,
+                        ce: CollectorElevator,
+                        cr: CollectorRollers,
+                        a: Agitator,
+                        f: ShooterFlywheel,
+                        t: GearTilter,
+                        ex: CollectorExtender,
+                        sh: ShooterShifter,
+                        lt: LoadTray): FiniteTask = {
+    val shooting = ShooterTasks.continuousShoot(
+      midShootSpeedLeft,
+      midShootSpeedRight
+    ).and(new ShiftShooter(midShootSpeedLeft.mapToConstant(ShooterShiftLeft)))
+
+    new WaitTask(Seconds(5)).andUntilDone(shooting).then(new DriveBeyondStraight(
+      Feet(-7),
+      Inches(3),
+      Degrees(0),
+      Percent(30)
+    ))
+  }
   def leftHopperAndShoot(implicit d: Drivetrain,
                          g: GearGrabber,
                          ce: CollectorElevator,
