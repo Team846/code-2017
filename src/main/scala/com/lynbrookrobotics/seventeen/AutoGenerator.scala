@@ -24,7 +24,7 @@ import com.lynbrookrobotics.potassium.streams.Stream
 class AutoGenerator(r: CoreRobot) {
   import r._
 
-  val robotLength = Inches(28.313 + 7 /* bumpers */)
+  val robotLength = Inches(35)
 
   val gearPegDistance = Inches(109)
 
@@ -72,11 +72,11 @@ class AutoGenerator(r: CoreRobot) {
         Degrees(10),
         Percent(30)
       ).withTimeout(Seconds(8)).then(new RotateByAngle(
-        Degrees(-60),
+        Degrees(-57.61),
         Degrees(5),
         5
       ).withTimeout(Seconds(5))).then(new DriveDistanceStraight(
-        Inches(45.9),
+        Inches(19.75),
         Inches(3),
         Degrees(10),
         Percent(30)
@@ -92,11 +92,11 @@ class AutoGenerator(r: CoreRobot) {
         Degrees(10),
         Percent(30)
       ).withTimeout(Seconds(8)).then(new RotateByAngle(
-        Degrees(60),
+        Degrees(57.61),
         Degrees(5),
         5
       ).withTimeout(Seconds(5))).then(new DriveDistanceStraight(
-        Inches(45.9),
+        Inches(19.75),
         Inches(3),
         Degrees(10),
         Percent(30)
