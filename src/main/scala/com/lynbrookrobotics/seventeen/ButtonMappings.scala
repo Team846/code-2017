@@ -176,6 +176,9 @@ class ButtonMappings(r: CoreRobot) {
 
     val highRollTargetStream = r.coreTicks.map(_ => collectorRollersProps.get.highRollerSpeedOutput)
 
+    val purgeTargetStream = r.coreTicks.map(_ => -collectorRollersProps.get.highRollerSpeedOutput)
+    val purgeSlowTargetStream = r.coreTicks.map(_ => -collectorRollersProps.get.highRollerSpeedOutput * 0.5)
+
     /**
       * Collects fuel
       * Collects at high speed
@@ -200,6 +203,22 @@ class ButtonMappings(r: CoreRobot) {
     val slowCollectFuelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightThree)
     val slowRollTargetStream = r.coreTicks.map(_ => collectorRollersProps.get.lowRollerSpeedOutput)
      slowCollectFuelPressed.foreach(CollectorTasks.collect(slowRollTargetStream))
+
+    /**
+      * Purges fuel
+      * Purges at high speed
+      * TriggerLeft pressed
+      */
+    val purgeFuelPressed = driverHardware.driverJoystick.buttonPressed(JoystickButtons.TriggerLeft)
+    purgeFuelPressed.foreach(CollectorTasks.collect(purgeTargetStream))
+
+    /**
+      * Purges fuel
+      * Purges at half speed
+      * TriggerRight pressed
+      */
+    val purgeFuelSlowPressed = driverHardware.driverJoystick.buttonPressed(JoystickButtons.TriggerRight)
+    purgeFuelSlowPressed.foreach(CollectorTasks.collect(purgeSlowTargetStream))
   }
 
   climberPuller.foreach { t =>

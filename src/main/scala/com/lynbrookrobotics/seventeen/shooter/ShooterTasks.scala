@@ -38,13 +38,13 @@ object ShooterTasks {
       .and(new ExtendCollector())
 
     // wait 0.5 seconds for the collector to spin up, but start spinning up the flywheel too
-    val spinUp = new WaitTask(Seconds(0.5)).andUntilDone(wrapper.toContinuous.and(runCollector))
+    val spinUp = new WaitTask(Seconds(0.5))
 
     spinUp.then(
       wrapper(
         // once we are at speed, we continue running the collector but also start the agitator
-        new SpinAgitator().and(runCollector)
+        new SpinAgitator()
       )
-    ).and(new ExtendTray()) // extend the tray while we are trying to shoot
+    ).and(new ExtendTray().and(runCollector)) // extend the tray while we are trying to shoot
   }
 }
