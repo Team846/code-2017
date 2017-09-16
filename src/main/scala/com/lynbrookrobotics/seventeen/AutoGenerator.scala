@@ -165,12 +165,12 @@ class AutoGenerator(r: CoreRobot) {
       midShootSpeedRight
     ).and(new ShiftShooter(midShootSpeedLeft.mapToConstant(ShooterShiftLeft)))
 
-    new WaitTask(Seconds(5)).andUntilDone(shooting).then(new DriveBeyondStraight(
+    new WaitTask(Seconds(5)).andUntilDone(shooting).then(new DriveDistanceStraight(
       Feet(-7),
       Inches(3),
       Degrees(0),
       Percent(30)
-    ))
+    ).withTimeout(Seconds(3)))
   }
   def leftHopperAndShoot(implicit d: Drivetrain,
                          g: GearGrabber,
