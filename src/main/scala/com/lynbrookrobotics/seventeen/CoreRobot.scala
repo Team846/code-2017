@@ -339,8 +339,29 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
               }
             }
           }
-        }
-      }.getOrElse(FiniteTask.empty.toContinuous)
+        }}.getOrElse(FiniteTask.empty.toContinuous)
+      } else if (autoID == 10) {
+        drivetrain.flatMap { implicit dr =>
+          gearGrabber.flatMap { implicit gg =>
+            collectorElevator.flatMap { implicit ce =>
+              collectorRollers.flatMap { implicit cr =>
+                agitator.flatMap { implicit a =>
+                  shooterFlywheel.flatMap { implicit f =>
+                    gearTilter.flatMap { implicit t =>
+                      collectorExtender.flatMap { implicit ex =>
+                        loadTray.flatMap { implicit lt =>
+                          shooterShifter.map { implicit shift =>
+                            generator.shootLeftAndDriveBack.toContinuous
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }.getOrElse(FiniteTask.empty.toContinuous)
       } else {
       FiniteTask.empty.toContinuous
     }
@@ -361,7 +382,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   }
 
   val dashboard = Future {
-    val dashboard = new FunkyDashboard(125, 8080)
+    val dashboard = new FunkyDashboard(8, 8080)
     dashboard.start()
     dashboard
   }
