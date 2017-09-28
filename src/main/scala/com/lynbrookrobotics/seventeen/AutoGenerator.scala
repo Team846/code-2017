@@ -37,7 +37,7 @@ class AutoGenerator(r: CoreRobot) {
       Inches(3),
       Degrees(10),
       Percent(20)
-    ).withTimeout(Seconds(8))
+    )(d).withTimeout(Seconds(8))
   }
 
   def toGearAndDrop(driveTo: FiniteTask)(implicit d: Drivetrain, g: GearGrabber, t: GearTilter): FiniteTask = {
@@ -46,7 +46,7 @@ class AutoGenerator(r: CoreRobot) {
       Inches(3),
       Degrees(10),
       Percent(30)
-    )).withTimeout(Seconds(5)).andUntilDone(
+    )(d)).withTimeout(Seconds(5)).andUntilDone(
       new OpenGrabber() and new ExtendTilter()
     )
 
@@ -60,7 +60,7 @@ class AutoGenerator(r: CoreRobot) {
         Inches(3),
         Degrees(10),
         Percent(30)
-      ).withTimeout(Seconds(8))
+      )(d).withTimeout(Seconds(8))
     )
   }
 
@@ -71,16 +71,16 @@ class AutoGenerator(r: CoreRobot) {
         Inches(3),
         Degrees(10),
         Percent(30)
-      ).withTimeout(Seconds(8)).then(new RotateByAngle(
+      )(d).withTimeout(Seconds(8)).then(new RotateByAngle(
         Degrees(-57.61),
         Degrees(5),
         5
-      ).withTimeout(Seconds(5))).then(new DriveDistanceStraight(
+      )(d).withTimeout(Seconds(5))).then(new DriveDistanceStraight(
         Inches(19.75),
         Inches(3),
         Degrees(10),
         Percent(30)
-      ).withTimeout(Seconds(5)))
+      )(d).withTimeout(Seconds(5)))
     )
   }
 
@@ -91,16 +91,16 @@ class AutoGenerator(r: CoreRobot) {
         Inches(3),
         Degrees(10),
         Percent(30)
-      ).withTimeout(Seconds(8)).then(new RotateByAngle(
+      )(d).withTimeout(Seconds(8)).then(new RotateByAngle(
         Degrees(57.61),
         Degrees(5),
         5
-      ).withTimeout(Seconds(5))).then(new DriveDistanceStraight(
+      )(d).withTimeout(Seconds(5))).then(new DriveDistanceStraight(
         Inches(19.75),
         Inches(3),
         Degrees(10),
         Percent(30)
-      ).withTimeout(Seconds(5)))
+      )(d).withTimeout(Seconds(5)))
     )
   }
 
@@ -122,7 +122,7 @@ class AutoGenerator(r: CoreRobot) {
       Inches(3),
       hopperTurnThreshold,
       hopperAutoDriveSpeed
-    ).withTimeout(Seconds(8))
+    )(d).withTimeout(Seconds(8))
   }
 
   def hopperRam(implicit d: Drivetrain,
@@ -140,12 +140,12 @@ class AutoGenerator(r: CoreRobot) {
       Inches(3),
       hopperTurnThreshold,
       hopperAutoDriveSpeed
-    ).withTimeout(Seconds(4)).then(
+    )(d).withTimeout(Seconds(4)).then(
       new WaitTask(Seconds(0.5)).andUntilDone(
         new DriveOpenLoop(
           drivetrainHardware.forwardPosition.mapToConstant(Percent(40)),
           drivetrainHardware.forwardPosition.mapToConstant(Percent(0))
-        )
+        )(d)
       )
     )
   }
@@ -170,7 +170,7 @@ class AutoGenerator(r: CoreRobot) {
       Inches(3),
       Degrees(0),
       Percent(30)
-    ).withTimeout(Seconds(3)))
+    )(d).withTimeout(Seconds(3)))
   }
   def leftHopperAndShoot(implicit d: Drivetrain,
                          g: GearGrabber,
@@ -192,7 +192,7 @@ class AutoGenerator(r: CoreRobot) {
       Degrees(-90),
       hopperTurnThreshold,
       5
-    ).withTimeout(Seconds(3))).then(hopperRam).andUntilDone(
+    )(d).withTimeout(Seconds(3))).then(hopperRam).andUntilDone(
       new WaitTask(Seconds(6)).then(shooting)
     ).then(shooting)
   }
@@ -216,7 +216,7 @@ class AutoGenerator(r: CoreRobot) {
       Degrees(90),
       hopperTurnThreshold,
       5
-    ).withTimeout(Seconds(3))).then(hopperRam).andUntilDone(
+    )(d).withTimeout(Seconds(3))).then(hopperRam).andUntilDone(
       new WaitTask(Seconds(6)).then(shooting)
     ).then(shooting)
   }
@@ -236,17 +236,17 @@ class AutoGenerator(r: CoreRobot) {
       Inches(3),
       Degrees(10),
       hopperAutoDriveSpeed
-    ).withTimeout(Seconds(8)).then(new RotateByAngle(
+    )(d).withTimeout(Seconds(8)).then(new RotateByAngle(
       Degrees(-90),
       Degrees(10),
       5
-    ).withTimeout(Seconds(5))).then(
+    )(d).withTimeout(Seconds(5))).then(
       new DriveBeyondStraight(
         Feet(2), // originally short by 1 ft
         Inches(3),
         Degrees(10),
         hopperAutoDriveSpeed
-      ).withTimeout(Seconds(8))
+      )(d).withTimeout(Seconds(8))
     ).toContinuous
   }
 
@@ -266,7 +266,7 @@ class AutoGenerator(r: CoreRobot) {
         Inches(3),
         Degrees(10),
         Percent(30)
-      ).withTimeout(Seconds(8))
+      )(d).withTimeout(Seconds(8))
     ).then(new FollowWayPointsWithPosition(
       Seq(
         new Point(
@@ -293,7 +293,7 @@ class AutoGenerator(r: CoreRobot) {
       Feet(0),
       xyPosition,
       relativeTurn
-    ).withTimeout(Seconds(10)))
+    )(d).withTimeout(Seconds(10)))
   }
 
   def shootCenterGear(implicit d: Drivetrain,

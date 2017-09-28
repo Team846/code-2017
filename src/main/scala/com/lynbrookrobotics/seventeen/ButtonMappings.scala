@@ -120,11 +120,8 @@ class ButtonMappings(r: CoreRobot) {
       */
     val runFlywheelPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.LeftFour)
     runFlywheelPressed.foreach(new WhileAtDoubleVelocity(
-      flywheelTargetLeft, flywheelTargetRight, RevolutionsPerMinute(0)).apply(new ContinuousTask {
-      override protected def onEnd() = {}
-
-      override protected def onStart() = {}
-    }))
+      flywheelTargetLeft, flywheelTargetRight, RevolutionsPerMinute(0)
+    )(fly).toContinuous)
 
     /**
       * Uses toggle to determine flywheel speed
@@ -135,7 +132,8 @@ class ButtonMappings(r: CoreRobot) {
     flywheelOverridePressed.foreach(
       new WhileAtVelocity(
         driverHardware.joystickStream.map(s => s.operator.y.toEach * shooterFlywheelProps.get.maxVelocityLeft),
-        RevolutionsPerMinute(0)).toContinuous)
+        RevolutionsPerMinute(0)
+      )(fly).toContinuous)
   }
 
   gearGrabber.zip(gearTilter).foreach { t =>

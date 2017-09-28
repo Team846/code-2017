@@ -31,7 +31,7 @@ object ShooterTasks {
       shootSpeedLeft,
       shootSpeedRight,
       flywheelProperties.get.speedTolerance
-    )
+    )(flywheel)
 
     val runCollector = new LoadIntoStorage()
       .and(new RollBallsInCollector(shootSpeedLeft.map(_ => collectorRollersProperties.get.highRollerSpeedOutput)))
