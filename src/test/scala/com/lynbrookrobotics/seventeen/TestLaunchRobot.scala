@@ -7,25 +7,23 @@ import com.lynbrookrobotics.potassium.events.ImpulseEventSource
 import com.lynbrookrobotics.potassium.streams.Stream
 import upickle.default._
 import com.lynbrookrobotics.potassium.config.SquantsPickling._
-import squants.time.Seconds
+import squants.time.{Milliseconds, Seconds, Time}
 
 import scala.io.Source
 
 object TestLaunchRobot extends App {
   protected val configFile = TwoWaySignal[String]("")
-  configFile.value = Source.fromFile("competition-robot.json").getLines().mkString("\n")
+  configFile.value = Source.fromFile("robot-config.json").getLines().mkString("\n")
   protected val parsedConfig = configFile.map(string => read[RobotConfig](string))(
     (_, newValue) => write(newValue)
   )
 
-  private implicit val config = Signal(parsedConfig.value)
-
-  private implicit val hardware = null
+  private val config = Signal(parsedConfig.value)
 
   private val eventPollingSource = new ImpulseEventSource
-  private implicit val eventPolling = eventPollingSource.event
+  private val eventPolling = eventPollingSource.event
 
-  implicit val clock = JavaClock
+  private implicit val clock = JavaClock
 
   private val coreRobot = new CoreRobot(
     Signal(configFile.value),
@@ -38,5 +36,5 @@ object TestLaunchRobot extends App {
       }
     },
     Stream.periodic(Seconds(0.01))(())
-  )
+  )(config, null, clock, eventPolling)
 }

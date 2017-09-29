@@ -26,25 +26,24 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import scala.util.Try
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import java.lang.Runtime
 
 import scala.collection.mutable
 
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit, val coreTicks: Stream[Unit])
                (implicit val config: Signal[RobotConfig], hardware: RobotHardware, val clock: Clock, val polling: ImpulseEvent) {
   implicit val driverHardware = hardware.driver
-  val ds = driverHardware.station
+  private val ds = driverHardware.station
 
   // Drivetrain
   implicit val drivetrainHardware = hardware.drivetrain
   implicit val drivetrainProps = config.map(_.drivetrain.properties)
-  lazy val drivetrain: Option[Drivetrain] =
+  val drivetrain: Option[Drivetrain] =
     if (config.get.drivetrain != null) Some(new Drivetrain) else None
 
   // Agitator
   implicit val agitatorHardware = hardware.agitator
   implicit val agitatorProps = config.map(_.agitator.properties)
-  lazy val agitator: Option[Agitator] =
+  val agitator: Option[Agitator] =
     if (config.get.agitator != null) Some(new Agitator(coreTicks)) else None
 
   // CamSelect
@@ -52,67 +51,61 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   implicit val camselectProps = config.map(_.camSelect.properties)
   implicit val camSelect: CamSelect = new CamSelect(coreTicks)
 
-
   // Climber Puller
   implicit val climberPullerHardware = hardware.climberPuller
   implicit val climberPullerProps = config.map(_.climberPuller.props)
-  lazy val climberPuller: Option[ClimberPuller] =
+  val climberPuller: Option[ClimberPuller] =
     if (config.get.climberPuller != null) Some(new ClimberPuller(coreTicks)) else None
 
   // Collector Elevator
   implicit val collectorElevatorHardware = hardware.collectorElevator
   implicit val collectorElevatorProps = config.map(_.collectorElevator.properties)
-  lazy val collectorElevator: Option[CollectorElevator] =
+  val collectorElevator: Option[CollectorElevator] =
     if (config.get.collectorElevator != null) Some(new CollectorElevator(coreTicks)) else None
 
   // Collector Extender
   implicit val collectorExtenderHardware = hardware.collectorExtender
-  lazy val collectorExtender: Option[CollectorExtender] =
+  val collectorExtender: Option[CollectorExtender] =
     if (config.get.collectorExtender != null) {
-      implicit val gt = () => gearTilter
-      implicit val lt = () => loadTray
-      Some(new CollectorExtender(coreTicks))
+      Some(new CollectorExtender(coreTicks, gearTilter))
     } else None
 
   // Collector Rollers
   implicit val collectorRollersHardware = hardware.collectorRollers
   implicit val collectorRollersProps = config.map(_.collectorRollers.properties)
-  lazy val collectorRollers: Option[CollectorRollers] =
+  val collectorRollers: Option[CollectorRollers] =
     if (config.get.collectorRollers != null) Some(new CollectorRollers(coreTicks)) else None
 
   // Gear Grabber
   implicit val gearGrabberHardware = hardware.gearGrabber
   implicit val gearGrabberProps = config.map(_.gearGrabber.props)
-  lazy val gearGrabber: Option[GearGrabber] = {
+  val gearGrabber: Option[GearGrabber] = {
     implicit val gt = () => gearTilter
     if (config.get.gearGrabber != null) Some(new GearGrabber(coreTicks)) else None
   }
 
   // Gear Tilter
   implicit val gearTilterHardware = hardware.gearTilter
-  implicit lazy val gearTilter: Option[GearTilter] =
+  val gearTilter: Option[GearTilter] =
     if (config.get.gearTilter != null) {
-      implicit val ce = () => collectorExtender
-      implicit val gg = () => gearGrabber
-      Some(new GearTilter(coreTicks))
+      Some(new GearTilter(coreTicks, gearGrabber, collectorExtender))
     } else None
 
   // Shooter Flywheel
   implicit val shooterFlywheelHardware = hardware.shooterFlywheel
   implicit val shooterFlywheelProps = config.map(_.shooterFlywheel.props)
-  lazy val shooterFlywheel: Option[ShooterFlywheel] =
+  val shooterFlywheel: Option[ShooterFlywheel] =
     if (config.get.shooterFlywheel != null) Some(new ShooterFlywheel(coreTicks)) else None
 
   // Shooter Shifter
   implicit val shooterShifterHardware = hardware.shooterShifter
-  lazy val shooterShifter: Option[ShooterShifter] =
+  val shooterShifter: Option[ShooterShifter] =
     if (config.get.shooterShifter != null) Some(new ShooterShifter(coreTicks)) else None
 
   // Load Tray
   implicit val loadTrayHardware = hardware.loadTray
-  lazy val loadTray: Option[LoadTray] =
+  val loadTray: Option[LoadTray] =
     if (config.get.loadTray != null) {
-      implicit val ce = () => collectorExtender
       Some(new LoadTray(coreTicks))
     } else None
 
@@ -143,13 +136,12 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     }
   }
 
-  val serialPort = Try(new SerialPort(9600, SerialPort.Port.kUSB)).toOption
-  val comms: Option[SerialComms] = serialPort.map(new SerialComms(_))
+  val comms: Option[SerialComms] = Try(new SerialPort(9600, SerialPort.Port.kUSB)).map(new SerialComms(_)).toOption
   val lighting: Option[StatusLightingComponent] = comms.map(c => new StatusLightingComponent(lightingStatus, c, coreTicks))
 
   new Compressor().start()
 
-  val components: List[Component[_]] = List(
+  private val components: List[Component[_]] = List(
     drivetrain,
     agitator,
     climberPuller,
@@ -164,9 +156,9 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     lighting
   ).flatten
 
-  new ButtonMappings(this)
+  private val mappings = new ButtonMappings(this)
 
-  val auto = Signal(ds.isEnabled && ds.isAutonomous).filter(identity)
+  private val inAutonomous = Signal(ds.isEnabled && ds.isAutonomous).filter(identity)
 
   val generator = new AutoGenerator(this)
 
@@ -181,6 +173,8 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     if (autonomousRoutines.contains(id)) {
       println(s"WARNING, overriding autonomous routine $id")
     }
+
+    prepTask(task)
 
     autonomousRoutines(id) = task
   }
@@ -275,7 +269,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     )
   }
 
-  auto.foreach(Signal {
+  inAutonomous.foreach(Signal {
     val autoID = Math.round(SmartDashboard.getNumber("DB/Slider 0")).toInt
 
     autonomousRoutines.getOrElse(autoID, {
@@ -285,7 +279,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   })
 
   // Needs to go last because component resets have highest priority
-  val enabled = Signal(ds.isEnabled).filter(identity)
+  private val enabled = Signal(ds.isEnabled).filter(identity)
   enabled.onStart.foreach { () =>
     if (drivetrain.isDefined) {
       drivetrainHardware.gyro.endCalibration()
@@ -306,9 +300,9 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
   dashboard.failed.foreach(_.printStackTrace())
 
-  import CoreRobot._
-
   dashboard.foreach { board =>
+    import CoreRobot.ToTimeSeriesNumeric
+
     println("Funky Dashboard is up!")
     Runtime.getRuntime.addShutdownHook(new Thread(() => {
       println("Shutting down Funky Dashboard")
