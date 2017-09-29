@@ -6,7 +6,7 @@ import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 import com.lynbrookrobotics.potassium.streams.Stream
 import squants.time.Seconds
 
-class RetractTilter(implicit tilter: GearTilter) extends ContinuousTask {
+class RetractTilter(tilter: GearTilter) extends ContinuousTask {
   override protected def onStart(): Unit = {
     tilter.setController(tilter.coreTicks.mapToConstant(GearTilterRetracted))
   }

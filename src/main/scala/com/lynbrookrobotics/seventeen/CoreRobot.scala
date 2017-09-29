@@ -2,10 +2,9 @@ package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
-import com.lynbrookrobotics.potassium.tasks.{FiniteTask, Task}
+import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, FiniteTask, Task}
 import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.potassium.streams.Stream
-
 import com.lynbrookrobotics.seventeen.agitator.Agitator
 import com.lynbrookrobotics.seventeen.camselect.CamSelect
 import com.lynbrookrobotics.seventeen.climber.puller.ClimberPuller
@@ -19,18 +18,17 @@ import com.lynbrookrobotics.seventeen.lighting.{SerialComms, StatusLightingCompo
 import com.lynbrookrobotics.seventeen.loadtray.LoadTray
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
 import com.lynbrookrobotics.seventeen.shooter.shifter.ShooterShifter
-
 import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
-
 import edu.wpi.first.wpilibj._
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 
 import scala.util.Try
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import java.lang.Runtime
+
+import scala.collection.mutable
 
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit, val coreTicks: Stream[Unit])
                (implicit val config: Signal[RobotConfig], hardware: RobotHardware, val clock: Clock, val polling: ImpulseEvent) {
@@ -177,200 +175,119 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     task.abort()
   }
 
-  drivetrain.foreach { implicit dr =>
-    gearGrabber.foreach { implicit gg =>
-      gearTilter.foreach { implicit t =>
-        prepTask(generator.centerGear)
-        prepTask(generator.leftGear)
-        prepTask(generator.rightGear)
-        prepTask(generator.centerGearAndCrossLine)
-      }
+  private var autonomousRoutines = mutable.Map.empty[Int, ContinuousTask]
+
+  def addAutonomousRoutine(id: Int)(task: ContinuousTask): Unit = {
+    if (autonomousRoutines.contains(id)) {
+      println(s"WARNING, overriding autonomous routine $id")
     }
+
+    autonomousRoutines(id) = task
   }
 
-  drivetrain.foreach { implicit dr =>
-    gearGrabber.foreach { implicit gg =>
-      collectorElevator.foreach { implicit ce =>
-        collectorRollers.foreach { implicit cr =>
-          agitator.foreach { implicit a =>
-            shooterFlywheel.foreach { implicit f =>
-              gearTilter.foreach { implicit t =>
-                collectorExtender.foreach { implicit ex =>
-                  shooterShifter.foreach { implicit sh =>
-                    loadTray.foreach { implicit lt =>
-                      prepTask(generator.shootCenterGear)
-                      prepTask(generator.leftHopperAndShoot)
-                      prepTask(generator.rightHopperAndShoot)
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+  for {
+    drivetrain <- drivetrain
+    gearGrabber <- gearGrabber
+    gearTilter <- gearTilter
+  } {
+    addAutonomousRoutine(1)(
+      generator.centerGear(drivetrain, gearGrabber, gearTilter).toContinuous
+    )
+
+    addAutonomousRoutine(2)(
+      generator.leftGear(drivetrain, gearGrabber, gearTilter).toContinuous
+    )
+
+    addAutonomousRoutine(3)(
+      generator.rightGear(drivetrain, gearGrabber, gearTilter).toContinuous
+    )
+
+    addAutonomousRoutine(4)(
+      generator.centerGearAndCrossLine(drivetrain, gearGrabber, gearTilter).toContinuous
+    )
   }
 
-  drivetrain.foreach { implicit dr =>
-    prepTask(generator.slowCrossLine)
+  for {
+    drivetrain <- drivetrain
+    gearGrabber <- gearGrabber
+    gearTilter <- gearTilter
+    collectorElevator <- collectorElevator
+    collectorRollers <- collectorRollers
+    agitator <- agitator
+    shooterFlywheel <- shooterFlywheel
+    collectorExtender <- collectorExtender
+    loadTray <- loadTray
+  } {
+    addAutonomousRoutine(5)(
+      generator.shootCenterGear(
+        drivetrain,
+        gearGrabber, gearTilter,
+        collectorElevator, collectorRollers, agitator,
+        shooterFlywheel, collectorExtender, loadTray
+      ).toContinuous
+    )
+  }
+
+  for {
+    drivetrain <- drivetrain
+    collectorElevator <- collectorElevator
+    collectorRollers <- collectorRollers
+    agitator <- agitator
+    shooterFlywheel <- shooterFlywheel
+    shooterShifter <- shooterShifter
+    collectorExtender <- collectorExtender
+    loadTray <- loadTray
+  } {
+    addAutonomousRoutine(6)(
+      generator.leftHopperAndShoot(
+        drivetrain,
+        collectorElevator, collectorRollers, agitator,
+        shooterFlywheel, shooterShifter, collectorExtender, loadTray
+      )
+    )
+
+    addAutonomousRoutine(7)(
+      generator.rightHopperAndShoot(
+        drivetrain,
+        collectorElevator, collectorRollers, agitator,
+        shooterFlywheel, shooterShifter, collectorExtender, loadTray
+      )
+    )
+
+    addAutonomousRoutine(10)(
+      generator.shootLeftAndDriveBack(
+        drivetrain,
+        collectorElevator, collectorRollers, agitator,
+        shooterFlywheel, shooterShifter, collectorExtender, loadTray
+      ).toContinuous
+    )
+  }
+
+  for {
+    drivetrain <- drivetrain
+  } {
+    addAutonomousRoutine(8)(
+      generator.slowCrossLine(drivetrain).toContinuous
+    )
+
+    addAutonomousRoutine(9)(
+      generator.smallTestShot(drivetrain)
+    )
   }
 
   auto.foreach(Signal {
-    val autoID = Math.round(SmartDashboard.getNumber("DB/Slider 0"))
+    val autoID = Math.round(SmartDashboard.getNumber("DB/Slider 0")).toInt
 
-    if (autoID == 1) {
-      drivetrain.flatMap { implicit dr =>
-        gearGrabber.flatMap { implicit gg =>
-          gearTilter.map { implicit t =>
-            generator.centerGear.toContinuous
-          }
-        }
-      }.getOrElse(FiniteTask.empty.toContinuous)
-    } else if (autoID == 2) {
-      drivetrain.flatMap { implicit dr =>
-        gearGrabber.flatMap { implicit gg =>
-          gearTilter.map { implicit t =>
-            generator.leftGear.toContinuous
-          }
-        }
-      }.getOrElse(FiniteTask.empty.toContinuous)
-    } else if (autoID == 3) {
-      drivetrain.flatMap { implicit dr =>
-        gearGrabber.flatMap { implicit gg =>
-          gearTilter.map { implicit t =>
-            generator.rightGear.toContinuous
-          }
-        }
-      }.getOrElse(FiniteTask.empty.toContinuous)
-    } else if (autoID == 4) {
-      drivetrain.flatMap { implicit dr =>
-        gearGrabber.flatMap { implicit gg =>
-          gearTilter.map { implicit t =>
-            generator.centerGearAndCrossLine.toContinuous
-          }
-        }
-      }.getOrElse(FiniteTask.empty.toContinuous)
-    } else if (autoID == 5) {
-      drivetrain.flatMap { implicit dr =>
-        gearGrabber.flatMap { implicit gg =>
-          collectorElevator.flatMap { implicit ce =>
-            collectorRollers.flatMap { implicit cr =>
-              agitator.flatMap { implicit a =>
-                shooterFlywheel.flatMap { implicit f =>
-                  gearTilter.flatMap { implicit t =>
-                    collectorExtender.flatMap { implicit ex =>
-                      loadTray.map { implicit lt =>
-                        generator.shootCenterGear.toContinuous
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }.getOrElse(FiniteTask.empty.toContinuous)
-    } else if (autoID == 6) {
-      drivetrain.flatMap { implicit dr =>
-        gearGrabber.flatMap { implicit gg =>
-          collectorElevator.flatMap { implicit ce =>
-            collectorRollers.flatMap { implicit cr =>
-              agitator.flatMap { implicit a =>
-                shooterFlywheel.flatMap { implicit f =>
-                  gearTilter.flatMap { implicit t =>
-                    collectorExtender.flatMap { implicit ex =>
-                      shooterShifter.flatMap { implicit sh =>
-                        loadTray.map { implicit lt =>
-                          generator.leftHopperAndShoot
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }.getOrElse(FiniteTask.empty.toContinuous)
-    } else if (autoID == 7) {
-      drivetrain.flatMap { implicit dr =>
-        gearGrabber.flatMap { implicit gg =>
-          collectorElevator.flatMap { implicit ce =>
-            collectorRollers.flatMap { implicit cr =>
-              agitator.flatMap { implicit a =>
-                shooterFlywheel.flatMap { implicit f =>
-                  gearTilter.flatMap { implicit t =>
-                    collectorExtender.flatMap { implicit ex =>
-                      shooterShifter.flatMap { implicit sh =>
-                        loadTray.map { implicit lt =>
-                          generator.rightHopperAndShoot
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }.getOrElse(FiniteTask.empty.toContinuous)
-    } else if (autoID == 8) {
-      drivetrain.map { implicit dr =>
-        generator.slowCrossLine.toContinuous
-      }.getOrElse(FiniteTask.empty.toContinuous)
-    } else if (autoID == 9) {
-      drivetrain.flatMap { implicit dr =>
-        gearGrabber.flatMap { implicit gg =>
-          collectorElevator.flatMap { implicit ce =>
-            collectorRollers.flatMap { implicit cr =>
-              agitator.flatMap { implicit a =>
-                shooterFlywheel.flatMap { implicit f =>
-                  gearTilter.flatMap { implicit t =>
-                    collectorExtender.flatMap { implicit ex =>
-                      shooterShifter.flatMap { implicit sh =>
-                        loadTray.map { implicit lt =>
-                          generator.smallTestShot
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }}.getOrElse(FiniteTask.empty.toContinuous)
-      } else if (autoID == 10) {
-        drivetrain.flatMap { implicit dr =>
-          gearGrabber.flatMap { implicit gg =>
-            collectorElevator.flatMap { implicit ce =>
-              collectorRollers.flatMap { implicit cr =>
-                agitator.flatMap { implicit a =>
-                  shooterFlywheel.flatMap { implicit f =>
-                    gearTilter.flatMap { implicit t =>
-                      collectorExtender.flatMap { implicit ex =>
-                        loadTray.flatMap { implicit lt =>
-                          shooterShifter.map { implicit shift =>
-                            generator.shootLeftAndDriveBack.toContinuous
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }.getOrElse(FiniteTask.empty.toContinuous)
-      } else {
+    autonomousRoutines.getOrElse(autoID, {
+      println(s"ERROR: autonomous routine $autoID not found")
       FiniteTask.empty.toContinuous
-    }
+    })
   })
 
   // Needs to go last because component resets have highest priority
   val enabled = Signal(ds.isEnabled).filter(identity)
   enabled.onStart.foreach { () =>
-    if (drivetrainHardware != null) {
+    if (drivetrain.isDefined) {
       drivetrainHardware.gyro.endCalibration()
     }
 
@@ -393,7 +310,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
   dashboard.foreach { board =>
     println("Funky Dashboard is up!")
-    Runtime.getRuntime().addShutdownHook(new Thread(() => {
+    Runtime.getRuntime.addShutdownHook(new Thread(() => {
       println("Shutting down Funky Dashboard")
       board.stop()
     }))

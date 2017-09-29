@@ -11,36 +11,36 @@ import squants.time.Seconds
 
 object GearTasks {
   def loadGearFromGroundAbortable(buttonTrigger: Int)
-                                 (implicit tilter: GearTilter,
-                                  grabber: GearGrabber,
-                                  props: Signal[GearGrabberProperties],
+                                 (tilter: GearTilter,
+                                  grabber: GearGrabber)
+                                 (implicit props: Signal[GearGrabberProperties],
                                   hardware: GearGrabberHardware,
                                   clock: Clock,
                                   driverHardware: DriverHardware, polling: ImpulseEvent): FiniteTask = {
-    val pickUpGear = new OpenGrabberUntilGearAbortable(buttonTrigger).andUntilDone(
-      new ExtendTilter()
+    val pickUpGear = new OpenGrabberUntilGearAbortable(buttonTrigger)(grabber).andUntilDone(
+      new ExtendTilter(tilter)
     )
 
     val liftGear = new WaitTask(Seconds(0.3)).andUntilDone(
-      new CloseGrabber() and new ExtendTilter()
-    ).then(new WaitTask(Seconds(0.3)).andUntilDone(new RetractTilter()))
+      new CloseGrabber(grabber) and new ExtendTilter(tilter)
+    ).then(new WaitTask(Seconds(0.3)).andUntilDone(new RetractTilter(tilter)))
 
     pickUpGear.then(liftGear)
   }
 
-  def slamDunk(implicit tilter: GearTilter,
-               grabber: GearGrabber,
-               props: Signal[GearGrabberProperties],
+  def slamDunk(tilter: GearTilter,
+               grabber: GearGrabber)
+              (implicit props: Signal[GearGrabberProperties],
                hardware: GearGrabberHardware,
                clock: Clock,
                driverHardware: DriverHardware, polling: ImpulseEvent): FiniteTask = {
     val pickUpGear = new WaitTask(Seconds(1)).andUntilDone(
-      new ExtendTilter() and new OpenGrabber()
+      new ExtendTilter(tilter) and new OpenGrabber(grabber)
     )
 
     val liftGear = new WaitTask(Seconds(0.3)).andUntilDone(
-      new CloseGrabber() and new ExtendTilter()
-    ).then(new WaitTask(Seconds(0.3)).andUntilDone(new RetractTilter()))
+      new CloseGrabber(grabber) and new ExtendTilter(tilter)
+    ).then(new WaitTask(Seconds(0.3)).andUntilDone(new RetractTilter(tilter)))
 
     pickUpGear.then(liftGear)
   }

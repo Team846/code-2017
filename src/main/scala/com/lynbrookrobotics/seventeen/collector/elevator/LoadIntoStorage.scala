@@ -6,7 +6,7 @@ import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 import com.lynbrookrobotics.potassium.streams.Stream
 import squants.time.Seconds
 
-class LoadIntoStorage(implicit elevator: CollectorElevator, props: Signal[CollectorElevatorProperties]) extends ContinuousTask {
+class LoadIntoStorage(elevator: CollectorElevator)(implicit props: Signal[CollectorElevatorProperties]) extends ContinuousTask {
   override protected def onStart(): Unit = {
     elevator.setController(elevator.coreTicks.map(_ => props.get.collectSpeed))
   }

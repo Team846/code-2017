@@ -7,9 +7,11 @@ import com.lynbrookrobotics.potassium.tasks.FiniteTask
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
 import squants.time.Seconds
 
-class OpenGrabberUntilGearAbortable(button: Int)(implicit hardware: GearGrabberHardware, grabber: GearGrabber,
-                                                 props: Signal[GearGrabberProperties], driverHardware: DriverHardware,
-                                                 polling: ImpulseEvent) extends FiniteTask {
+class OpenGrabberUntilGearAbortable(button: Int)
+                                   (grabber: GearGrabber)
+                                   (implicit hardware: GearGrabberHardware,
+                                    props: Signal[GearGrabberProperties], driverHardware: DriverHardware,
+                                    polling: ImpulseEvent) extends FiniteTask {
   val proximitySensor = hardware.proximitySensor
 
   override protected def onStart(): Unit = {
