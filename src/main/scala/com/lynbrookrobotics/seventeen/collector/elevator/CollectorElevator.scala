@@ -1,9 +1,8 @@
 package com.lynbrookrobotics.seventeen.collector.elevator
 
-import com.lynbrookrobotics.potassium.clock.Clock
-import com.lynbrookrobotics.potassium.{Component, Signal}
+import com.lynbrookrobotics.potassium.Component
 import com.lynbrookrobotics.potassium.streams.Stream
-import squants.time.{Milliseconds, Seconds}
+import squants.time.Milliseconds
 import squants.{Dimensionless, Percent}
 
 class CollectorElevator(val coreTicks: Stream[Unit])(implicit hardware: CollectorElevatorHardware)

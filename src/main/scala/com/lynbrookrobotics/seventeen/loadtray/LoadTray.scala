@@ -1,10 +1,8 @@
 package com.lynbrookrobotics.seventeen.loadtray
 
-import com.lynbrookrobotics.potassium.clock.Clock
-import com.lynbrookrobotics.potassium.{Component, PeriodicSignal, Signal}
+import com.lynbrookrobotics.potassium.Component
 import com.lynbrookrobotics.potassium.streams.Stream
-import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
-import squants.time.{Milliseconds, Seconds}
+import squants.time.Milliseconds
 
 sealed trait LoadTrayState
 

@@ -1,10 +1,8 @@
 package com.lynbrookrobotics.seventeen.climber.puller
 
 import com.lynbrookrobotics.potassium.Signal
-import com.lynbrookrobotics.potassium.clock.Clock
-import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 import com.lynbrookrobotics.potassium.streams.Stream
-import squants.time.Seconds
+import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 
 class RunPuller(puller: ClimberPuller)(implicit props: Signal[ClimberPullerProperties])
   extends ContinuousTask {

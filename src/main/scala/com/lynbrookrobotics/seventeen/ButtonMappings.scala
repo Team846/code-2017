@@ -5,17 +5,17 @@ import com.lynbrookrobotics.potassium.frc.Implicits._
 import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 import com.lynbrookrobotics.seventeen.agitator.SpinAgitator
 import com.lynbrookrobotics.seventeen.camselect._
+import com.lynbrookrobotics.seventeen.climber.puller.RunPuller
 import com.lynbrookrobotics.seventeen.collector.CollectorTasks
 import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtenderExtended
 import com.lynbrookrobotics.seventeen.gear.grabber.OpenGrabber
+import com.lynbrookrobotics.seventeen.gear.tilter.ExtendTilter
 import com.lynbrookrobotics.seventeen.loadtray.ExtendTray
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
 import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{WhileAtDoubleVelocity, WhileAtVelocity}
+import com.lynbrookrobotics.seventeen.shooter.shifter.{ShooterShiftLeft, ShooterShiftRight}
 import squants.Percent
 import squants.time._
-import com.lynbrookrobotics.seventeen.gear.tilter.ExtendTilter
-import com.lynbrookrobotics.seventeen.shooter.shifter.{ShooterShiftLeft, ShooterShiftRight}
-import com.lynbrookrobotics.seventeen.climber.puller.RunPuller
 
 class ButtonMappings(r: CoreRobot) {
 

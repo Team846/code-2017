@@ -1,7 +1,6 @@
 package com.lynbrookrobotics.seventeen.collector
 
 import com.lynbrookrobotics.potassium.Signal
-import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 import com.lynbrookrobotics.seventeen.collector.elevator.{CollectorElevator, CollectorElevatorProperties, LoadIntoStorage}

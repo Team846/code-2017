@@ -1,9 +1,8 @@
 package com.lynbrookrobotics.seventeen.climber.puller
 
 import com.ctre.CANTalon
-import com.lynbrookrobotics.potassium.clock.Clock
+import com.lynbrookrobotics.potassium.Component
 import com.lynbrookrobotics.potassium.commons.electronics.CurrentLimiting
-import com.lynbrookrobotics.potassium.{Component, PeriodicSignal, Signal}
 import com.lynbrookrobotics.potassium.streams.Stream
 import squants.electro.ElectricCurrent
 import squants.time.{Milliseconds, Seconds}

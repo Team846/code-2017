@@ -1,10 +1,11 @@
 package com.lynbrookrobotics.seventeen
 
+import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
+import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, FiniteTask, Task}
 import com.lynbrookrobotics.potassium.{Component, Signal}
-import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.seventeen.agitator.Agitator
 import com.lynbrookrobotics.seventeen.camselect.CamSelect
 import com.lynbrookrobotics.seventeen.climber.puller.ClimberPuller
@@ -18,19 +19,18 @@ import com.lynbrookrobotics.seventeen.lighting.{SerialComms, StatusLightingCompo
 import com.lynbrookrobotics.seventeen.loadtray.LoadTray
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
 import com.lynbrookrobotics.seventeen.shooter.shifter.ShooterShifter
-import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
-import edu.wpi.first.wpilibj._
 import edu.wpi.first.wpilibj.DriverStation.Alliance
+import edu.wpi.first.wpilibj._
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 
-import scala.util.Try
+import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
-import scala.collection.mutable
+import scala.util.Try
 
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit, val coreTicks: Stream[Unit])
-               (implicit val config: Signal[RobotConfig], hardware: RobotHardware, val clock: Clock, val polling: ImpulseEvent) {
+               (implicit val config: Signal[RobotConfig], hardware: RobotHardware,
+                val clock: Clock, val polling: ImpulseEvent) {
   implicit val driverHardware = hardware.driver
   private val ds = driverHardware.station
 

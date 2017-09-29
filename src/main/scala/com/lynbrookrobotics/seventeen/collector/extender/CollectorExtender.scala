@@ -1,11 +1,9 @@
 package com.lynbrookrobotics.seventeen.collector.extender
 
-import com.lynbrookrobotics.potassium.clock.Clock
-import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.potassium.streams.Stream
+import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.seventeen.gear.tilter.GearTilter
-import com.lynbrookrobotics.seventeen.loadtray.LoadTray
-import squants.time.{Milliseconds, Seconds}
+import squants.time.Milliseconds
 
 sealed trait CollectorExtenderState
 

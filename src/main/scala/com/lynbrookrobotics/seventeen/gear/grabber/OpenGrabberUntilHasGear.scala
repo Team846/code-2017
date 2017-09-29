@@ -1,10 +1,7 @@
 package com.lynbrookrobotics.seventeen.gear.grabber
 
 import com.lynbrookrobotics.potassium.Signal
-import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.tasks.FiniteTask
-import com.lynbrookrobotics.potassium.streams.Stream
-import squants.time.Seconds
 
 class OpenGrabberUntilHasGear(implicit hardware: GearGrabberHardware, grabber: GearGrabber,
                               props: Signal[GearGrabberProperties]) extends FiniteTask {
