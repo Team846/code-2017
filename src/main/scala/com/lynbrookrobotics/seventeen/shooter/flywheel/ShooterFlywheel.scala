@@ -1,11 +1,11 @@
 package com.lynbrookrobotics.seventeen.shooter.flywheel
 
 import com.lynbrookrobotics.potassium.commons.drivetrain.MathUtilities
+import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
-import squants.time.Milliseconds
 import squants.Each
-import com.lynbrookrobotics.potassium.streams.Stream
+import squants.time.Milliseconds
 
 class ShooterFlywheel(val coreTicks: Stream[Unit])
                      (implicit properties: Signal[ShooterFlywheelProperties],

@@ -1,9 +1,8 @@
 package com.lynbrookrobotics.seventeen.shooter.shifter
 
-import com.lynbrookrobotics.potassium.clock.Clock
-import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.Component
-import squants.time.{Milliseconds, Seconds}
+import com.lynbrookrobotics.potassium.streams.Stream
+import squants.time.Milliseconds
 
 sealed trait ShooterShifterState
 

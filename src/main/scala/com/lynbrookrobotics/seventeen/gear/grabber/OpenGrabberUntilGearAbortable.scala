@@ -2,14 +2,14 @@ package com.lynbrookrobotics.seventeen.gear.grabber
 
 import com.lynbrookrobotics.potassium.Signal
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
-import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.tasks.FiniteTask
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
-import squants.time.Seconds
 
-class OpenGrabberUntilGearAbortable(button: Int)(implicit hardware: GearGrabberHardware, grabber: GearGrabber,
-                                                 props: Signal[GearGrabberProperties], driverHardware: DriverHardware,
-                                                 polling: ImpulseEvent) extends FiniteTask {
+class OpenGrabberUntilGearAbortable(button: Int)
+                                   (grabber: GearGrabber)
+                                   (implicit hardware: GearGrabberHardware,
+                                    props: Signal[GearGrabberProperties], driverHardware: DriverHardware,
+                                    polling: ImpulseEvent) extends FiniteTask {
   val proximitySensor = hardware.proximitySensor
 
   override protected def onStart(): Unit = {

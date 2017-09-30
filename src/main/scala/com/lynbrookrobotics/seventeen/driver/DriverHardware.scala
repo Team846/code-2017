@@ -1,11 +1,9 @@
 package com.lynbrookrobotics.seventeen.driver
 
-import edu.wpi.first.wpilibj.{DriverStation, Joystick}
-import com.lynbrookrobotics.potassium.streams.Stream
-import edu.wpi.first.wpilibj.Joystick.AxisType
-import squants.Dimensionless
-
 import com.lynbrookrobotics.potassium.frc.Implicits._
+import com.lynbrookrobotics.potassium.streams.Stream
+import edu.wpi.first.wpilibj.{DriverStation, Joystick}
+import squants.Dimensionless
 
 case class JoystickState(x: Dimensionless, y: Dimensionless)
 case class JoystickValues(driver: JoystickState, driverWheel: JoystickState, operator: JoystickState)

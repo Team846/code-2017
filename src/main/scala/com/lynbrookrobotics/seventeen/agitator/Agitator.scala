@@ -1,8 +1,7 @@
 package com.lynbrookrobotics.seventeen.agitator
 
-import com.lynbrookrobotics.potassium.clock.Clock
-import com.lynbrookrobotics.potassium.commons.electronics.CurrentLimiting
 import com.lynbrookrobotics.potassium.Component
+import com.lynbrookrobotics.potassium.commons.electronics.CurrentLimiting
 import com.lynbrookrobotics.potassium.streams.Stream
 import squants.time.{Milliseconds, Seconds}
 import squants.{Dimensionless, Each, Percent}

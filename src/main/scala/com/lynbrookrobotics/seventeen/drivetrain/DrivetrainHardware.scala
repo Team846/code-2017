@@ -2,17 +2,16 @@ package com.lynbrookrobotics.seventeen.drivetrain
 
 
 import com.ctre.CANTalon
-import com.lynbrookrobotics.potassium.Signal
-import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.commons.drivetrain.TwoSidedDriveHardware
 import com.lynbrookrobotics.potassium.frc.Implicits._
-import com.lynbrookrobotics.potassium.frc.{TalonEncoder, WPIClock}
+import com.lynbrookrobotics.potassium.frc.TalonEncoder
 import com.lynbrookrobotics.potassium.sensors.imu.{ADIS16448, DigitalGyro}
+import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.units._
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
 import edu.wpi.first.wpilibj.SPI
-import squants.motion.{AngularVelocity, DegreesPerSecond}
+import squants.motion.AngularVelocity
 import squants.space.Degrees
 import squants.time.{Milliseconds, Seconds}
 import squants.{Angle, Each, Length, Time, Velocity}

@@ -1,9 +1,9 @@
 package com.lynbrookrobotics.seventeen.shooter.flywheel
 
 import com.lynbrookrobotics.potassium.clock.Clock
-import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.commons.flywheel.DoubleFlywheelHardware
 import com.lynbrookrobotics.potassium.frc.Implicits._
+import com.lynbrookrobotics.potassium.streams.Stream
 import edu.wpi.first.wpilibj.{Counter, Talon}
 import squants.time.{Frequency, Milliseconds}
 

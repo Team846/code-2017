@@ -4,7 +4,7 @@ import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 import squants.Dimensionless
 
-class RollBallsInCollector(rollerSpeedOutput: Stream[Dimensionless])(implicit rollers: CollectorRollers) extends ContinuousTask {
+class RollBallsInCollector(rollerSpeedOutput: Stream[Dimensionless])(rollers: CollectorRollers) extends ContinuousTask {
   override protected def onStart(): Unit = {
     rollers.setController(rollerSpeedOutput)
   }

@@ -1,11 +1,9 @@
 package com.lynbrookrobotics.seventeen
 
-import java.io.{File, PrintWriter}
+import java.io.PrintWriter
 
 import com.lynbrookrobotics.potassium.Signal
-import com.lynbrookrobotics.potassium.frc.WPIClock
 import com.lynbrookrobotics.potassium.tasks.ContinuousTask
-import squants.time.Milliseconds
 
 class DataDump(sources: (String, Signal[Double])*) extends ContinuousTask {
   var stopCollection: () => Unit = null
