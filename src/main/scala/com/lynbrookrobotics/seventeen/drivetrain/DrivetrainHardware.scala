@@ -16,6 +16,8 @@ import squants.motion.{AngularVelocity, DegreesPerSecond}
 import squants.space.Degrees
 import squants.time.{Milliseconds, Seconds}
 import squants.{Angle, Each, Length, Time, Velocity}
+import edu.wpi.first.wpilibj.Timer
+import java.io.{File, PrintWriter}
 
 case class DrivetrainData(leftEncoderVelocity: AngularVelocity,
                           rightEncoderVelocity: AngularVelocity,
@@ -35,6 +37,9 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
 
   val wheelRadius = props.wheelDiameter / 2
   val track = props.track
+  val tstats = new TimeStats(200, 500)
+  val t = new Timer()
+  val writer = new PrintWriter(new File(s"/home/lvuser/timelog"))
 
   val rootDataStream = Stream.periodic(period)(
     DrivetrainData(
@@ -60,6 +65,8 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
 
   override lazy val turnVelocity: Stream[AngularVelocity] = rootDataStream.map(_.gyroVelocities).map(_.z)
   override lazy val turnPosition: Stream[Angle] = turnVelocity.integral
+
+  tstats.Record(writer, t.get())
 }
 
 object DrivetrainHardware {
