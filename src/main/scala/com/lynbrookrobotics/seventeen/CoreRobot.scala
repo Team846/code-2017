@@ -344,10 +344,10 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
       board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.turnVelocity.map(_.toDegreesPerSecond).toTimeSeriesNumeric("Turn Velocity"))
       board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.turnPosition.map(_.toDegrees).toTimeSeriesNumeric("Rotational Position"))
-      board.datasetGroup("Drivetrain").addDataset(simpsonsPosition.map(_.x).toTimeSeriesNumeric("Simpsons x Position"))
-      board.datasetGroup("Drivetrain").addDataset(simpsonsPosition.map(_.y).toTimeSeriesNumeric("Simpsons y position"))
-      board.datasetGroup("Drivetrain").addDataset(regPosition.map(_.x).toTimeSeriesNumeric("Simpsons x Position"))
-      board.datasetGroup("Drivetrain").addDataset(regPosition.map(_.y).toTimeSeriesNumeric("Simpsons y position"))
+      board.datasetGroup("Drivetrain").addDataset(simpsonsPosition.map(_.x.toFeet).toTimeSeriesNumeric("Simpsons x Position"))
+      board.datasetGroup("Drivetrain").addDataset(simpsonsPosition.map(_.y.toFeet).toTimeSeriesNumeric("Simpsons y position"))
+      board.datasetGroup("Drivetrain").addDataset(regPosition.map(_.x.toFeet).toTimeSeriesNumeric("Simpsons x Position"))
+      board.datasetGroup("Drivetrain").addDataset(regPosition.map(_.y.toFeet).toTimeSeriesNumeric("Simpsons y position"))
 
 
     }
