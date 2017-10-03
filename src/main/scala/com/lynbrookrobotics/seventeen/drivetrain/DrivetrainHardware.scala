@@ -36,6 +36,7 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
   val wheelRadius = props.wheelDiameter / 2
   val track = props.track
   val tstats = new TimeStats(200, 500)
+  val h = new Histogram(3000, 7000, 40)
 
   val rootDataStream = Stream.periodic(period)(
     DrivetrainData(
@@ -61,7 +62,15 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
 
   override lazy val turnVelocity: Stream[AngularVelocity] = rootDataStream.map(_.gyroVelocities).map(_.z)
   override lazy val turnPosition: Stream[Angle] = turnVelocity.integral
-  rootDataStream.originTimeStream.get.foreach((t: Time) => tstats.record(t.toMilliseconds))
+
+  val handle = rootDataStream.originTimeStream.get.foreach((t: Time) => {
+    tstats.record(t.toMilliseconds)
+  })
+
+  val  handle2 = rootDataStream.originTimeStream.get.sliding(2).foreach(times => {
+    h.record((times(1) - times(0)).toMilliseconds)
+  })
+
 }
 
 object DrivetrainHardware {
