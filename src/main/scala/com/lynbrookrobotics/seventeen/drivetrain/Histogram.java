@@ -10,7 +10,7 @@ public class Histogram {
     public final double min, max;
     public final double interval;
     public final int bins;
-    Timer t; PrintWriter p;
+    PrintWriter p;
 
     public Histogram(final double min, final double max, final int bins) {
         this.min = min;
@@ -18,7 +18,6 @@ public class Histogram {
         this.bins = bins;
         interval = (max - min) / bins;
         histogram = new long[bins + 2]; // bins and "less than min" and "greater than max"
-        t = new Timer();
         try {
             p = new PrintWriter(new File("/home/lvuser/timelog"));
         } catch (FileNotFoundException e) {
@@ -26,8 +25,8 @@ public class Histogram {
         }
     }
 
-    public void Record() {
-        double value = t.get();
+    public void record(Double t) {
+        double value = t;
         if (value < min) histogram[0]++;
         else if (value > max) histogram[bins + 1]++;
         else histogram[1 + (int) ((value - min) / interval)]++;
