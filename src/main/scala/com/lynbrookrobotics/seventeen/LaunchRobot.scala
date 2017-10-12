@@ -102,11 +102,13 @@ class LaunchRobot extends RobotBase {
 
     coreRobot.comms.foreach(_.connect())
 
-    HAL.observeUserProgramStarting()
-
     println("------------------------------------------\n" +
       "Finished preloading and establishing connections. " +
       "Wait 5 seconds to allow for sensor calibration\n")
+
+    Thread.sleep(5000)
+
+    HAL.observeUserProgramStarting()
 
     while (true) {
       ds.waitForData()
