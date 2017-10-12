@@ -355,9 +355,19 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 //      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rootDataStream
 //        .map(d => (d.rightEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Right Wheel Rotation"))
 
-      board.datasetGroup("Drivetrain/Gyro").addDataset(drivetrainHardware.turnVelocity.map(_.toDegreesPerSecond).toTimeSeriesNumeric("Turn Velocity"))
-      board.datasetGroup("Drivetrain/Gyro").addDataset(drivetrainHardware.turnPosition.map(_.toDegrees).toTimeSeriesNumeric("Rotational Position"))
-      board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.turnVelocity.map(_.toDegreesPerSecond).toTimeSeriesNumeric("Turn Velocity"))
+//      board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.leftVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Left Ground Velocity"))
+//      board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.rightVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Right Ground Velocity"))
+
+      board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.forwardPosition.map(_.toFeet).toTimeSeriesNumeric("forward"))
+//      board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.rightPosition.map(_.toFeet).toTimeSeriesNumeric("Right Ground"))
+
+//      board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.rootDataStream
+//        .map(d => (d.leftEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Left Wheel Rotation"))
+//
+//      board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.rootDataStream
+//        .map(d => (d.rightEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Right Wheel Rotation"))
+
+//      board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.turnVelocity.map(_.toDegreesPerSecond).toTimeSeriesNumeric("Turn Velocity"))
       board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.turnPosition.map(_.toDegrees).toTimeSeriesNumeric("Rotational Position"))
       board.datasetGroup("Drivetrain").addDataset(simpsonsPosition.map(_.x).toTimeSeriesNumeric("Simpsons x Position"))
       board.datasetGroup("Drivetrain").addDataset(simpsonsPosition.map(_.y).toTimeSeriesNumeric("Simpsons y position"))
@@ -365,8 +375,8 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
       board.datasetGroup("Drivetrain").addDataset(regPosition.map(_.y).toTimeSeriesNumeric("Simpsons y position"))
       board.datasetGroup("Drivetrain").addDataset(simpsonsPosition.map(_.x.toFeet).toTimeSeriesNumeric("Simpsons x Position"))
       board.datasetGroup("Drivetrain").addDataset(simpsonsPosition.map(_.y.toFeet).toTimeSeriesNumeric("Simpsons y position"))
-      board.datasetGroup("Drivetrain").addDataset(regPosition.map(_.x.toFeet).toTimeSeriesNumeric("Simpsons x Position"))
-      board.datasetGroup("Drivetrain").addDataset(regPosition.map(_.y.toFeet).toTimeSeriesNumeric("Simpsons y position"))
+      board.datasetGroup("Drivetrain").addDataset(regPosition.map(_.x.toFeet).toTimeSeriesNumeric("Reg x Position"))
+      board.datasetGroup("Drivetrain").addDataset(regPosition.map(_.y.toFeet).toTimeSeriesNumeric("Reg y position"))
     }
 
     shooterFlywheel.foreach { d =>
