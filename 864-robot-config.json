@@ -14,11 +14,11 @@
     },
     "properties": {
       "maxLeftVelocity": [
-        17.05,
+        21.9,
         "FeetPerSecond$"
       ],
       "maxRightVelocity": [
-        17.23,
+        23.1,
         "FeetPerSecond$"
       ],
       "maxAcceleration": [
@@ -33,7 +33,7 @@
         21.75,
         "Inches$"
       ],
-      "gearRatio": 0.4,
+      "gearRatio": 0.5,
       "turnControlGains": {
         "kp": {
           "num": [
