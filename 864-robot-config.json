@@ -269,15 +269,26 @@
       ]
     }
   },
-  "gearGrabber": {
-    "port": {
-      "pneumatic": 1,
-      "proximitySensor": 0
+  "gearRoller":{
+    "ports":{
+      "motor":0
     },
-    "props": {
-      "detectingDistance": [
-        2.2,
-        "Volts$"
+    "props":{
+      "defaultHoldingPower":[
+        10,
+        "Percent$"
+      ],
+      "intakeGearPower":[
+        100,
+        "Percent$"
+      ],
+      "emitGearPower":[
+        -50,
+        "Percent$"
+      ],
+      "gearDetectionCurrent":[
+        1000,
+        "Amperes$"
       ]
     }
   },
