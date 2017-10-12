@@ -265,7 +265,7 @@ class AutoGenerator(r: CoreRobot) {
       Feet(0),
       xyPosition,
       relativeTurn,
-      steadyOutput = Percent(50)
+      Percent(50)
     )(drivetrain).withTimeout(Seconds(10)))
   }
 
