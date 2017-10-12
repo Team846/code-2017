@@ -129,7 +129,7 @@ class AutoGenerator(r: CoreRobot) {
       position = xyPosition,
       turnPosition = relativeTurn,
       steadyOutput = Percent(50)
-    ).withTimeout(Seconds(5)).then(
+    )(drivetrain).withTimeout(Seconds(5)).then(
       toGearAndDrop(drivetrain, gearGrabber, gearTilter)
     )
   }
@@ -160,7 +160,7 @@ class AutoGenerator(r: CoreRobot) {
       position = xyPosition,
       turnPosition = relativeTurn,
       steadyOutput = Percent(50)
-    ).withTimeout(Seconds(5)).then(
+    )(drivetrain).withTimeout(Seconds(5)).then(
       toGearAndDrop(drivetrain, gearGrabber, gearTilter)
     )
   }
