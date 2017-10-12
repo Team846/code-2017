@@ -8,8 +8,7 @@ import com.lynbrookrobotics.seventeen.camselect._
 import com.lynbrookrobotics.seventeen.climber.puller.RunPuller
 import com.lynbrookrobotics.seventeen.collector.CollectorTasks
 import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtenderExtended
-import com.lynbrookrobotics.seventeen.gear.grabber.OpenGrabber
-import com.lynbrookrobotics.seventeen.gear.tilter.ExtendTilter
+import com.lynbrookrobotics.seventeen.gear.GearTasks
 import com.lynbrookrobotics.seventeen.loadtray.ExtendTray
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
 import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{WhileAtDoubleVelocity, WhileAtVelocity}
@@ -18,7 +17,6 @@ import squants.Percent
 import squants.time._
 
 class ButtonMappings(r: CoreRobot) {
-
   import r._
 
   var curFlywheelTargetLeft: Frequency = if (config.get.shooterFlywheel != null) {
@@ -138,37 +136,23 @@ class ButtonMappings(r: CoreRobot) {
   }
 
   for {
-    gearGrabber <- gearGrabber
+    gearRoller <- gearRoller
     gearTilter <- gearTilter
   } {
-    val bothPressed = Signal(driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFour)
-      && driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFive)).filter(identity)
-
-    val onlyRightFourPressed = Signal(driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFour)
-      && !driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFive)).filter(identity)
-
-    val onlyRightFivePressed = Signal(!driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFour)
-      && driverHardware.operatorJoystick.getRawButton(JoystickButtons.RightFive)).filter(identity)
+    val rightFourPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightFour)
+    val rightFivePressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightFive)
 
     /**
-      * Releases gear
+      * Collects gear
       * only RightFour pressed
       */
-    onlyRightFourPressed.foreach(new OpenGrabber(gearGrabber))
+    rightFourPressed.foreach(GearTasks.collectGear(gearTilter, gearRoller).toContinuous)
 
     /**
       * Extends tilter
       * only RightFive pressed
       */
-    onlyRightFivePressed.foreach(new ExtendTilter(gearTilter))
-
-    /**
-      * Extends tilter and opens grabber
-      * both RightFour and RightFive pressed
-      */
-    bothPressed.foreach(
-      new OpenGrabber(gearGrabber).and(new ExtendTilter(gearTilter))
-    )
+    rightFivePressed.foreach(GearTasks.scoreGear(gearTilter, gearRoller))
   }
 
   for {
