@@ -9,6 +9,8 @@ import com.lynbrookrobotics.seventeen.climber.puller.RunPuller
 import com.lynbrookrobotics.seventeen.collector.CollectorTasks
 import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtenderExtended
 import com.lynbrookrobotics.seventeen.gear.GearTasks
+import com.lynbrookrobotics.seventeen.gear.roller.RollInwards
+import com.lynbrookrobotics.seventeen.gear.tilter.ExtendTilter
 import com.lynbrookrobotics.seventeen.loadtray.ExtendTray
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
 import com.lynbrookrobotics.seventeen.shooter.flywheel.velocityTasks.{WhileAtDoubleVelocity, WhileAtVelocity}
@@ -147,7 +149,7 @@ class ButtonMappings(r: CoreRobot) {
       * Collects gear
       * only RightFour pressed
       */
-    rightFourPressed.foreach(GearTasks.collectGear(gearTilter, gearRoller).toContinuous)
+    rightFourPressed.foreach(new RollInwards(gearRoller) and new ExtendTilter(gearTilter))
 
     /**
       * Extends tilter
@@ -159,6 +161,11 @@ class ButtonMappings(r: CoreRobot) {
       println("DISABLING AUTO RUN")
       gearRoller.disabledAutoRun = true
     })
+
+    if (collectorRollers.isEmpty) {
+      driverHardware.driverJoystick.buttonPressed(JoystickButtons.Trigger)
+        .foreach(GearTasks.collectGear(gearTilter, gearRoller).toContinuous)
+    }
   }
 
   for {
