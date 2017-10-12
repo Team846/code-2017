@@ -4,6 +4,7 @@ import com.lynbrookrobotics.potassium.tasks.ContinuousTask
 
 class RollInwards(roller: GearRoller) extends ContinuousTask {
   override protected def onStart(): Unit = {
+    roller.disabledAutoRun = false
     roller.setController(roller.coreTicks.map(_ => roller.properties.get.intakeGearPower))
   }
 

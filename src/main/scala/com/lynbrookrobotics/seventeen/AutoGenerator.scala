@@ -27,9 +27,6 @@ class AutoGenerator(r: CoreRobot) {
 
   private val gearPegDistance = Inches(109)
 
-  private val midShootSpeedLeft = r.coreTicks.map(_ => shooterFlywheelProps.get.midShootSpeedLeft)
-  private val midShootSpeedRight = r.coreTicks.map(_ => shooterFlywheelProps.get.midShootSpeedRight)
-
   def slowCrossLine(drivetrain: Drivetrain): FiniteTask = {
     new DriveDistanceStraight(
       Inches(107) - robotLength,
@@ -203,10 +200,10 @@ class AutoGenerator(r: CoreRobot) {
                             collectorExtender: CollectorExtender,
                             loadTray: LoadTray): FiniteTask = {
     val shooting = ShooterTasks.continuousShoot(
-      midShootSpeedLeft,
-      midShootSpeedRight
+      shooterFlywheel.midShootSpeedLeft,
+      shooterFlywheel.midShootSpeedRight
     )(collectorElevator, collectorRollers, agitator, shooterFlywheel, collectorExtender, loadTray).and(
-      new ShiftShooter(midShootSpeedLeft.mapToConstant(ShooterShiftLeft))(shooterShifter)
+      new ShiftShooter(shooterFlywheel.midShootSpeedLeft.mapToConstant(ShooterShiftLeft))(shooterShifter)
     )
 
     new WaitTask(Seconds(5)).andUntilDone(shooting).then(new DriveDistanceStraight(
@@ -216,6 +213,7 @@ class AutoGenerator(r: CoreRobot) {
       Percent(30)
     )(drivetrain).withTimeout(Seconds(3)))
   }
+
   def leftHopperAndShoot(drivetrain: Drivetrain,
                          collectorElevator: CollectorElevator,
                          collectorRollers: CollectorRollers,
@@ -226,10 +224,10 @@ class AutoGenerator(r: CoreRobot) {
                          loadTray: LoadTray): ContinuousTask = {
 
     val shooting = ShooterTasks.continuousShoot(
-      midShootSpeedLeft,
-      midShootSpeedRight
+      shooterFlywheel.midShootSpeedLeft,
+      shooterFlywheel.midShootSpeedRight
     )(collectorElevator, collectorRollers, agitator, shooterFlywheel, collectorExtender, loadTray).and(
-      new ShiftShooter(midShootSpeedLeft.mapToConstant(ShooterShiftLeft))(shooterShifter)
+      new ShiftShooter(shooterFlywheel.midShootSpeedLeft.mapToConstant(ShooterShiftLeft))(shooterShifter)
     )
 
     hopperForward(drivetrain).then(new RotateByAngle(
@@ -250,10 +248,10 @@ class AutoGenerator(r: CoreRobot) {
                           collectorExtender: CollectorExtender,
                           loadTray: LoadTray): ContinuousTask = {
     val shooting = ShooterTasks.continuousShoot(
-      midShootSpeedLeft,
-      midShootSpeedRight
+      shooterFlywheel.midShootSpeedLeft,
+      shooterFlywheel.midShootSpeedRight
     )(collectorElevator, collectorRollers, agitator, shooterFlywheel, collectorExtender, loadTray).and(
-      new ShiftShooter(midShootSpeedLeft.mapToConstant(ShooterShiftRight))(shooterShifter)
+      new ShiftShooter(shooterFlywheel.midShootSpeedLeft.mapToConstant(ShooterShiftRight))(shooterShifter)
     )
 
     hopperForward(drivetrain).then(new RotateByAngle(
@@ -344,8 +342,8 @@ class AutoGenerator(r: CoreRobot) {
                       loadTray: LoadTray): FiniteTask = {
     new WaitTask(Seconds(3)).andUntilDone(
       ShooterTasks.continuousShoot(
-        midShootSpeedLeft,
-        midShootSpeedRight
+        shooterFlywheel.midShootSpeedLeft,
+        shooterFlywheel.midShootSpeedRight
       )(collectorElevator, collectorRollers, agitator, shooterFlywheel, collectorExtender, loadTray)
     ).then(centerGear(drivetrain, gearRoller, gearTilter))
   }

@@ -141,6 +141,7 @@ class ButtonMappings(r: CoreRobot) {
   } {
     val rightFourPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightFour)
     val rightFivePressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightFive)
+    val rightSixPressed = driverHardware.operatorJoystick.buttonPressed(JoystickButtons.RightSix)
 
     /**
       * Collects gear
@@ -153,6 +154,11 @@ class ButtonMappings(r: CoreRobot) {
       * only RightFive pressed
       */
     rightFivePressed.foreach(GearTasks.scoreGear(gearTilter, gearRoller))
+
+    rightSixPressed.onStart.foreach(() => {
+      println("DISABLING AUTO RUN")
+      gearRoller.disabledAutoRun = true
+    })
   }
 
   for {

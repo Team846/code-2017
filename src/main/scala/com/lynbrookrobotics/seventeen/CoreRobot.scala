@@ -83,12 +83,16 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     if (config.get.gearRoller != null) Some(new GearRoller(coreTicks)) else None
   }
 
+  println(gearRoller)
+
   // Gear Tilter
   implicit val gearTilterHardware = hardware.gearTilter
   val gearTilter: Option[GearTilter] =
     if (config.get.gearTilter != null) {
       Some(new GearTilter(coreTicks, collectorExtender))
     } else None
+
+  println(gearTilter)
 
   // Shooter Flywheel
   implicit val shooterFlywheelHardware = hardware.shooterFlywheel
@@ -200,11 +204,11 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     )
 
     addAutonomousRoutine(11) {
-      generator.leftGearPurePursuit(drivetrain, gearGrabber, gearTilter).toContinuous
+      generator.leftGearPurePursuit(drivetrain, gearRoller, gearTilter).toContinuous
     }
 
     addAutonomousRoutine(12) {
-      generator.rightGearPurePursuit(drivetrain, gearGrabber, gearTilter).toContinuous
+      generator.rightGearPurePursuit(drivetrain, gearRoller, gearTilter).toContinuous
     }
   }
 
@@ -300,7 +304,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   }
 
   val dashboard = Future {
-    val dashboard = new FunkyDashboard(100, 8080)
+    val dashboard = new FunkyDashboard(10, 8080)
     dashboard.start()
     dashboard
   }

@@ -7,7 +7,11 @@ case class GearRollerHardware(motor: CANTalon)
 object GearRollerHardware {
   def apply(config: GearRollerConfig): GearRollerHardware = {
     GearRollerHardware(
-      motor = new CANTalon(config.ports.motor)
+      motor = {
+        val talon = new CANTalon(config.ports.motor)
+        talon.setInverted(true)
+        talon
+      }
     )
   }
 }
