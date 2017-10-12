@@ -199,6 +199,14 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     addAutonomousRoutine(4)(
       generator.centerGearAndCrossLine(drivetrain, gearGrabber, gearTilter).toContinuous
     )
+
+    addAutonomousRoutine(11) {
+      generator.leftGearPurePursuit(drivetrain, gearGrabber, gearTilter).toContinuous
+    }
+
+    addAutonomousRoutine(12) {
+      generator.rightGearPurePursuit(drivetrain, gearGrabber, gearTilter).toContinuous
+    }
   }
 
   for {
