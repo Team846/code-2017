@@ -104,7 +104,7 @@ class AutoGenerator(r: CoreRobot) {
   }
 
   def leftGearPurePursuit(drivetrain: Drivetrain,
-                          gearGrabber: GearGrabber,
+                          gearRoller: GearRoller,
                           gearTilter: GearTilter): FiniteTask = {
     val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
       curr - init
@@ -131,12 +131,12 @@ class AutoGenerator(r: CoreRobot) {
       turnPosition = relativeTurn,
       steadyOutput = Percent(50)
     )(drivetrain).withTimeout(Seconds(5)).then(
-      toGearAndDrop(drivetrain, gearGrabber, gearTilter)
+      toGearAndDrop(drivetrain, gearRoller, gearTilter)
     )
   }
   def rightGearPurePursuit(drivetrain: Drivetrain,
-                          gearGrabber: GearGrabber,
-                          gearTilter: GearTilter): FiniteTask = {
+                           gearRoller: GearRoller,
+                           gearTilter: GearTilter): FiniteTask = {
     val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
       curr - init
     })
@@ -162,7 +162,7 @@ class AutoGenerator(r: CoreRobot) {
       turnPosition = relativeTurn,
       steadyOutput = Percent(50)
     )(drivetrain).withTimeout(Seconds(5)).then(
-      toGearAndDrop(drivetrain, gearGrabber, gearTilter)
+      toGearAndDrop(drivetrain, gearRoller, gearTilter)
     )
   }
 
