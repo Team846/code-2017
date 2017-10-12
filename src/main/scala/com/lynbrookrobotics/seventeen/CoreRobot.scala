@@ -2,9 +2,11 @@ package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
 import com.lynbrookrobotics.potassium.clock.Clock
+import com.lynbrookrobotics.potassium.commons.cartesianPosition.XYPosition
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
 import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, FiniteTask, Task}
+import com.lynbrookrobotics.potassium.units.Point
 import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.seventeen.agitator.Agitator
 import com.lynbrookrobotics.seventeen.camselect.CamSelect
@@ -108,6 +110,11 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     if (config.get.loadTray != null) {
       Some(new LoadTray(coreTicks))
     } else None
+
+  val simpsonsPosition: Stream[Point] = XYPosition.positionWithSimpsons(drivetrainHardware.turnPosition, drivetrainHardware.forwardPosition)
+  val regPosition: Stream[Point] = XYPosition(drivetrainHardware.turnPosition, drivetrainHardware.forwardPosition)
+
+
 
   // Lighting
   /**
@@ -331,25 +338,31 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     ))
 
     drivetrain.foreach { d =>
-      board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.leftVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Left Ground Velocity"))
-      board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.rightVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Right Ground Velocity"))
+//      board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.leftVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Left Ground Velocity"))
+//      board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.rightVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Right Ground Velocity"))
 
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Encoder Ticks/s")(drivetrainHardware.leftBack.getSpeed * 10))
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Encoder Ticks/s")(drivetrainHardware.rightBack.getSpeed * 10))
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Out")(drivetrainHardware.leftBack.get()))
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Out")(drivetrainHardware.rightBack.get()))
+//      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Encoder Ticks/s")(drivetrainHardware.leftBack.getSpeed * 10))
+//      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Encoder Ticks/s")(drivetrainHardware.rightBack.getSpeed * 10))
+//      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Out")(drivetrainHardware.leftBack.get()))
+//      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Out")(drivetrainHardware.rightBack.get()))
 
-      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.leftPosition.map(_.toFeet).toTimeSeriesNumeric("Left Ground"))
-      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rightPosition.map(_.toFeet).toTimeSeriesNumeric("Right Ground"))
-
-      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rootDataStream
-        .map(d => (d.leftEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Left Wheel Rotation"))
-
-      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rootDataStream
-        .map(d => (d.rightEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Right Wheel Rotation"))
+//      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.leftPosition.map(_.toFeet).toTimeSeriesNumeric("Left Ground"))
+//      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rightPosition.map(_.toFeet).toTimeSeriesNumeric("Right Ground"))
+//
+//      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rootDataStream
+//        .map(d => (d.leftEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Left Wheel Rotation"))
+//
+//      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rootDataStream
+//        .map(d => (d.rightEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Right Wheel Rotation"))
 
       board.datasetGroup("Drivetrain/Gyro").addDataset(drivetrainHardware.turnVelocity.map(_.toDegreesPerSecond).toTimeSeriesNumeric("Turn Velocity"))
       board.datasetGroup("Drivetrain/Gyro").addDataset(drivetrainHardware.turnPosition.map(_.toDegrees).toTimeSeriesNumeric("Rotational Position"))
+      board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.turnVelocity.map(_.toDegreesPerSecond).toTimeSeriesNumeric("Turn Velocity"))
+      board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.turnPosition.map(_.toDegrees).toTimeSeriesNumeric("Rotational Position"))
+      board.datasetGroup("Drivetrain").addDataset(simpsonsPosition.map(_.x).toTimeSeriesNumeric("Simpsons x Position"))
+      board.datasetGroup("Drivetrain").addDataset(simpsonsPosition.map(_.y).toTimeSeriesNumeric("Simpsons y position"))
+      board.datasetGroup("Drivetrain").addDataset(regPosition.map(_.x).toTimeSeriesNumeric("Simpsons x Position"))
+      board.datasetGroup("Drivetrain").addDataset(regPosition.map(_.y).toTimeSeriesNumeric("Simpsons y position"))
     }
 
     shooterFlywheel.foreach { d =>
