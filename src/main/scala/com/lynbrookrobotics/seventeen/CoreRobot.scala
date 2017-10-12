@@ -308,7 +308,11 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   }
 
   val dashboard = Future {
+<<<<<<< HEAD
     val dashboard = new FunkyDashboard(100, 8080)
+=======
+    val dashboard = new FunkyDashboard(20, 8080)
+>>>>>>> c71162628a7e8fc31b640f182e84fd76f7d89087
     dashboard.start()
     dashboard
   }
@@ -338,6 +342,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     ))
 
     drivetrain.foreach { d =>
+<<<<<<< HEAD
 //      board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.leftVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Left Ground Velocity"))
 //      board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.rightVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Right Ground Velocity"))
 
@@ -355,6 +360,8 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 //      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rootDataStream
 //        .map(d => (d.rightEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Right Wheel Rotation"))
 
+=======
+>>>>>>> c71162628a7e8fc31b640f182e84fd76f7d89087
 //      board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.leftVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Left Ground Velocity"))
 //      board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.rightVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Right Ground Velocity"))
 
@@ -369,14 +376,22 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
 //      board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.turnVelocity.map(_.toDegreesPerSecond).toTimeSeriesNumeric("Turn Velocity"))
       board.datasetGroup("Drivetrain").addDataset(drivetrainHardware.turnPosition.map(_.toDegrees).toTimeSeriesNumeric("Rotational Position"))
+<<<<<<< HEAD
       board.datasetGroup("Drivetrain").addDataset(simpsonsPosition.map(_.x).toTimeSeriesNumeric("Simpsons x Position"))
       board.datasetGroup("Drivetrain").addDataset(simpsonsPosition.map(_.y).toTimeSeriesNumeric("Simpsons y position"))
       board.datasetGroup("Drivetrain").addDataset(regPosition.map(_.x).toTimeSeriesNumeric("Simpsons x Position"))
       board.datasetGroup("Drivetrain").addDataset(regPosition.map(_.y).toTimeSeriesNumeric("Simpsons y position"))
+=======
+>>>>>>> c71162628a7e8fc31b640f182e84fd76f7d89087
       board.datasetGroup("Drivetrain").addDataset(simpsonsPosition.map(_.x.toFeet).toTimeSeriesNumeric("Simpsons x Position"))
       board.datasetGroup("Drivetrain").addDataset(simpsonsPosition.map(_.y.toFeet).toTimeSeriesNumeric("Simpsons y position"))
       board.datasetGroup("Drivetrain").addDataset(regPosition.map(_.x.toFeet).toTimeSeriesNumeric("Reg x Position"))
       board.datasetGroup("Drivetrain").addDataset(regPosition.map(_.y.toFeet).toTimeSeriesNumeric("Reg y position"))
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> c71162628a7e8fc31b640f182e84fd76f7d89087
     }
 
     shooterFlywheel.foreach { d =>
