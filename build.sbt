@@ -1,7 +1,7 @@
 enablePlugins(FRCPlugin)
 
 organization := "com.lynbrookrobotics"
-teamNumber := 846
+teamNumber := 864
 
 scalaVersion := "2.12.3"
 

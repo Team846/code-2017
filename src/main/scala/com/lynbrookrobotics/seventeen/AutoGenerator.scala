@@ -9,7 +9,8 @@ import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
 import com.lynbrookrobotics.seventeen.collector.rollers.CollectorRollers
 import com.lynbrookrobotics.seventeen.drivetrain.Drivetrain
 import com.lynbrookrobotics.seventeen.drivetrain.unicycleTasks._
-import com.lynbrookrobotics.seventeen.gear.grabber.{GearGrabber, OpenGrabber}
+import com.lynbrookrobotics.seventeen.gear.GearTasks
+import com.lynbrookrobotics.seventeen.gear.roller.GearRoller
 import com.lynbrookrobotics.seventeen.gear.tilter.{ExtendTilter, GearTilter}
 import com.lynbrookrobotics.seventeen.loadtray.LoadTray
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
@@ -26,9 +27,6 @@ class AutoGenerator(r: CoreRobot) {
 
   private val gearPegDistance = Inches(109)
 
-  private val midShootSpeedLeft = r.coreTicks.map(_ => shooterFlywheelProps.get.midShootSpeedLeft)
-  private val midShootSpeedRight = r.coreTicks.map(_ => shooterFlywheelProps.get.midShootSpeedRight)
-
   def slowCrossLine(drivetrain: Drivetrain): FiniteTask = {
     new DriveDistanceStraight(
       Inches(107) - robotLength,
@@ -38,31 +36,31 @@ class AutoGenerator(r: CoreRobot) {
     )(drivetrain).withTimeout(Seconds(8))
   }
 
-  def toGearAndDrop(drivetrain: Drivetrain, gearGrabber: GearGrabber, gearTilter: GearTilter): FiniteTask = {
+  def toGearAndDrop(drivetrain: Drivetrain, gearRoller: GearRoller, gearTilter: GearTilter): FiniteTask = {
     val dropAndBack = new WaitTask(Seconds(1)).then(new DriveDistanceStraight(
       -Feet(2),
       Inches(3),
       Degrees(10),
       Percent(30)
     )(drivetrain)).withTimeout(Seconds(5)).andUntilDone(
-      new OpenGrabber(gearGrabber) and new ExtendTilter(gearTilter)
+      GearTasks.scoreGear(gearTilter, gearRoller)
     )
 
     dropAndBack
   }
 
-  def centerGear(drivetrain: Drivetrain, gearGrabber: GearGrabber, gearTilter: GearTilter): FiniteTask = {
+  def centerGear(drivetrain: Drivetrain, gearRoller: GearRoller, gearTilter: GearTilter): FiniteTask = {
     new DriveDistanceStraight(
       gearPegDistance - robotLength,
       Inches(3),
       Degrees(10),
       Percent(30)
     )(drivetrain).withTimeout(Seconds(8)).then(
-      toGearAndDrop(drivetrain, gearGrabber, gearTilter)
+      toGearAndDrop(drivetrain, gearRoller, gearTilter)
     )
   }
 
-  def rightGear(drivetrain: Drivetrain, gearGrabber: GearGrabber, gearTilter: GearTilter): FiniteTask = {
+  def rightGear(drivetrain: Drivetrain, gearRoller: GearRoller, gearTilter: GearTilter): FiniteTask = {
     new DriveDistanceStraight(
       Inches(90.5),
       Inches(3),
@@ -78,11 +76,11 @@ class AutoGenerator(r: CoreRobot) {
       Degrees(10),
       Percent(30)
     )(drivetrain).withTimeout(Seconds(5))).then(
-      toGearAndDrop(drivetrain, gearGrabber, gearTilter)
+      toGearAndDrop(drivetrain, gearRoller, gearTilter)
     )
   }
 
-  def leftGear(drivetrain: Drivetrain, gearGrabber: GearGrabber, gearTilter: GearTilter): FiniteTask = {
+  def leftGear(drivetrain: Drivetrain, gearRoller: GearRoller, gearTilter: GearTilter): FiniteTask = {
     new DriveDistanceStraight(
       Inches(90.5),
       Inches(3),
@@ -98,12 +96,12 @@ class AutoGenerator(r: CoreRobot) {
       Degrees(10),
       Percent(30)
     )(drivetrain).withTimeout(Seconds(5))).then(
-      toGearAndDrop(drivetrain, gearGrabber, gearTilter)
+      toGearAndDrop(drivetrain, gearRoller, gearTilter)
     )
   }
 
   def leftGearPurePursuit(drivetrain: Drivetrain,
-                          gearGrabber: GearGrabber,
+                          gearRoller: GearRoller,
                           gearTilter: GearTilter): FiniteTask = {
     val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
       curr - init
@@ -130,12 +128,12 @@ class AutoGenerator(r: CoreRobot) {
       turnPosition = relativeTurn,
       steadyOutput = Percent(50)
     )(drivetrain).withTimeout(Seconds(5)).then(
-      toGearAndDrop(drivetrain, gearGrabber, gearTilter)
+      toGearAndDrop(drivetrain, gearRoller, gearTilter)
     )
   }
   def rightGearPurePursuit(drivetrain: Drivetrain,
-                          gearGrabber: GearGrabber,
-                          gearTilter: GearTilter): FiniteTask = {
+                           gearRoller: GearRoller,
+                           gearTilter: GearTilter): FiniteTask = {
     val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
       curr - init
     })
@@ -161,7 +159,7 @@ class AutoGenerator(r: CoreRobot) {
       turnPosition = relativeTurn,
       steadyOutput = Percent(50)
     )(drivetrain).withTimeout(Seconds(5)).then(
-      toGearAndDrop(drivetrain, gearGrabber, gearTilter)
+      toGearAndDrop(drivetrain, gearRoller, gearTilter)
     )
   }
 
@@ -202,10 +200,10 @@ class AutoGenerator(r: CoreRobot) {
                             collectorExtender: CollectorExtender,
                             loadTray: LoadTray): FiniteTask = {
     val shooting = ShooterTasks.continuousShoot(
-      midShootSpeedLeft,
-      midShootSpeedRight
+      shooterFlywheel.midShootSpeedLeft,
+      shooterFlywheel.midShootSpeedRight
     )(collectorElevator, collectorRollers, agitator, shooterFlywheel, collectorExtender, loadTray).and(
-      new ShiftShooter(midShootSpeedLeft.mapToConstant(ShooterShiftLeft))(shooterShifter)
+      new ShiftShooter(shooterFlywheel.midShootSpeedLeft.mapToConstant(ShooterShiftLeft))(shooterShifter)
     )
 
     new WaitTask(Seconds(5)).andUntilDone(shooting).then(new DriveDistanceStraight(
@@ -215,6 +213,7 @@ class AutoGenerator(r: CoreRobot) {
       Percent(30)
     )(drivetrain).withTimeout(Seconds(3)))
   }
+
   def leftHopperAndShoot(drivetrain: Drivetrain,
                          collectorElevator: CollectorElevator,
                          collectorRollers: CollectorRollers,
@@ -225,10 +224,10 @@ class AutoGenerator(r: CoreRobot) {
                          loadTray: LoadTray): ContinuousTask = {
 
     val shooting = ShooterTasks.continuousShoot(
-      midShootSpeedLeft,
-      midShootSpeedRight
+      shooterFlywheel.midShootSpeedLeft,
+      shooterFlywheel.midShootSpeedRight
     )(collectorElevator, collectorRollers, agitator, shooterFlywheel, collectorExtender, loadTray).and(
-      new ShiftShooter(midShootSpeedLeft.mapToConstant(ShooterShiftLeft))(shooterShifter)
+      new ShiftShooter(shooterFlywheel.midShootSpeedLeft.mapToConstant(ShooterShiftLeft))(shooterShifter)
     )
 
     hopperForward(drivetrain).then(new RotateByAngle(
@@ -249,10 +248,10 @@ class AutoGenerator(r: CoreRobot) {
                           collectorExtender: CollectorExtender,
                           loadTray: LoadTray): ContinuousTask = {
     val shooting = ShooterTasks.continuousShoot(
-      midShootSpeedLeft,
-      midShootSpeedRight
+      shooterFlywheel.midShootSpeedLeft,
+      shooterFlywheel.midShootSpeedRight
     )(collectorElevator, collectorRollers, agitator, shooterFlywheel, collectorExtender, loadTray).and(
-      new ShiftShooter(midShootSpeedLeft.mapToConstant(ShooterShiftRight))(shooterShifter)
+      new ShiftShooter(shooterFlywheel.midShootSpeedLeft.mapToConstant(ShooterShiftRight))(shooterShifter)
     )
 
     hopperForward(drivetrain).then(new RotateByAngle(
@@ -284,7 +283,7 @@ class AutoGenerator(r: CoreRobot) {
     ).toContinuous
   }
 
-  def centerGearAndCrossLine(drivetrain: Drivetrain, gearGrabber: GearGrabber, gearTilter: GearTilter): FiniteTask = {
+  def centerGearAndCrossLine(drivetrain: Drivetrain, gearRoller: GearRoller, gearTilter: GearTilter): FiniteTask = {
     val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
       curr - init
     })
@@ -301,7 +300,7 @@ class AutoGenerator(r: CoreRobot) {
       Degrees(10),
       Percent(30)
     )(drivetrain).withTimeout(Seconds(8)).then(
-      toGearAndDrop(drivetrain, gearGrabber, gearTilter)
+      toGearAndDrop(drivetrain, gearRoller, gearTilter)
     ).then(new FollowWayPointsWithPosition(
       Seq(
         new Point(
@@ -333,7 +332,7 @@ class AutoGenerator(r: CoreRobot) {
   }
 
   def shootCenterGear(drivetrain: Drivetrain,
-                      gearGrabber: GearGrabber,
+                      gearRoller: GearRoller,
                       gearTilter: GearTilter,
                       collectorElevator: CollectorElevator,
                       collectorRollers: CollectorRollers,
@@ -343,9 +342,9 @@ class AutoGenerator(r: CoreRobot) {
                       loadTray: LoadTray): FiniteTask = {
     new WaitTask(Seconds(3)).andUntilDone(
       ShooterTasks.continuousShoot(
-        midShootSpeedLeft,
-        midShootSpeedRight
+        shooterFlywheel.midShootSpeedLeft,
+        shooterFlywheel.midShootSpeedRight
       )(collectorElevator, collectorRollers, agitator, shooterFlywheel, collectorExtender, loadTray)
-    ).then(centerGear(drivetrain, gearGrabber, gearTilter))
+    ).then(centerGear(drivetrain, gearRoller, gearTilter))
   }
 }

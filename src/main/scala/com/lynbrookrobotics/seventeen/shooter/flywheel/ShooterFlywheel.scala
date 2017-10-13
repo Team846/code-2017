@@ -13,6 +13,9 @@ class ShooterFlywheel(val coreTicks: Stream[Unit])
   extends Component[DoubleFlywheelSignal](Milliseconds(5)) {
   val NominalVoltage = 11.9
 
+  val midShootSpeedLeft = coreTicks.map(_ => properties.get.midShootSpeedLeft)
+  val midShootSpeedRight = coreTicks.map(_ => properties.get.midShootSpeedRight)
+
   override def defaultController: Stream[DoubleFlywheelSignal] = coreTicks.mapToConstant {
     DoubleFlywheelSignal(Each(0), Each(0))
   }
