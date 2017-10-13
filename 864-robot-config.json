@@ -219,11 +219,11 @@
     "port": {
       "leftCamPort": 5804,
       "rightCamPort": 5805,
-      "driveCamPort": 5803
+      "driveCamPort": 5811
     },
     "properties": {
-      "coprocessorHostname": "10.8.46.19",
-      "mjpegPath": "/stream.mjpg"
+      "coprocessorHostname": "10.8.64.20",
+      "mjpegPath": "/?action=stream"
     }
   },
   "climberPuller": {
