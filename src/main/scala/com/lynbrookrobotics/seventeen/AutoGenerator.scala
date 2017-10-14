@@ -51,10 +51,11 @@ class AutoGenerator(r: CoreRobot) {
 
   def centerGear(drivetrain: Drivetrain, gearRoller: GearRoller, gearTilter: GearTilter): FiniteTask = {
     new DriveDistanceStraight(
-      gearPegDistance - robotLength,
+      gearPegDistance - robotLength + Inches(10.5 / 2) /* gear peg */ + Inches(3.5) /* bumper */,
       Inches(3),
       Degrees(10),
-      Percent(30)
+      Percent(25),
+      minStableTicks = 1
     )(drivetrain).withTimeout(Seconds(8)).then(
       toGearAndDrop(drivetrain, gearRoller, gearTilter)
     )
@@ -62,20 +63,20 @@ class AutoGenerator(r: CoreRobot) {
 
   def rightGear(drivetrain: Drivetrain, gearRoller: GearRoller, gearTilter: GearTilter): FiniteTask = {
     new DriveDistanceStraight(
-      Inches(90.5),
-      Inches(3),
-      Degrees(10),
-      Percent(30)
-    )(drivetrain).withTimeout(Seconds(8)).then(new RotateByAngle(
-      Degrees(-57.61),
+      Inches(91.8 - 4 /* going too long in tests */),
+      Inches(1),
       Degrees(5),
-      5
-    )(drivetrain).withTimeout(Seconds(5))).then(new DriveDistanceStraight(
-      Inches(19.75),
-      Inches(3),
+      Percent(30)
+    )(drivetrain).withTimeout(Seconds(4)).then(new RotateByAngle(
+      Degrees(-60),
+      Degrees(1),
+      20
+    )(drivetrain).withTimeout(Seconds(4))).then(new DriveDistanceStraight(
+      Inches(19.75 + 3.5 /* for bumpers */ + 2 /* go in more */),
+      Inches(2),
       Degrees(10),
       Percent(30)
-    )(drivetrain).withTimeout(Seconds(5))).then(
+    )(drivetrain).withTimeout(Seconds(3))).then(
       toGearAndDrop(drivetrain, gearRoller, gearTilter)
     )
   }
@@ -83,7 +84,7 @@ class AutoGenerator(r: CoreRobot) {
   def leftGear(drivetrain: Drivetrain, gearRoller: GearRoller, gearTilter: GearTilter): FiniteTask = {
     new DriveDistanceStraight(
       Inches(90.5),
-      Inches(3),
+      Inches(1),
       Degrees(10),
       Percent(30)
     )(drivetrain).withTimeout(Seconds(8)).then(new RotateByAngle(

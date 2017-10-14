@@ -7,10 +7,10 @@
   },
   "drivetrain": {
     "ports": {
-      "rightBack": 13,
-      "rightFront": 12,
       "leftBack": 11,
-      "leftFront": 10
+      "leftFront": 10,
+      "rightBack": 13,
+      "rightFront": 12
     },
     "properties": {
       "maxLeftVelocity": [
@@ -37,7 +37,7 @@
       "turnControlGains": {
         "kp": {
           "num": [
-            50,
+            60,
             "Percent$"
           ],
           "den": [
@@ -69,7 +69,7 @@
       "forwardPositionControlGains": {
         "kp": {
           "num": [
-            100,
+            50,
             "Percent$"
           ],
           "den": [
@@ -101,7 +101,7 @@
       "turnPositionControlGains": {
         "kp": {
           "num": [
-            100,
+            85,
             "Percent$"
           ],
           "den": [
@@ -133,7 +133,7 @@
       "leftControlGains": {
         "kp": {
           "num": [
-            30,
+            50,
             "Percent$"
           ],
           "den": [
@@ -165,7 +165,7 @@
       "rightControlGains": {
         "kp": {
           "num": [
-            30,
+            50,
             "Percent$"
           ],
           "den": [
@@ -232,7 +232,7 @@
   "collectorExtender": null,
   "collectorRollers": null,
   "gearRoller": {
-    "ports":{
+    "ports": {
       "motor": 16
     },
     "props": {

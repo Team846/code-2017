@@ -59,8 +59,6 @@ class LaunchRobot extends RobotBase {
 
   implicit val clock = WPIClock
 
-  private implicit val hardware = RobotHardware(config.get)
-
   private var coreRobot: CoreRobot = null
 
   private val ds = m_ds
@@ -75,7 +73,9 @@ class LaunchRobot extends RobotBase {
   }
 
   override def startCompetition(): Unit = {
-    WakeOnLan.awaken("B8:AE:ED:7E:78:E1")
+//    WakeOnLan.awaken("B8:AE:ED:7E:78:E1")
+
+    implicit val hardware = RobotHardware(config.get)
 
     coreRobot = new CoreRobot(
       Signal(latestConfigString),

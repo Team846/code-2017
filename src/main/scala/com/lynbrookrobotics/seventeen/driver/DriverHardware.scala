@@ -26,7 +26,7 @@ object DriverHardware {
       new Joystick(config.operatorPort),
       new Joystick(config.driverWheelPort),
       new Joystick(config.launchpadPort),
-      DriverStation.getInstance()
+      Iterator.continually(DriverStation.getInstance()).find(_ != null).get
     )
   }
 }

@@ -315,10 +315,6 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     import CoreRobot.ToTimeSeriesNumeric
 
     println("Funky Dashboard is up!")
-    Runtime.getRuntime.addShutdownHook(new Thread(() => {
-      println("Shutting down Funky Dashboard")
-      board.stop()
-    }))
 
     board.datasetGroup("Config").addDataset(new JsonEditor("Robot Config")(
       configFileValue.get,
