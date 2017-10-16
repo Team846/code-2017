@@ -27,7 +27,7 @@ class AutoGenerator(r: CoreRobot) {
 
   private val gearPegDistance = Inches(109)
 
-  def slowCrossLine(drivetrain: Drivetrain): FiniteTask = {
+  def  slowCrossLine(drivetrain: Drivetrain): FiniteTask = {
     new DriveDistanceStraight(
       Inches(107) - robotLength,
       Inches(3),
@@ -42,7 +42,7 @@ class AutoGenerator(r: CoreRobot) {
       Inches(3),
       Degrees(10),
       Percent(30)
-    )(drivetrain)).withTimeout(Seconds(5)).andUntilDone(
+    )(drivetrain)).withTimeout(Seconds(2)).andUntilDone(
       GearTasks.scoreGear(gearTilter, gearRoller)
     )
 
@@ -67,18 +67,27 @@ class AutoGenerator(r: CoreRobot) {
       Inches(1),
       Degrees(5),
       Percent(30)
-    )(drivetrain).withTimeout(Seconds(4)).then(new RotateByAngle(
-      Degrees(-60),
+    )(drivetrain).withTimeout(Seconds(3)).then(new RotateByAngle(
+      Degrees(-58),
       Degrees(1),
       20
-    )(drivetrain).withTimeout(Seconds(4))).then(new DriveDistanceStraight(
-      Inches(19.75 + 3.5 /* for bumpers */ + 2 /* go in more */),
+    )(drivetrain).withTimeout(Seconds(2))).then(new DriveDistanceStraight(
+      Inches(19.75 + 3.5 /* for bumpers */ + 6 /* go in more */),
       Inches(2),
       Degrees(10),
       Percent(30)
-    )(drivetrain).withTimeout(Seconds(3))).then(
+    )(drivetrain).withTimeout(Seconds(2))).then(
       toGearAndDrop(drivetrain, gearRoller, gearTilter)
-    )
+    ).then(new RotateByAngle(
+      Degrees(58),
+      Degrees(1),
+      20
+    )(drivetrain).withTimeout(Seconds(2))).then(new DriveDistanceStraight(
+      Feet(3),
+      Inches(2),
+      Degrees(10),
+      Percent(30)
+    )(drivetrain).withTimeout(Seconds(3)))
   }
 
   def leftGear(drivetrain: Drivetrain, gearRoller: GearRoller, gearTilter: GearTilter): FiniteTask = {
