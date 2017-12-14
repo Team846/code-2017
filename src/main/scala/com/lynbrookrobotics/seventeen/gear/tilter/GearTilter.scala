@@ -3,7 +3,6 @@ package com.lynbrookrobotics.seventeen.gear.tilter
 import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
-import com.lynbrookrobotics.seventeen.gear.grabber.GearGrabber
 import squants.time.Milliseconds
 
 sealed trait GearTilterState
@@ -13,7 +12,7 @@ case object GearTilterExtended extends GearTilterState
 case object GearTilterRetracted extends GearTilterState
 
 class GearTilter(val coreTicks: Stream[Unit],
-                 gearGrabber: => Option[GearGrabber], collectorExtender: => Option[CollectorExtender])
+                 collectorExtender: => Option[CollectorExtender])
                 (implicit hardware: GearTilterHardware) extends Component[GearTilterState](Milliseconds(5)) {
   override def defaultController: Stream[GearTilterState] = coreTicks.mapToConstant(GearTilterRetracted)
 
@@ -29,14 +28,8 @@ class GearTilter(val coreTicks: Stream[Unit],
   private var curLastOpenTime: Long = 0
   val lastOpenTime = Signal(curLastOpenTime)
 
-  lazy val gearOpened = gearGrabber.map(_.lastOpenTime.
-    map(t => System.currentTimeMillis() - t <= 50)).
-    getOrElse(Signal.constant(false))
-
   override def applySignal(signal: GearTilterState): Unit = {
-    val outWithSafety = if (gearOpened.get) {
-      GearTilterExtended
-    } else if (collectorExtended.get) {
+    val outWithSafety = if (collectorExtended.get) {
       GearTilterRetracted
     } else {
       signal

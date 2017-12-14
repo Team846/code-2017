@@ -13,7 +13,7 @@ import com.lynbrookrobotics.seventeen.collector.elevator.CollectorElevator
 import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
 import com.lynbrookrobotics.seventeen.collector.rollers.CollectorRollers
 import com.lynbrookrobotics.seventeen.drivetrain._
-import com.lynbrookrobotics.seventeen.gear.grabber.GearGrabber
+import com.lynbrookrobotics.seventeen.gear.roller.GearRoller
 import com.lynbrookrobotics.seventeen.gear.tilter.GearTilter
 import com.lynbrookrobotics.seventeen.lighting.{SerialComms, StatusLightingComponent}
 import com.lynbrookrobotics.seventeen.loadtray.LoadTray
@@ -77,19 +77,22 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     if (config.get.collectorRollers != null) Some(new CollectorRollers(coreTicks)) else None
 
   // Gear Grabber
-  implicit val gearGrabberHardware = hardware.gearGrabber
-  implicit val gearGrabberProps = config.map(_.gearGrabber.props)
-  val gearGrabber: Option[GearGrabber] = {
-    implicit val gt = () => gearTilter
-    if (config.get.gearGrabber != null) Some(new GearGrabber(coreTicks)) else None
+  implicit val gearRollerHardware = hardware.gearRoller
+  implicit val gearGrabberProps = config.map(_.gearRoller.props)
+  val gearRoller: Option[GearRoller] = {
+    if (config.get.gearRoller != null) Some(new GearRoller(coreTicks)) else None
   }
+
+  println(gearRoller)
 
   // Gear Tilter
   implicit val gearTilterHardware = hardware.gearTilter
   val gearTilter: Option[GearTilter] =
     if (config.get.gearTilter != null) {
-      Some(new GearTilter(coreTicks, gearGrabber, collectorExtender))
+      Some(new GearTilter(coreTicks, collectorExtender))
     } else None
+
+  println(gearTilter)
 
   // Shooter Flywheel
   implicit val shooterFlywheelHardware = hardware.shooterFlywheel
@@ -114,7 +117,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     * Function to determine what lighting effect should be displayed
     */
   val lightingStatus: () => Int = () => {
-    val gearState = gearGrabber.isDefined && gearGrabberHardware.proximitySensor.getVoltage > gearGrabberProps.get.detectingDistance.value
+    val gearState = gearRoller.isDefined && false
     if (climberPuller.isDefined && climberPullerHardware.motorA.get() > 0) {
       9
     } else if (gearState) {
@@ -148,7 +151,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     collectorElevator,
     collectorExtender,
     collectorRollers,
-    gearGrabber,
+    gearRoller,
     gearTilter,
     shooterFlywheel,
     shooterShifter,
@@ -181,37 +184,37 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
   for {
     drivetrain <- drivetrain
-    gearGrabber <- gearGrabber
+    gearRoller <- gearRoller
     gearTilter <- gearTilter
   } {
     addAutonomousRoutine(1)(
-      generator.centerGear(drivetrain, gearGrabber, gearTilter).toContinuous
+      generator.centerGear(drivetrain, gearRoller, gearTilter).toContinuous
     )
 
     addAutonomousRoutine(2)(
-      generator.leftGear(drivetrain, gearGrabber, gearTilter).toContinuous
+      generator.leftGear(drivetrain, gearRoller, gearTilter).toContinuous
     )
 
     addAutonomousRoutine(3)(
-      generator.rightGear(drivetrain, gearGrabber, gearTilter).toContinuous
+      generator.rightGear(drivetrain, gearRoller, gearTilter).toContinuous
     )
 
     addAutonomousRoutine(4)(
-      generator.centerGearAndCrossLine(drivetrain, gearGrabber, gearTilter).toContinuous
+      generator.centerGearAndCrossLine(drivetrain, gearRoller, gearTilter).toContinuous
     )
 
     addAutonomousRoutine(11) {
-      generator.leftGearPurePursuit(drivetrain, gearGrabber, gearTilter).toContinuous
+      generator.leftGearPurePursuit(drivetrain, gearRoller, gearTilter).toContinuous
     }
 
     addAutonomousRoutine(12) {
-      generator.rightGearPurePursuit(drivetrain, gearGrabber, gearTilter).toContinuous
+      generator.rightGearPurePursuit(drivetrain, gearRoller, gearTilter).toContinuous
     }
   }
 
   for {
     drivetrain <- drivetrain
-    gearGrabber <- gearGrabber
+    gearGrabber <- gearRoller
     gearTilter <- gearTilter
     collectorElevator <- collectorElevator
     collectorRollers <- collectorRollers
@@ -301,7 +304,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   }
 
   val dashboard = Future {
-    val dashboard = new FunkyDashboard(100, 8080)
+    val dashboard = new FunkyDashboard(10, 8080)
     dashboard.start()
     dashboard
   }
@@ -312,10 +315,6 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     import CoreRobot.ToTimeSeriesNumeric
 
     println("Funky Dashboard is up!")
-    Runtime.getRuntime.addShutdownHook(new Thread(() => {
-      println("Shutting down Funky Dashboard")
-      board.stop()
-    }))
 
     board.datasetGroup("Config").addDataset(new JsonEditor("Robot Config")(
       configFileValue.get,
@@ -382,9 +381,9 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
       ))
     }
 
-    gearGrabber.foreach { g =>
-      board.datasetGroup("Grabber").addDataset(new TimeSeriesNumeric("IR Distance")(
-        hardware.gearGrabber.proximitySensor.getVoltage
+    gearRoller.foreach { g =>
+      board.datasetGroup("Grabber").addDataset(new TimeSeriesNumeric("Motor Current")(
+        hardware.gearRoller.motor.getOutputCurrent
       ))
     }
   }

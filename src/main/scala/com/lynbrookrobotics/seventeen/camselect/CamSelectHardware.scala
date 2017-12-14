@@ -20,7 +20,7 @@ object CamSelectHardware {
 
     camSelectHardware.mjpegServer.setSource(camSelectHardware.driverCam)
 
-    val cam = new HttpCamera("usbDriverCam", "http://10.8.46.2:1180/stream.mjpg")
+    val cam = new HttpCamera("usbDriverCam", "http://10.8.64.2:1180/stream.mjpg")
     CameraServer.getInstance.startAutomaticCapture(cam)
 
     camSelectHardware

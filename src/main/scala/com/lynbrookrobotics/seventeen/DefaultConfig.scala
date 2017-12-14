@@ -10,18 +10,18 @@ object DefaultConfig {
                         |  },
                         |  "drivetrain": {
                         |    "ports": {
-                        |      "rightBack": 11,
+                        |      "rightBack": 13,
                         |      "rightFront": 12,
-                        |      "leftBack": 14 ,
-                        |      "leftFront": 13
+                        |      "leftBack": 11,
+                        |      "leftFront": 10
                         |    },
                         |    "properties": {
                         |      "maxLeftVelocity": [
-                        |        15,
+                        |        21.9,
                         |        "FeetPerSecond$"
                         |      ],
                         |      "maxRightVelocity": [
-                        |        15,
+                        |        23.1,
                         |        "FeetPerSecond$"
                         |      ],
                         |      "maxAcceleration": [
@@ -36,15 +36,15 @@ object DefaultConfig {
                         |        21.75,
                         |        "Inches$"
                         |      ],
-                        |      "gearRatio": 0.3125,
+                        |      "gearRatio": 0.5,
                         |      "turnControlGains": {
                         |        "kp": {
                         |          "num": [
-                        |            0,
+                        |            50,
                         |            "Percent$"
                         |          ],
                         |          "den": [
-                        |            1,
+                        |            360,
                         |            "DegreesPerSecond$"
                         |          ]
                         |        },
@@ -136,7 +136,7 @@ object DefaultConfig {
                         |      "leftControlGains": {
                         |        "kp": {
                         |          "num": [
-                        |            10,
+                        |            30,
                         |            "Percent$"
                         |          ],
                         |          "den": [
@@ -168,7 +168,7 @@ object DefaultConfig {
                         |      "rightControlGains": {
                         |        "kp": {
                         |          "num": [
-                        |            10,
+                        |            30,
                         |            "Percent$"
                         |          ],
                         |          "den": [
@@ -207,32 +207,22 @@ object DefaultConfig {
                         |      ]
                         |    }
                         |  },
-                        |  "agitator": {
-                        |    "ports": {
-                        |      "motor": 4
-                        |    },
-                        |    "properties": {
-                        |      "spinSpeed": [
-                        |        -100,
-                        |        "Percent$"
-                        |      ]
-                        |    }
-                        |  },
+                        |  "agitator": null,
                         |  "camSelect": {
                         |    "port": {
                         |      "leftCamPort": 5804,
                         |      "rightCamPort": 5805,
-                        |      "driveCamPort": 5803
+                        |      "driveCamPort": 5811
                         |    },
                         |    "properties": {
-                        |      "coprocessorHostname": "10.8.46.19",
-                        |      "mjpegPath": "/stream.mjpg"
+                        |      "coprocessorHostname": "10.8.64.20",
+                        |      "mjpegPath": "/?action=stream"
                         |    }
                         |  },
                         |  "climberPuller": {
                         |    "ports": {
-                        |      "motorChannelA": 15,
-                        |      "motorChannelB": 16
+                        |      "motorChannelA": 14,
+                        |      "motorChannelB": 15
                         |    },
                         |    "props": {
                         |      "climbSpeed": [
@@ -241,178 +231,39 @@ object DefaultConfig {
                         |      ]
                         |    }
                         |  },
-                        |  "collectorElevator": {
-                        |    "port": {
-                        |      "motor": 1
-                        |    },
-                        |    "properties": {
-                        |      "collectSpeed": [
-                        |        100,
-                        |        "Percent$"
-                        |      ]
-                        |    }
-                        |  },
-                        |  "collectorExtender": {
-                        |    "port": {
-                        |      "pneumatic": 3
-                        |    }
-                        |  },
-                        |  "collectorRollers": {
-                        |    "ports": {
-                        |      "rollerChannel": 0
-                        |    },
-                        |    "properties": {
-                        |      "lowRollerSpeedOutput": [
-                        |        0,
-                        |        "Percent$"
-                        |      ],
-                        |      "highRollerSpeedOutput": [
-                        |        100,
-                        |        "Percent$"
-                        |      ]
-                        |    }
-                        |  },
-                        |  "gearGrabber": {
-                        |    "port": {
-                        |      "pneumatic": 1,
-                        |      "proximitySensor": 0
+                        |  "collectorElevator": null,
+                        |  "collectorExtender": null,
+                        |  "collectorRollers": null,
+                        |  "gearRoller": {
+                        |    "ports":{
+                        |      "motor": 16
                         |    },
                         |    "props": {
-                        |      "detectingDistance": [
-                        |        2.2,
-                        |        "Volts$"
+                        |      "defaultHoldingPower": [
+                        |        10,
+                        |        "Percent$"
+                        |      ],
+                        |      "intakeGearPower": [
+                        |        100,
+                        |        "Percent$"
+                        |      ],
+                        |      "emitGearPower": [
+                        |        -50,
+                        |        "Percent$"
+                        |      ],
+                        |      "gearDetectionCurrent": [
+                        |        10,
+                        |        "Amperes$"
                         |      ]
                         |    }
                         |  },
                         |  "gearTilter": {
                         |    "port": {
-                        |      "pneumatic": 2
-                        |    }
-                        |  },
-                        |  "shooterFlywheel": {
-                        |    "ports": {
-                        |      "leftMotor": 2,
-                        |      "rightMotor": 3,
-                        |      "leftHall": 0,
-                        |      "rightHall": 1
-                        |    },
-                        |    "props": {
-                        |      "maxVelocityLeft": [
-                        |        6500,
-                        |        "RevolutionsPerMinute$"
-                        |      ],
-                        |      "maxVelocityRight": [
-                        |        6500,
-                        |        "RevolutionsPerMinute$"
-                        |      ],
-                        |      "velocityGainsLeft": {
-                        |        "kp": {
-                        |          "num": [
-                        |            100,
-                        |            "Percent$"
-                        |          ],
-                        |          "den": [
-                        |            3000,
-                        |            "RevolutionsPerMinute$"
-                        |          ]
-                        |        },
-                        |        "ki": {
-                        |          "num": [
-                        |            0,
-                        |            "Percent$"
-                        |          ],
-                        |          "den": [
-                        |            1000,
-                        |            "Each$"
-                        |          ]
-                        |        },
-                        |        "kd": {
-                        |          "num": [
-                        |            0,
-                        |            "Percent$"
-                        |          ],
-                        |          "den": [
-                        |            1000,
-                        |            "RevolutionsPerMinute$ / s"
-                        |          ]
-                        |        }
-                        |      },
-                        |      "velocityGainsRight": {
-                        |        "kp": {
-                        |          "num": [
-                        |            100,
-                        |            "Percent$"
-                        |          ],
-                        |          "den": [
-                        |            3000,
-                        |            "RevolutionsPerMinute$"
-                        |          ]
-                        |        },
-                        |        "ki": {
-                        |          "num": [
-                        |            0,
-                        |            "Percent$"
-                        |          ],
-                        |          "den": [
-                        |            1000,
-                        |            "Each$"
-                        |          ]
-                        |        },
-                        |        "kd": {
-                        |          "num": [
-                        |            0,
-                        |            "Percent$"
-                        |          ],
-                        |          "den": [
-                        |            1000,
-                        |            "RevolutionsPerMinute$ / s"
-                        |          ]
-                        |        }
-                        |      },
-                        |      "lowShootSpeedLeft": [
-                        |        2000,
-                        |        "RevolutionsPerMinute$"
-                        |      ],
-                        |      "lowShootSpeedRight": [
-                        |        2000,
-                        |        "RevolutionsPerMinute$"
-                        |      ],
-                        |      "midShootSpeedLeft": [
-                        |        4300,
-                        |        "RevolutionsPerMinute$"
-                        |      ],
-                        |      "midShootSpeedRight": [
-                        |        4300,
-                        |        "RevolutionsPerMinute$"
-                        |      ],
-                        |      "fastShootSpeedLeft": [
-                        |        6000,
-                        |        "RevolutionsPerMinute$"
-                        |      ],
-                        |      "fastShootSpeedRight": [
-                        |        6000,
-                        |        "RevolutionsPerMinute$"
-                        |      ],
-                        |      "currentLimit": [
-                        |        40,
-                        |        "Percent$"
-                        |      ],
-                        |      "speedTolerance": [
-                        |        75,
-                        |        "RevolutionsPerMinute$"
-                        |      ]
-                        |    }
-                        |  },
-                        |  "shooterShifter": {
-                        |    "ports": {
                         |      "pneumatic": 0
                         |    }
                         |  },
-                        |  "loadTray": {
-                        |    "port": {
-                        |      "pneumatic": 4
-                        |    }
-                        |  }
-                        |}
-                        |""".stripMargin
+                        |  "shooterFlywheel": null,
+                        |  "shooterShifter": null,
+                        |  "loadTray": null
+                        |}""".stripMargin
 }

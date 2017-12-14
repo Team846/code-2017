@@ -11,18 +11,17 @@ import com.lynbrookrobotics.seventeen.collector.extender.{CollectorExtenderConfi
 import com.lynbrookrobotics.seventeen.collector.rollers.{CollectorRollersConfig, CollectorRollersPorts, CollectorRollersProperties}
 import com.lynbrookrobotics.seventeen.driver.DriverConfig
 import com.lynbrookrobotics.seventeen.drivetrain.{DrivetrainConfig, DrivetrainPorts, DrivetrainProperties}
-import com.lynbrookrobotics.seventeen.gear.grabber.{GearGrabberConfig, GearGrabberPorts, GearGrabberProperties}
+import com.lynbrookrobotics.seventeen.gear.roller.{GearRollerConfig, GearRollerPorts, GearRollerProperties}
 import com.lynbrookrobotics.seventeen.gear.tilter.{GearTilterConfig, GearTilterPorts}
 import com.lynbrookrobotics.seventeen.loadtray.{LoadTrayConfig, LoadTrayPorts}
 import com.lynbrookrobotics.seventeen.shooter.flywheel.{ShooterFlywheelConfig, ShooterFlywheelPorts, ShooterFlywheelProperties}
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShooterShifterConfig, ShooterShifterPorts}
-import squants.electro.Volts
+import squants.electro.{Amperes, Volts}
 import squants.motion.{DegreesPerSecond, FeetPerSecond, MetersPerSecondSquared}
 import squants.space._
 import squants.time.{RevolutionsPerMinute, Seconds}
 import squants.{Each, Percent}
 import upickle.default._
-
 import com.lynbrookrobotics.potassium.config.SquantsPickling._
 
 object ConfigGenerator extends App {
@@ -126,13 +125,15 @@ object ConfigGenerator extends App {
         highRollerSpeedOutput = Percent(0)
       )
     ),
-    gearGrabber = GearGrabberConfig(
-      port = GearGrabberPorts(
-        pneumatic = 0,
-        proximitySensor = 0
+    gearRoller = GearRollerConfig(
+      ports = GearRollerPorts(
+        motor = 0
       ),
-      props = GearGrabberProperties(
-        detectingDistance = Volts(0)
+      props = GearRollerProperties(
+        defaultHoldingPower = Percent(10),
+        intakeGearPower = Percent(100),
+        emitGearPower = Percent(50),
+        gearDetectionCurrent = Amperes(1000)
       )
     ),
     gearTilter = GearTilterConfig(

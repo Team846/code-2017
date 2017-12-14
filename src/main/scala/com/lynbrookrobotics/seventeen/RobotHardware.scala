@@ -9,7 +9,7 @@ import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtenderHardwa
 import com.lynbrookrobotics.seventeen.collector.rollers.CollectorRollersHardware
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
 import com.lynbrookrobotics.seventeen.drivetrain.DrivetrainHardware
-import com.lynbrookrobotics.seventeen.gear.grabber.GearGrabberHardware
+import com.lynbrookrobotics.seventeen.gear.roller.GearRollerHardware
 import com.lynbrookrobotics.seventeen.gear.tilter.GearTilterHardware
 import com.lynbrookrobotics.seventeen.loadtray.LoadTrayHardware
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheelHardware
@@ -24,7 +24,7 @@ case class RobotHardware(driver: DriverHardware,
                          collectorElevator: CollectorElevatorHardware,
                          collectorExtender: CollectorExtenderHardware,
                          collectorRollers: CollectorRollersHardware,
-                         gearGrabber: GearGrabberHardware,
+                         gearRoller: GearRollerHardware,
                          gearTilter: GearTilterHardware,
                          shooterFlywheel: ShooterFlywheelHardware,
                          shooterShifter: ShooterShifterHardware,
@@ -46,7 +46,7 @@ object RobotHardware {
       collectorElevator = if (collectorElevator != null) CollectorElevatorHardware(collectorElevator) else null,
       collectorExtender = if (collectorExtender != null) CollectorExtenderHardware(collectorExtender) else null,
       collectorRollers = if (collectorRollers != null) CollectorRollersHardware(collectorRollers) else null,
-      gearGrabber = if (gearGrabber != null) GearGrabberHardware(gearGrabber) else null,
+      gearRoller = if (gearRoller != null) GearRollerHardware(gearRoller) else null,
       gearTilter = if (gearTilter != null) GearTilterHardware(gearTilter) else null,
       shooterFlywheel = if (shooterFlywheel != null) ShooterFlywheelHardware(shooterFlywheel) else null,
       shooterShifter = if (shooterShifter != null) ShooterShifterHardware(shooterShifter) else null,
