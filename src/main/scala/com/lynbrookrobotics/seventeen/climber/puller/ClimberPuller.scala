@@ -14,7 +14,7 @@ case class CurrentMode(current: ElectricCurrent) extends ClimberControlMode
 
 case class PWMMode(value: Dimensionless) extends ClimberControlMode
 
-class ClimberPuller(val coreTicks: Stream[Unit])(implicit hardware: ClimberPullerHardware) extends Component[ClimberControlMode](Milliseconds(5)) {
+class ClimberPuller(val coreTicks: Stream[Unit])(implicit hardware: ClimberPullerHardware) extends Component[ClimberControlMode] {
   override def defaultController: Stream[ClimberControlMode] = coreTicks.mapToConstant(PWMMode(Percent(0)))
 
   override def applySignal(signal: ClimberControlMode): Unit = {
@@ -36,7 +36,9 @@ class ClimberPuller(val coreTicks: Stream[Unit])(implicit hardware: ClimberPulle
 
   override def setController(controller: Stream[ClimberControlMode]): Unit = {
     super.setController(CurrentLimiting.slewRate(
+      Percent(0),
       controller.map(_.asInstanceOf[PWMMode].value),
-      Percent(100) / Seconds(0.3)).map(p => PWMMode(p)))
+      Percent(100) / Seconds(0.3)
+    ).map(p => PWMMode(p)))
   }
 }

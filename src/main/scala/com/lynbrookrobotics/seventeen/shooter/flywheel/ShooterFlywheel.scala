@@ -1,6 +1,7 @@
 package com.lynbrookrobotics.seventeen.shooter.flywheel
 
 import com.lynbrookrobotics.potassium.commons.drivetrain.MathUtilities
+import com.lynbrookrobotics.potassium.commons.electronics.CurrentLimiting
 import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
@@ -10,7 +11,7 @@ import squants.time.Milliseconds
 class ShooterFlywheel(val coreTicks: Stream[Unit])
                      (implicit properties: Signal[ShooterFlywheelProperties],
                       hardware: ShooterFlywheelHardware, driverHardware: DriverHardware)
-  extends Component[DoubleFlywheelSignal](Milliseconds(5)) {
+  extends Component[DoubleFlywheelSignal] {
   val NominalVoltage = 11.9
 
   override def defaultController: Stream[DoubleFlywheelSignal] = coreTicks.mapToConstant {
@@ -39,8 +40,8 @@ class ShooterFlywheel(val coreTicks: Stream[Unit])
       val leftVelocityPercent = Each(leftVelocity / properties.get.maxVelocityLeft)
       val rightVelocityPercent = Each(rightVelocity / properties.get.maxVelocityRight)
 
-      val leftOut = MathUtilities.limitCurrentOutput(signal.left, leftVelocityPercent, properties.get.currentLimit, properties.get.currentLimit)
-      val rightOut = MathUtilities.limitCurrentOutput(signal.right, rightVelocityPercent, properties.get.currentLimit, properties.get.currentLimit)
+      val leftOut = CurrentLimiting.limitCurrentOutput(signal.left, leftVelocityPercent, properties.get.currentLimit, properties.get.currentLimit)
+      val rightOut = CurrentLimiting.limitCurrentOutput(signal.right, rightVelocityPercent, properties.get.currentLimit, properties.get.currentLimit)
 
       DoubleFlywheelSignal(voltageFactor * leftOut, voltageFactor * rightOut)
     })

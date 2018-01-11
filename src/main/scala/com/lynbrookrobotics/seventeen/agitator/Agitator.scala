@@ -6,11 +6,11 @@ import com.lynbrookrobotics.potassium.streams.Stream
 import squants.time.{Milliseconds, Seconds}
 import squants.{Dimensionless, Each, Percent}
 
-class Agitator(val coreTicks: Stream[Unit])(implicit hardware: AgitatorHardware) extends Component[Dimensionless](Milliseconds(5)) {
+class Agitator(val coreTicks: Stream[Unit])(implicit hardware: AgitatorHardware) extends Component[Dimensionless] {
   override def defaultController: Stream[Dimensionless] = coreTicks.mapToConstant(Each(0))
 
   override def setController(controller: Stream[Dimensionless]): Unit = {
-    super.setController(CurrentLimiting.slewRate(controller, Percent(100) / Seconds(0.3)))
+    super.setController(CurrentLimiting.slewRate(Percent(0), controller, Percent(100) / Seconds(0.3)))
   }
 
   override def applySignal(signal: Dimensionless): Unit = {

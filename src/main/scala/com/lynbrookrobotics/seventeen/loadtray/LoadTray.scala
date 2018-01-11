@@ -10,7 +10,7 @@ case object LoadTrayExtended extends LoadTrayState
 
 case object LoadTrayRetracted extends LoadTrayState
 
-class LoadTray(val coreTicks: Stream[Unit])(implicit hardware: LoadTrayHardware) extends Component[LoadTrayState](Milliseconds(5)) {
+class LoadTray(val coreTicks: Stream[Unit])(implicit hardware: LoadTrayHardware) extends Component[LoadTrayState] {
   override def defaultController: Stream[LoadTrayState] = coreTicks.mapToConstant(LoadTrayRetracted)
 
   override def applySignal(signal: LoadTrayState): Unit = {

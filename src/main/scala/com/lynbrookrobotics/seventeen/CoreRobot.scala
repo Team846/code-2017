@@ -66,9 +66,9 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   // Collector Extender
   implicit val collectorExtenderHardware = hardware.collectorExtender
   val collectorExtender: Option[CollectorExtender] =
-    if (config.get.collectorExtender != null) {
+    /*if (config.get.collectorExtender != null) {
       Some(new CollectorExtender(coreTicks, gearTilter))
-    } else None
+    } else */None
 
   // Collector Rollers
   implicit val collectorRollersHardware = hardware.collectorRollers
@@ -81,7 +81,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   implicit val gearGrabberProps = config.map(_.gearGrabber.props)
   val gearGrabber: Option[GearGrabber] = {
     implicit val gt = () => gearTilter
-    if (config.get.gearGrabber != null) Some(new GearGrabber(coreTicks)) else None
+    /*if (config.get.gearGrabber != null) Some(new GearGrabber(coreTicks)) else */None
   }
 
   // Gear Tilter
@@ -95,12 +95,12 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   implicit val shooterFlywheelHardware = hardware.shooterFlywheel
   implicit val shooterFlywheelProps = config.map(_.shooterFlywheel.props)
   val shooterFlywheel: Option[ShooterFlywheel] =
-    if (config.get.shooterFlywheel != null) Some(new ShooterFlywheel(coreTicks)) else None
+    /*if (config.get.shooterFlywheel != null) Some(new ShooterFlywheel(coreTicks)) else */None
 
   // Shooter Shifter
   implicit val shooterShifterHardware = hardware.shooterShifter
   val shooterShifter: Option[ShooterShifter] =
-    if (config.get.shooterShifter != null) Some(new ShooterShifter(coreTicks)) else None
+    /*if (config.get.shooterShifter != null) Some(new ShooterShifter(coreTicks)) else */None
 
   // Load Tray
   implicit val loadTrayHardware = hardware.loadTray

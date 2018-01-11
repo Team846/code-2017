@@ -12,7 +12,7 @@ case object RightCam extends CamSelectState
 
 case object DriverCam extends CamSelectState
 
-class CamSelect(val coreTicks: Stream[Unit])(implicit hardware: CamSelectHardware) extends Component[CamSelectState](Milliseconds(5)) {
+class CamSelect(val coreTicks: Stream[Unit])(implicit hardware: CamSelectHardware) extends Component[CamSelectState] {
   override def defaultController: Stream[CamSelectState] = coreTicks.mapToConstant(DriverCam)
 
   override def applySignal(signal: CamSelectState): Unit = {

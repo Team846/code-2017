@@ -12,7 +12,7 @@ case object GearGrabberOpen extends GearGrabberState
 case object GearGrabberClosed extends GearGrabberState
 
 class GearGrabber(val coreTicks: Stream[Unit])(implicit hardware: GearGrabberHardware, gearTilterF: () => Option[GearTilter])
-  extends Component[GearGrabberState](Milliseconds(5)) {
+  extends Component[GearGrabberState] {
 
   lazy val gearTilter = gearTilterF()
 

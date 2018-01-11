@@ -10,7 +10,7 @@ case object ShooterShiftLeft extends ShooterShifterState
 
 case object ShooterShiftRight extends ShooterShifterState
 
-class ShooterShifter(val coreTicks: Stream[Unit])(implicit hardware: ShooterShifterHardware) extends Component[ShooterShifterState](Milliseconds(5)) {
+class ShooterShifter(val coreTicks: Stream[Unit])(implicit hardware: ShooterShifterHardware) extends Component[ShooterShifterState] {
   var currentState: ShooterShifterState = ShooterShiftRight
 
   override def defaultController: Stream[ShooterShifterState] = coreTicks.map(_ => currentState)
