@@ -1,11 +1,11 @@
 package com.lynbrookrobotics.seventeen.drivetrain
 
 
-import com.ctre.CANTalon
+import com.ctre.phoenix.motorcontrol.can.TalonSRX
 import com.lynbrookrobotics.potassium.clock.Clock
-import com.lynbrookrobotics.potassium.commons.drivetrain.TwoSidedDriveHardware
+import com.lynbrookrobotics.potassium.commons.drivetrain.twoSided.TwoSidedDriveHardware
 import com.lynbrookrobotics.potassium.frc.Implicits._
-import com.lynbrookrobotics.potassium.frc.TalonEncoder
+import com.lynbrookrobotics.potassium.frc.{TalonController, TalonEncoder}
 import com.lynbrookrobotics.potassium.sensors.imu.{ADIS16448, DigitalGyro}
 import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.units._
@@ -22,8 +22,8 @@ case class DrivetrainData(leftEncoderVelocity: AngularVelocity,
                           rightEncoderRotation: Angle,
                           gyroVelocities: Value3D[AngularVelocity])
 
-case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
-                              rightBack: CANTalon, rightFront: CANTalon,
+case class DrivetrainHardware(leftBack: TalonController, leftFront: TalonController,
+                              rightBack: TalonController, rightFront: TalonController,
                               gyro: DigitalGyro,
                               props: DrivetrainProperties,
                               driverHardware: DriverHardware,
@@ -32,10 +32,10 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
   val leftEncoder = new TalonEncoder(leftBack, Degrees(360) / Each(8192))
   val rightEncoder = new TalonEncoder(rightBack, -Degrees(360) / Each(8192))
 
-  val wheelRadius = props.wheelDiameter / 2
-  val track = props.track
+  val wheelRadius: Length = props.wheelDiameter / 2
+  val track: Length = props.track
 
-  val rootDataStream = Stream.periodic(period)(
+  val rootDataStream: Stream[DrivetrainData] = Stream.periodic(period) {
     DrivetrainData(
       leftEncoder.getAngularVelocity,
       rightEncoder.getAngularVelocity,
@@ -45,7 +45,7 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
 
       gyro.getVelocities
     )
-  )
+  }
 
   override val leftVelocity: Stream[Velocity] = rootDataStream.map(_.leftEncoderVelocity).map(av =>
     wheelRadius * (av.toRadiansPerSecond * props.gearRatio) / Seconds(1))
@@ -64,10 +64,10 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
 object DrivetrainHardware {
   def apply(config: DrivetrainConfig, driverHardware: DriverHardware)(implicit clock: Clock): DrivetrainHardware = {
     DrivetrainHardware(
-      new CANTalon(config.ports.leftBack),
-      new CANTalon(config.ports.leftFront),
-      new CANTalon(config.ports.rightBack),
-      new CANTalon(config.ports.rightFront),
+      new TalonController(config.ports.leftBack),
+      new TalonController(config.ports.leftFront),
+      new TalonController(config.ports.rightBack),
+      new TalonController(config.ports.rightFront),
       new ADIS16448(new SPI(SPI.Port.kMXP), null),
       config.properties,
       driverHardware,

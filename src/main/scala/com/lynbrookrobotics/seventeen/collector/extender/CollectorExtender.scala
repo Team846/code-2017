@@ -12,7 +12,7 @@ case object CollectorExtenderExtended extends CollectorExtenderState
 case object CollectorExtenderRetracted extends CollectorExtenderState
 
 class CollectorExtender(val coreTicks: Stream[Unit], gearTilter: => Option[GearTilter])
-                       (implicit hardware: CollectorExtenderHardware) extends Component[CollectorExtenderState](Milliseconds(5)) {
+                       (implicit hardware: CollectorExtenderHardware) extends Component[CollectorExtenderState] {
   override def defaultController: Stream[CollectorExtenderState] = coreTicks.mapToConstant(CollectorExtenderRetracted)
 
   private var curLastExtendTime: Long = 0

@@ -102,6 +102,34 @@ class AutoGenerator(r: CoreRobot) {
     )
   }
 
+  def leftGearPurePursuitNoGear(drivetrain: Drivetrain): FiniteTask = {
+    val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
+      curr - init
+    })
+
+    val xyPosition = XYPosition(
+      relativeTurn,
+      drivetrainHardware.forwardPosition
+    )
+    new FollowWayPointsWithPosition(
+      Seq(
+        Point.origin,
+        Point(
+          Inches(0),
+          Inches(90.5)
+        ),
+        Point(
+          Inches(19.75) * math.sin(57.61),
+          Inches(90.5) + Inches(19.75) * math.sin(57.61)
+        )
+      ),
+      tolerance = Inches(3),
+      position = xyPosition,
+      turnPosition = relativeTurn,
+      steadyOutput = Percent(50),
+      maxTurnOutput = Percent(50)
+    )(drivetrain)
+  }
   def leftGearPurePursuit(drivetrain: Drivetrain,
                           gearGrabber: GearGrabber,
                           gearTilter: GearTilter): FiniteTask = {
@@ -128,7 +156,8 @@ class AutoGenerator(r: CoreRobot) {
       tolerance = Inches(3),
       position = xyPosition,
       turnPosition = relativeTurn,
-      steadyOutput = Percent(50)
+      steadyOutput = Percent(50),
+      maxTurnOutput = Percent(50)
     )(drivetrain).withTimeout(Seconds(5)).then(
       toGearAndDrop(drivetrain, gearGrabber, gearTilter)
     )
@@ -159,7 +188,8 @@ class AutoGenerator(r: CoreRobot) {
       tolerance = Inches(3),
       position = xyPosition,
       turnPosition = relativeTurn,
-      steadyOutput = Percent(50)
+      steadyOutput = Percent(50),
+      maxTurnOutput = Percent(50)
     )(drivetrain).withTimeout(Seconds(5)).then(
       toGearAndDrop(drivetrain, gearGrabber, gearTilter)
     )
@@ -328,7 +358,8 @@ class AutoGenerator(r: CoreRobot) {
       Feet(0),
       xyPosition,
       relativeTurn,
-      Percent(50)
+      Percent(50),
+      maxTurnOutput = Percent(50)
     )(drivetrain).withTimeout(Seconds(10)))
   }
 

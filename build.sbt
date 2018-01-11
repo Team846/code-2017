@@ -28,10 +28,11 @@ libraryDependencies += "org.mockito" % "mockito-core" % "2.3.11" % Test
 
 libraryDependencies += "com.lynbrookrobotics" %% "funky-dashboard" % "0.3.0-SNAPSHOT"
 
-libraryDependencies += "edu.wpi.first" % "wpilib" % "2017.3.1"
-libraryDependencies += "edu.wpi.first" % "networktables" % "2017.3.1"
-libraryDependencies += "edu.wpi.first" % "cscore" % "2017.3.1"
-libraryDependencies += "com.ctre" % "ctrlib" % "4.4.1.12"
-libraryDependencies += "org.opencv" % "opencv-java" % "3.1.0"
+libraryDependencies += "edu.wpi.first" % "wpilib" % Versions.wpiVersion
+libraryDependencies += "edu.wpi.first" % "cscore" % Versions.wpiVersion
+libraryDependencies += "edu.wpi.first" % "ntcore" % Versions.wpiVersion
+libraryDependencies += "edu.wpi.first" % "wpiutil" % Versions.wpiVersion
+libraryDependencies += "com.ctre" % "phoenix" % "5.1.3.1"
+libraryDependencies += "org.opencv" % "opencv-java" % "3.2.0"
 
 libraryDependencies += "com.google.guava" % "guava" % "21.0"

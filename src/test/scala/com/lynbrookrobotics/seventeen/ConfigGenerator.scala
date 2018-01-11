@@ -73,7 +73,8 @@ object ConfigGenerator extends App {
           Percent(0) / MetersPerSecondSquared(1)
         ),
         currentLimit = Percent(0),
-        defaultLookAheadDistance = Feet(0.5)
+        defaultLookAheadDistance = Feet(0.5),
+        blendExponent = 1
       )
     ),
     agitator = AgitatorConfig(

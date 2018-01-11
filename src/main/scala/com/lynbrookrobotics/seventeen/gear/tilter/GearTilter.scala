@@ -14,7 +14,7 @@ case object GearTilterRetracted extends GearTilterState
 
 class GearTilter(val coreTicks: Stream[Unit],
                  gearGrabber: => Option[GearGrabber], collectorExtender: => Option[CollectorExtender])
-                (implicit hardware: GearTilterHardware) extends Component[GearTilterState](Milliseconds(5)) {
+                (implicit hardware: GearTilterHardware) extends Component[GearTilterState] {
   override def defaultController: Stream[GearTilterState] = coreTicks.mapToConstant(GearTilterRetracted)
 
   private var curLastExtendTime: Long = 0

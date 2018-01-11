@@ -6,12 +6,13 @@ import com.lynbrookrobotics.potassium.events.ImpulseEvent
 import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, FiniteTask, Task}
 import com.lynbrookrobotics.potassium.{Component, Signal}
-import com.lynbrookrobotics.seventeen.agitator.Agitator
+import com.lynbrookrobotics.seventeen.agitator.{Agitator, AgitatorHardware, AgitatorProperties}
 import com.lynbrookrobotics.seventeen.camselect.CamSelect
 import com.lynbrookrobotics.seventeen.climber.puller.ClimberPuller
 import com.lynbrookrobotics.seventeen.collector.elevator.CollectorElevator
 import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
 import com.lynbrookrobotics.seventeen.collector.rollers.CollectorRollers
+import com.lynbrookrobotics.seventeen.driver.DriverHardware
 import com.lynbrookrobotics.seventeen.drivetrain._
 import com.lynbrookrobotics.seventeen.gear.grabber.GearGrabber
 import com.lynbrookrobotics.seventeen.gear.tilter.GearTilter
@@ -31,76 +32,88 @@ import scala.util.Try
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit, val coreTicks: Stream[Unit])
                (implicit val config: Signal[RobotConfig], hardware: RobotHardware,
                 val clock: Clock, val polling: ImpulseEvent) {
-  implicit val driverHardware = hardware.driver
+  println("starting core robot")
+  implicit val driverHardware: DriverHardware = hardware.driver
+  println("line 36")
   private val ds = driverHardware.station
 
+  println("line 39")
   // Drivetrain
-  implicit val drivetrainHardware = hardware.drivetrain
-  implicit val drivetrainProps = config.map(_.drivetrain.properties)
+  implicit val drivetrainHardware: DrivetrainHardware = hardware.drivetrain
+  implicit val drivetrainProps: Signal[DrivetrainProperties] = config.map(_.drivetrain.properties)
   val drivetrain: Option[Drivetrain] =
     if (config.get.drivetrain != null) Some(new Drivetrain) else None
 
+  println("line 46")
   // Agitator
-  implicit val agitatorHardware = hardware.agitator
-  implicit val agitatorProps = config.map(_.agitator.properties)
+  implicit val agitatorHardware: AgitatorHardware = hardware.agitator
+  implicit val agitatorProps: Signal[AgitatorProperties] = config.map(_.agitator.properties)
   val agitator: Option[Agitator] =
     if (config.get.agitator != null) Some(new Agitator(coreTicks)) else None
 
+  println("line 53")
   // CamSelect
   implicit val camSelectHardware = hardware.camSelect
   implicit val camselectProps = config.map(_.camSelect.properties)
   implicit val camSelect: CamSelect = new CamSelect(coreTicks)
 
+  println("line 59")
   // Climber Puller
   implicit val climberPullerHardware = hardware.climberPuller
   implicit val climberPullerProps = config.map(_.climberPuller.props)
   val climberPuller: Option[ClimberPuller] =
     if (config.get.climberPuller != null) Some(new ClimberPuller(coreTicks)) else None
 
+  println("line 66")
   // Collector Elevator
   implicit val collectorElevatorHardware = hardware.collectorElevator
   implicit val collectorElevatorProps = config.map(_.collectorElevator.properties)
   val collectorElevator: Option[CollectorElevator] =
-    if (config.get.collectorElevator != null) Some(new CollectorElevator(coreTicks)) else None
+  /*if (config.get.collectorElevator != null) Some(new CollectorElevator(coreTicks)) else */ None
 
+  println("collector Extender")
   // Collector Extender
   implicit val collectorExtenderHardware = hardware.collectorExtender
   val collectorExtender: Option[CollectorExtender] =
-    if (config.get.collectorExtender != null) {
-      Some(new CollectorExtender(coreTicks, gearTilter))
-    } else None
+  /*if (config.get.collectorExtender != null) {
+    Some(new CollectorExtender(coreTicks, gearTilter))
+  } else */ None
 
+  println("collector rollers")
   // Collector Rollers
   implicit val collectorRollersHardware = hardware.collectorRollers
   implicit val collectorRollersProps = config.map(_.collectorRollers.properties)
   val collectorRollers: Option[CollectorRollers] =
-    if (config.get.collectorRollers != null) Some(new CollectorRollers(coreTicks)) else None
+  /*if (config.get.collectorRollers != null) Some(new CollectorRollers(coreTicks)) else*/ None
 
+  println("gear grabber hardware")
   // Gear Grabber
   implicit val gearGrabberHardware = hardware.gearGrabber
   implicit val gearGrabberProps = config.map(_.gearGrabber.props)
   val gearGrabber: Option[GearGrabber] = {
     implicit val gt = () => gearTilter
-    if (config.get.gearGrabber != null) Some(new GearGrabber(coreTicks)) else None
+    /*if (config.get.gearGrabber != null) Some(new GearGrabber(coreTicks)) else */ None
   }
 
+  println("tilter")
   // Gear Tilter
   implicit val gearTilterHardware = hardware.gearTilter
   val gearTilter: Option[GearTilter] =
-    if (config.get.gearTilter != null) {
-      Some(new GearTilter(coreTicks, gearGrabber, collectorExtender))
-    } else None
+  /*if (config.get.gearTilter != null) {
+    Some(new GearTilter(coreTicks, gearGrabber, collectorExtender))
+  } else*/ None
 
+  println("flywheel")
   // Shooter Flywheel
   implicit val shooterFlywheelHardware = hardware.shooterFlywheel
   implicit val shooterFlywheelProps = config.map(_.shooterFlywheel.props)
   val shooterFlywheel: Option[ShooterFlywheel] =
-    if (config.get.shooterFlywheel != null) Some(new ShooterFlywheel(coreTicks)) else None
+  /*if (config.get.shooterFlywheel != null) Some(new ShooterFlywheel(coreTicks)) else */ None
 
   // Shooter Shifter
   implicit val shooterShifterHardware = hardware.shooterShifter
   val shooterShifter: Option[ShooterShifter] =
-    if (config.get.shooterShifter != null) Some(new ShooterShifter(coreTicks)) else None
+  /*if (config.get.shooterShifter != null) Some(new ShooterShifter(coreTicks)) else */ None
 
   // Load Tray
   implicit val loadTrayHardware = hardware.loadTray
@@ -117,7 +130,8 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     val gearState = gearGrabber.isDefined && gearGrabberHardware.proximitySensor.getVoltage > gearGrabberProps.get.detectingDistance.value
     if (climberPuller.isDefined && climberPullerHardware.motorA.get() > 0) {
       9
-    } else if (gearState) {
+    }
+    else if (gearState) {
       5
     } else if (ds.getMatchTime >= 135) {
       16
@@ -163,119 +177,141 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   val generator = new AutoGenerator(this)
 
   def prepTask(task: Task): Unit = {
+    println("before init")
+    Thread.currentThread().getStackTrace.foreach(println)
     task.init()
+    println("after init, before abort")
     task.abort()
+    println("after abort")
   }
 
   private var autonomousRoutines = mutable.Map.empty[Int, ContinuousTask]
 
+  println("add auto")
+
   def addAutonomousRoutine(id: Int)(task: ContinuousTask): Unit = {
+    println("start add")
     if (autonomousRoutines.contains(id)) {
       println(s"WARNING, overriding autonomous routine $id")
     }
+    println("after check for contain, before prep")
 
     prepTask(task)
 
+    println("after prep, before assign")
+
     autonomousRoutines(id) = task
+
+    println("after add everything")
   }
 
-  for {
-    drivetrain <- drivetrain
-    gearGrabber <- gearGrabber
-    gearTilter <- gearTilter
-  } {
-    addAutonomousRoutine(1)(
-      generator.centerGear(drivetrain, gearGrabber, gearTilter).toContinuous
-    )
+  println("before adding drivetrain")
+  //  for {
+  //    drivetrain <- drivetrain
+  //  } {
+  //    println("before routine 1")
+  //    addAutonomousRoutine(1)(
+  //      generator.leftGearPurePursuitNoGear(drivetrain).toContinuous
+  //    )
+  //    println("after adding routine 1")
+  //  }
+  //  for {
+  //    drivetrain <- drivetrain
+  //    gearGrabber <- gearGrabber
+  //    gearTilter <- gearTilter
+  //  } {
+  //    addAutonomousRoutine(1)(
+  //      generator.centerGear(drivetrain, gearGrabber, gearTilter).toContinuous
+  //    )
+  //
+  //    addAutonomousRoutine(2)(
+  //      generator.leftGear(drivetrain, gearGrabber, gearTilter).toContinuous
+  //    )
+  //
+  //    addAutonomousRoutine(3)(
+  //      generator.rightGear(drivetrain, gearGrabber, gearTilter).toContinuous
+  //    )
+  //
+  //    addAutonomousRoutine(4)(
+  //      generator.centerGearAndCrossLine(drivetrain, gearGrabber, gearTilter).toContinuous
+  //    )
+  //
+  //    addAutonomousRoutine(11) {
+  //      generator.leftGearPurePursuit(drivetrain, gearGrabber, gearTilter).toContinuous
+  //    }
+  //
+  //    addAutonomousRoutine(12) {
+  //      generator.rightGearPurePursuit(drivetrain, gearGrabber, gearTilter).toContinuous
+  //    }
+  //  }
 
-    addAutonomousRoutine(2)(
-      generator.leftGear(drivetrain, gearGrabber, gearTilter).toContinuous
-    )
+  //  for {
+  //    drivetrain <- drivetrain
+  //    gearGrabber <- gearGrabber
+  //    gearTilter <- gearTilter
+  //    collectorElevator <- collectorElevator
+  //    collectorRollers <- collectorRollers
+  //    agitator <- agitator
+  //    shooterFlywheel <- shooterFlywheel
+  //    collectorExtender <- collectorExtender
+  //    loadTray <- loadTray
+  //  } {
+  //    addAutonomousRoutine(5)(
+  //      generator.shootCenterGear(
+  //        drivetrain,
+  //        gearGrabber, gearTilter,
+  //        collectorElevator, collectorRollers, agitator,
+  //        shooterFlywheel, collectorExtender, loadTray
+  //      ).toContinuous
+  //    )
+  //  }
 
-    addAutonomousRoutine(3)(
-      generator.rightGear(drivetrain, gearGrabber, gearTilter).toContinuous
-    )
+  //  for {
+  //    drivetrain <- drivetrain
+  //    collectorElevator <- collectorElevator
+  //    collectorRollers <- collectorRollers
+  //    agitator <- agitator
+  //    shooterFlywheel <- shooterFlywheel
+  //    shooterShifter <- shooterShifter
+  //    collectorExtender <- collectorExtender
+  //    loadTray <- loadTray
+  //  } {
+  //    addAutonomousRoutine(6)(
+  //      generator.leftHopperAndShoot(
+  //        drivetrain,
+  //        collectorElevator, collectorRollers, agitator,
+  //        shooterFlywheel, shooterShifter, collectorExtender, loadTray
+  //      )
+  //    )
+  //
+  //    addAutonomousRoutine(7)(
+  //      generator.rightHopperAndShoot(
+  //        drivetrain,
+  //        collectorElevator, collectorRollers, agitator,
+  //        shooterFlywheel, shooterShifter, collectorExtender, loadTray
+  //      )
+  //    )
+  //
+  //    addAutonomousRoutine(10)(
+  //      generator.shootLeftAndDriveBack(
+  //        drivetrain,
+  //        collectorElevator, collectorRollers, agitator,
+  //        shooterFlywheel, shooterShifter, collectorExtender, loadTray
+  //      ).toContinuous
+  //    )
+  //  }
 
-    addAutonomousRoutine(4)(
-      generator.centerGearAndCrossLine(drivetrain, gearGrabber, gearTilter).toContinuous
-    )
-
-    addAutonomousRoutine(11) {
-      generator.leftGearPurePursuit(drivetrain, gearGrabber, gearTilter).toContinuous
-    }
-
-    addAutonomousRoutine(12) {
-      generator.rightGearPurePursuit(drivetrain, gearGrabber, gearTilter).toContinuous
-    }
-  }
-
-  for {
-    drivetrain <- drivetrain
-    gearGrabber <- gearGrabber
-    gearTilter <- gearTilter
-    collectorElevator <- collectorElevator
-    collectorRollers <- collectorRollers
-    agitator <- agitator
-    shooterFlywheel <- shooterFlywheel
-    collectorExtender <- collectorExtender
-    loadTray <- loadTray
-  } {
-    addAutonomousRoutine(5)(
-      generator.shootCenterGear(
-        drivetrain,
-        gearGrabber, gearTilter,
-        collectorElevator, collectorRollers, agitator,
-        shooterFlywheel, collectorExtender, loadTray
-      ).toContinuous
-    )
-  }
-
-  for {
-    drivetrain <- drivetrain
-    collectorElevator <- collectorElevator
-    collectorRollers <- collectorRollers
-    agitator <- agitator
-    shooterFlywheel <- shooterFlywheel
-    shooterShifter <- shooterShifter
-    collectorExtender <- collectorExtender
-    loadTray <- loadTray
-  } {
-    addAutonomousRoutine(6)(
-      generator.leftHopperAndShoot(
-        drivetrain,
-        collectorElevator, collectorRollers, agitator,
-        shooterFlywheel, shooterShifter, collectorExtender, loadTray
-      )
-    )
-
-    addAutonomousRoutine(7)(
-      generator.rightHopperAndShoot(
-        drivetrain,
-        collectorElevator, collectorRollers, agitator,
-        shooterFlywheel, shooterShifter, collectorExtender, loadTray
-      )
-    )
-
-    addAutonomousRoutine(10)(
-      generator.shootLeftAndDriveBack(
-        drivetrain,
-        collectorElevator, collectorRollers, agitator,
-        shooterFlywheel, shooterShifter, collectorExtender, loadTray
-      ).toContinuous
-    )
-  }
-
-  for {
-    drivetrain <- drivetrain
-  } {
-    addAutonomousRoutine(8)(
-      generator.slowCrossLine(drivetrain).toContinuous
-    )
-
-    addAutonomousRoutine(9)(
-      generator.smallTestShot(drivetrain)
-    )
-  }
+  //  for {
+  //    drivetrain <- drivetrain
+  //  } {
+  //    addAutonomousRoutine(8)(
+  //      generator.slowCrossLine(drivetrain).toContinuous
+  //    )
+  //
+  //    addAutonomousRoutine(9)(
+  //      generator.smallTestShot(drivetrain)
+  //    )
+  //  }
 
   inAutonomous.foreach(Signal {
     val autoID = Math.round(SmartDashboard.getNumber("DB/Slider 0")).toInt
@@ -336,8 +372,8 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
       board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Encoder Ticks/s")(drivetrainHardware.leftBack.getSpeed * 10))
       board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Encoder Ticks/s")(drivetrainHardware.rightBack.getSpeed * 10))
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Out")(drivetrainHardware.leftBack.get()))
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Out")(drivetrainHardware.rightBack.get()))
+      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Out")(drivetrainHardware.leftBack.rawVelocity)
+      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Out")(drivetrainHardware.rightBack.rawVelocity)
 
       board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.leftPosition.map(_.toFeet).toTimeSeriesNumeric("Left Ground"))
       board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rightPosition.map(_.toFeet).toTimeSeriesNumeric("Right Ground"))
@@ -391,6 +427,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 }
 
 object CoreRobot {
+
   implicit class ToTimeSeriesNumeric[T](val stream: Stream[T]) extends AnyVal {
     def toTimeSeriesNumeric(name: String)(implicit ev: T => Double): TimeSeriesNumeric = {
       var lastValue: Double = 0.0
@@ -401,4 +438,5 @@ object CoreRobot {
       }
     }
   }
+
 }

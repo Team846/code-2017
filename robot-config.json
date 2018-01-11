@@ -69,11 +69,11 @@
       "forwardPositionControlGains": {
         "kp": {
           "num": [
-            100,
+            17.5,
             "Percent$"
           ],
           "den": [
-            2,
+            1,
             "Feet$"
           ]
         },
@@ -101,7 +101,7 @@
       "turnPositionControlGains": {
         "kp": {
           "num": [
-            100,
+            60,
             "Percent$"
           ],
           "den": [
@@ -133,7 +133,7 @@
       "leftControlGains": {
         "kp": {
           "num": [
-            30,
+            60,
             "Percent$"
           ],
           "den": [
@@ -165,7 +165,7 @@
       "rightControlGains": {
         "kp": {
           "num": [
-            30,
+            60,
             "Percent$"
           ],
           "den": [
@@ -199,9 +199,10 @@
         "Percent$"
       ],
       "defaultLookAheadDistance": [
-        1,
+        2.5,
         "Feet$"
-      ]
+      ],
+      "blendExponent": 1
     }
   },
   "agitator": {

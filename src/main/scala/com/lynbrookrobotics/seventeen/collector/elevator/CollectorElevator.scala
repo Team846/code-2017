@@ -6,7 +6,7 @@ import squants.time.Milliseconds
 import squants.{Dimensionless, Percent}
 
 class CollectorElevator(val coreTicks: Stream[Unit])(implicit hardware: CollectorElevatorHardware)
-  extends Component[Dimensionless](Milliseconds(5)) {
+  extends Component[Dimensionless] {
   override def defaultController = coreTicks.mapToConstant(Percent(0))
 
   override def applySignal(signal: Dimensionless): Unit = {
