@@ -1,9 +1,11 @@
 package com.lynbrookrobotics.seventeen.drivetrain
 
 
+import java.io.{File, PrintWriter}
+
 import com.ctre.CANTalon
 import com.lynbrookrobotics.potassium.clock.Clock
-import com.lynbrookrobotics.potassium.commons.drivetrain.TwoSidedDriveHardware
+import com.lynbrookrobotics.potassium.commons.drivetrain.twoSided.TwoSidedDriveHardware
 import com.lynbrookrobotics.potassium.frc.Implicits._
 import com.lynbrookrobotics.potassium.frc.TalonEncoder
 import com.lynbrookrobotics.potassium.sensors.imu.{ADIS16448, DigitalGyro}
@@ -35,17 +37,22 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
   val wheelRadius = props.wheelDiameter / 2
   val track = props.track
 
-  val rootDataStream = Stream.periodic(period)(
-    DrivetrainData(
+  val encoderLogData = new PrintWriter(new File("left-encoder.csv"))
+  encoderLogData.println("encoder angle")
+  val rootDataStream = Stream.periodic(period) {
+    val leftEncoderPose = leftEncoder.getAngle
+    val ret = DrivetrainData(
       leftEncoder.getAngularVelocity,
       rightEncoder.getAngularVelocity,
 
-      leftEncoder.getAngle,
+      leftEncoderPose,
       rightEncoder.getAngle,
 
       gyro.getVelocities
     )
-  )
+    encoderLogData.println(s"${leftEncoderPose.toDegrees}")
+    ret
+  }
 
   override val leftVelocity: Stream[Velocity] = rootDataStream.map(_.leftEncoderVelocity).map(av =>
     wheelRadius * (av.toRadiansPerSecond * props.gearRatio) / Seconds(1))

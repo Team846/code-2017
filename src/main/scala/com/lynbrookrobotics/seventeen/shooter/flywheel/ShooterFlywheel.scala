@@ -1,6 +1,5 @@
 package com.lynbrookrobotics.seventeen.shooter.flywheel
 
-import com.lynbrookrobotics.potassium.commons.drivetrain.MathUtilities
 import com.lynbrookrobotics.potassium.commons.electronics.CurrentLimiting
 import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.{Component, Signal}

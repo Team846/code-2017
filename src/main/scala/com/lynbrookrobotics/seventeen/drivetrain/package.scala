@@ -1,13 +1,12 @@
 package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.potassium.commons.drivetrain._
+import com.lynbrookrobotics.potassium.commons.drivetrain.twoSided.{TwoSidedDrive, TwoSidedSignal}
 import com.lynbrookrobotics.potassium.commons.electronics.CurrentLimiting
-import com.lynbrookrobotics.potassium.frc.Implicits._
 import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.{Component, Signal}
 import squants.Each
 import squants.electro.Volts
-import squants.time.Milliseconds
 
 package object drivetrain extends TwoSidedDrive { self =>
   type Hardware = DrivetrainHardware
