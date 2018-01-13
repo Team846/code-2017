@@ -181,6 +181,13 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
   for {
     drivetrain <- drivetrain
+  } {
+    addAutonomousRoutine(1)(
+      generator.leftGearPurePursuitNoGear(drivetrain).toContinuous
+    )
+  }
+  for {
+    drivetrain <- drivetrain
     gearGrabber <- gearGrabber
     gearTilter <- gearTilter
   } {

@@ -2,6 +2,7 @@ package com.lynbrookrobotics.seventeen.drivetrain
 
 import com.lynbrookrobotics.potassium.commons.drivetrain._
 import com.lynbrookrobotics.potassium.commons.drivetrain.twoSided.TwoSidedDriveProperties
+import com.lynbrookrobotics.potassium.units.Ratio
 import squants.motion.{Acceleration, RadiansPerSecond, Velocity}
 import squants.space.Inches
 import squants.time.Seconds
@@ -16,7 +17,8 @@ case class DrivetrainProperties(maxLeftVelocity: Velocity, maxRightVelocity: Vel
                                 leftControlGains: ForwardVelocityGains,
                                 rightControlGains: ForwardVelocityGains,
                                 currentLimit: Dimensionless,
-                                defaultLookAheadDistance: Length) extends TwoSidedDriveProperties {
+                                defaultLookAheadDistance: Length,
+                                maxCurvature: Ratio[Dimensionless, Length]) extends TwoSidedDriveProperties {
   override val maxTurnVelocity = RadiansPerSecond((((maxLeftVelocity + maxRightVelocity) * Seconds(1)) / Inches(21.75)) / 2)
   override val blendExponent: Double = 0.5
 }
