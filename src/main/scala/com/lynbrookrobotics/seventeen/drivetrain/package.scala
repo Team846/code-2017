@@ -1,13 +1,12 @@
 package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.potassium.commons.drivetrain._
-import com.lynbrookrobotics.potassium.commons.drivetrain.twoSided.{TwoSidedDrive, TwoSidedSignal, TwoSidedVelocity}
-import com.lynbrookrobotics.potassium.commons.drivetrain.unicycle.UnicycleSignal
+import com.lynbrookrobotics.potassium.commons.drivetrain.twoSided.{BlendedDriving, TwoSidedDrive, TwoSidedSignal, TwoSidedVelocity}
 import com.lynbrookrobotics.potassium.commons.electronics.CurrentLimiting
 import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.{Component, Signal}
+import squants.Each
 import squants.electro.Volts
-import squants.{Each, Percent}
 
 package object drivetrain extends TwoSidedDrive { self =>
   type Hardware = DrivetrainHardware
@@ -40,7 +39,16 @@ package object drivetrain extends TwoSidedDrive { self =>
   override def velocityControl(target: Stream[TwoSidedVelocity])
                               (implicit hardware: DrivetrainHardware,
                                props: Signal[DrivetrainProperties]): Stream[TwoSidedSignal] = {
-    super.velocityControl(target)
+    val curvature = hardware.driverHardware.joystickStream.map {
+      props.get.maxCurvature * _.driverWheel.x.toEach
+    }
+    val targetForwardSpeed = target.map(v => (v.left + v.right) / 2)
+
+    val blendedTargetSpeeds = BlendedDriving.blendedDrive(
+      tankSpeed = target,
+      targetForwardVelocity = targetForwardSpeed,
+      curvature)
+    velocityControl(blendedTargetSpeeds)
   }
 
   class Drivetrain(implicit hardware: Hardware,
@@ -62,31 +70,16 @@ package object drivetrain extends TwoSidedDrive { self =>
     }
 
 
-
-    override def defaultController: Stream[TwoSidedSignal] = {
-      controlMode(hardware, props.get) match {
-        case NoOperation =>
-          UnicycleControllers.parentOpenLoop(hardware.forwardPosition.mapToConstant(UnicycleSignal(Percent(0), Percent(0))))
-
-        case ArcadeControlsOpen(forward, turn) =>
-          val combinedSignal = forward.zip(turn).map(t => UnicycleSignal(t._1, t._2))
-          UnicycleControllers.parentOpenLoop(combinedSignal)
-
-        case ArcadeControlsClosed(forward, turn) =>
-          val combinedSignal = forward.zip(turn).map(t => UnicycleSignal(t._1, t._2))
-          val curvature = hardware.driverHardware.joystickStream.map {
-            props.get.maxCurvature * _.driverWheel.x.toEach
-          }
-
-          blendedVelocityControl(combinedSignal, curvature)
-      }
-    }
+    override def defaultController: Stream[TwoSidedSignal] = self.defaultController
 
     val normalDrivetrainVoltage = Volts(12)
 
     override def applySignal(signal: TwoSidedSignal): Unit = {
-      val compFactor = normalDrivetrainVoltage / Volts(hardware.driverHardware.station.getBatteryVoltage)
-      output(hardware, TwoSidedSignal(signal.left * compFactor, signal.right * compFactor))
+      val currentVoltage = Volts(hardware.driverHardware.station.getBatteryVoltage)
+      val compFactor = normalDrivetrainVoltage / currentVoltage
+      output(
+        hardware,
+        TwoSidedSignal(signal.left * compFactor, signal.right * compFactor))
     }
   }
 }
