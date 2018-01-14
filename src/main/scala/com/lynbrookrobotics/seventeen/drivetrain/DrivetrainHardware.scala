@@ -35,7 +35,7 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
   val wheelRadius = props.wheelDiameter / 2
   val track = props.track
 
-  val rootDataStream = Stream.periodic(period)(
+  val rootDataStream = Stream.periodic(period) {
     DrivetrainData(
       leftEncoder.getAngularVelocity,
       rightEncoder.getAngularVelocity,
@@ -45,7 +45,7 @@ case class DrivetrainHardware(leftBack: CANTalon, leftFront: CANTalon,
 
       gyro.getVelocities
     )
-  )
+  }
 
   override val leftVelocity: Stream[Velocity] = rootDataStream.map(_.leftEncoderVelocity).map(av =>
     wheelRadius * (av.toRadiansPerSecond * props.gearRatio) / Seconds(1))
