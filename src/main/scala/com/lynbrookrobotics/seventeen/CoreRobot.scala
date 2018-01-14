@@ -31,38 +31,46 @@ import scala.util.Try
 class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit, val coreTicks: Stream[Unit])
                (implicit val config: Signal[RobotConfig], hardware: RobotHardware,
                 val clock: Clock, val polling: ImpulseEvent) {
+  println("starting core robot")
   implicit val driverHardware = hardware.driver
+  println("line 36")
   private val ds = driverHardware.station
 
+  println("line 39")
   // Drivetrain
   implicit val drivetrainHardware = hardware.drivetrain
   implicit val drivetrainProps = config.map(_.drivetrain.properties)
   val drivetrain: Option[Drivetrain] =
     if (config.get.drivetrain != null) Some(new Drivetrain) else None
 
+  println("line 46")
   // Agitator
   implicit val agitatorHardware = hardware.agitator
   implicit val agitatorProps = config.map(_.agitator.properties)
   val agitator: Option[Agitator] =
     if (config.get.agitator != null) Some(new Agitator(coreTicks)) else None
 
+  println("line 53")
   // CamSelect
   implicit val camSelectHardware = hardware.camSelect
   implicit val camselectProps = config.map(_.camSelect.properties)
   implicit val camSelect: CamSelect = new CamSelect(coreTicks)
 
+  println("line 59")
   // Climber Puller
   implicit val climberPullerHardware = hardware.climberPuller
   implicit val climberPullerProps = config.map(_.climberPuller.props)
   val climberPuller: Option[ClimberPuller] =
     if (config.get.climberPuller != null) Some(new ClimberPuller(coreTicks)) else None
 
+  println("line 66")
   // Collector Elevator
   implicit val collectorElevatorHardware = hardware.collectorElevator
   implicit val collectorElevatorProps = config.map(_.collectorElevator.properties)
   val collectorElevator: Option[CollectorElevator] =
     if (config.get.collectorElevator != null) Some(new CollectorElevator(coreTicks)) else None
 
+  println("collector Extender")
   // Collector Extender
   implicit val collectorExtenderHardware = hardware.collectorExtender
   val collectorExtender: Option[CollectorExtender] =
@@ -70,12 +78,14 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
       Some(new CollectorExtender(coreTicks, gearTilter))
     } else */None
 
+  println("collector rollers")
   // Collector Rollers
   implicit val collectorRollersHardware = hardware.collectorRollers
   implicit val collectorRollersProps = config.map(_.collectorRollers.properties)
   val collectorRollers: Option[CollectorRollers] =
     if (config.get.collectorRollers != null) Some(new CollectorRollers(coreTicks)) else None
 
+  println("gear grabber hardware")
   // Gear Grabber
   implicit val gearGrabberHardware = hardware.gearGrabber
   implicit val gearGrabberProps = config.map(_.gearGrabber.props)
@@ -84,6 +94,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     /*if (config.get.gearGrabber != null) Some(new GearGrabber(coreTicks)) else */None
   }
 
+  println("tilter")
   // Gear Tilter
   implicit val gearTilterHardware = hardware.gearTilter
   val gearTilter: Option[GearTilter] =
@@ -91,6 +102,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
       Some(new GearTilter(coreTicks, gearGrabber, collectorExtender))
     } else None
 
+  println("flywheel")
   // Shooter Flywheel
   implicit val shooterFlywheelHardware = hardware.shooterFlywheel
   implicit val shooterFlywheelProps = config.map(_.shooterFlywheel.props)
@@ -169,6 +181,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
   private var autonomousRoutines = mutable.Map.empty[Int, ContinuousTask]
 
+  println("add auto")
   def addAutonomousRoutine(id: Int)(task: ContinuousTask): Unit = {
     if (autonomousRoutines.contains(id)) {
       println(s"WARNING, overriding autonomous routine $id")
