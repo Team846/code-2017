@@ -111,7 +111,7 @@ class AutoGenerator(r: CoreRobot) {
       relativeTurn,
       drivetrainHardware.forwardPosition
     )
-    new FollowWayPointsWithPosition(
+    new FollowWayPoints(
       Seq(
         Point.origin,
         Point(
@@ -123,9 +123,8 @@ class AutoGenerator(r: CoreRobot) {
           Inches(90.5) + Inches(19.75) * math.sin(57.61)
         )
       ),
-      tolerance = Inches(3),
-      position = xyPosition,
-      turnPosition = relativeTurn,
+      tolerance = Inches(6),
+      targetTicksWithTolerance = 100,
       steadyOutput = Percent(50),
       maxTurnOutput = Percent(50)
     )(drivetrain)
