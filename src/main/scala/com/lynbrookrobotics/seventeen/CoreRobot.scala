@@ -331,33 +331,33 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     ))
 
     drivetrain.foreach { d =>
-      board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.leftVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Left Ground Velocity"))
-      board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.rightVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Right Ground Velocity"))
+      board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.leftVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Left Ground Velocity")("Feet Per Second"))
+      board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.rightVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Right Ground Velocity")("Feet Per Second"))
 
       board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Encoder Ticks/s")(drivetrainHardware.leftBack.getSpeed * 10))
       board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Encoder Ticks/s")(drivetrainHardware.rightBack.getSpeed * 10))
       board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Out")(drivetrainHardware.leftBack.get()))
       board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Out")(drivetrainHardware.rightBack.get()))
 
-      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.leftPosition.map(_.toFeet).toTimeSeriesNumeric("Left Ground"))
-      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rightPosition.map(_.toFeet).toTimeSeriesNumeric("Right Ground"))
+      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.leftPosition.map(_.toFeet).toTimeSeriesNumeric("Left Ground")("Feet"))
+      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rightPosition.map(_.toFeet).toTimeSeriesNumeric("Right Ground")("Feet"))
 
       board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rootDataStream
-        .map(d => (d.leftEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Left Wheel Rotation"))
+        .map(d => (d.leftEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Left Wheel Rotation")("Degrees"))
 
       board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rootDataStream
-        .map(d => (d.rightEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Right Wheel Rotation"))
+        .map(d => (d.rightEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Right Wheel Rotation")("Degrees"))
 
-      board.datasetGroup("Drivetrain/Gyro").addDataset(drivetrainHardware.turnVelocity.map(_.toDegreesPerSecond).toTimeSeriesNumeric("Turn Velocity"))
-      board.datasetGroup("Drivetrain/Gyro").addDataset(drivetrainHardware.turnPosition.map(_.toDegrees).toTimeSeriesNumeric("Rotational Position"))
+      board.datasetGroup("Drivetrain/Gyro").addDataset(drivetrainHardware.turnVelocity.map(_.toDegreesPerSecond).toTimeSeriesNumeric("Turn Velocity")("Degrees Per Second"))
+      board.datasetGroup("Drivetrain/Gyro").addDataset(drivetrainHardware.turnPosition.map(_.toDegrees).toTimeSeriesNumeric("Rotational Position")("Degrees Per Second"))
     }
 
     shooterFlywheel.foreach { d =>
       board.datasetGroup("Flywheel").addDataset(
-        shooterFlywheelHardware.leftVelocity.map(_.toRevolutionsPerMinute).toTimeSeriesNumeric("Left Speed"))
+        shooterFlywheelHardware.leftVelocity.map(_.toRevolutionsPerMinute).toTimeSeriesNumeric("Left Speed")("Revolutions Per Minute"))
 
       board.datasetGroup("Flywheel").addDataset(
-        shooterFlywheelHardware.rightVelocity.map(_.toRevolutionsPerMinute).toTimeSeriesNumeric("Right Speed"))
+        shooterFlywheelHardware.rightVelocity.map(_.toRevolutionsPerMinute).toTimeSeriesNumeric("Right Speed")("Revolutions Per Minute"))
 
       board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Left Out")(
         shooterFlywheelHardware.leftMotor.get()
@@ -369,7 +369,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
       board.datasetGroup("Flywheel").addDataset(
         shooterFlywheelHardware.rightVelocity.zip(shooterFlywheelHardware.leftVelocity)
-          .map(t => (t._1 - t._2).toRevolutionsPerMinute).toTimeSeriesNumeric("Right - Left"))
+          .map(t => (t._1 - t._2).toRevolutionsPerMinute).toTimeSeriesNumeric("Right - Left")("Revolutions Per Minute"))
     }
 
     climberPuller.foreach { c =>
@@ -392,9 +392,9 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
 object CoreRobot {
   implicit class ToTimeSeriesNumeric[T](val stream: Stream[T]) extends AnyVal {
-    def toTimeSeriesNumeric(name: String)(implicit ev: T => Double): TimeSeriesNumeric = {
+    def toTimeSeriesNumeric(name: String)(whatUnits: String)(implicit ev: T => Double): TimeSeriesNumeric = {
       var lastValue: Double = 0.0
-      new TimeSeriesNumeric(name)(lastValue) {
+      new TimeSeriesNumeric(name)(whatUnits)(lastValue) {
         val cancel = stream.foreach { v =>
           lastValue = v
         }
