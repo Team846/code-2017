@@ -15,7 +15,7 @@ package object drivetrain extends TwoSidedDrive { self =>
 
   override protected def output(hardware: DrivetrainHardware,
                                 signal: TwoSidedSignal): Unit = {
-    println(s"output ${signal}")
+//    println(s"output ${signal}")
     hardware.leftBack.set(signal.left.toEach)
     hardware.leftFront.set(signal.left.toEach)
     hardware.rightBack.set(-signal.right.toEach)
@@ -40,21 +40,21 @@ package object drivetrain extends TwoSidedDrive { self =>
   override def velocityControl(target: Stream[TwoSidedVelocity])
                               (implicit hardware: DrivetrainHardware,
                                props: Signal[DrivetrainProperties]): Stream[TwoSidedSignal] = {
-    val curvature = hardware.driverHardware.joystickStream.map { d =>
-      val ret = props.get.maxCurvature * d.driverWheel.x.toEach
-      println(s"curvature: $ret")
-      ret
-    }
-    val targetForwardSpeed = target.map { v =>
-      println(s"v ${v}")
-      (v.left + v.right) / 2
-    }
-
-    val blendedTargetSpeeds = BlendedDriving.blendedDrive(
-      tankSpeed = target,
-      targetForwardVelocity = targetForwardSpeed,
-      curvature)
-    super.velocityControl(blendedTargetSpeeds)
+//    val curvature = hardware.driverHardware.joystickStream.map { d =>
+//      val ret = props.get.maxCurvature * d.driverWheel.x.toEach
+////      println(s"curvature: $ret")
+//      ret
+//    }
+//    val targetForwardSpeed = target.map { v =>
+////      println(s"v ${v}")
+//      (v.left + v.right) / 2
+//    }
+//
+//    val blendedTargetSpeeds = BlendedDriving.blendedDrive(
+//      tankSpeed = target,
+//      targetForwardVelocity = targetForwardSpeed,
+//      curvature)
+    super.velocityControl(target/*blendedTargetSpeeds*/)
   }
 
   class Drivetrain(implicit hardware: Hardware,

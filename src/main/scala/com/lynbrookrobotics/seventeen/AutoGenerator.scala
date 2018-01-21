@@ -102,7 +102,7 @@ class AutoGenerator(r: CoreRobot) {
     )
   }
 
-  def leftGearPurePursuitNoGear(drivetrain: Drivetrain): FiniteTask = {
+  def centerSwitch(drivetrain: Drivetrain): FiniteTask = {
     val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
       curr - init
     })
@@ -114,18 +114,54 @@ class AutoGenerator(r: CoreRobot) {
     new FollowWayPoints(
       Seq(
         Point.origin,
-        Point(
-          Inches(0),
-          Inches(90.5)
+//        Point( // go forward 12 inches
+//          Inches(0),
+//          Inches(6.6)
+//        ),
+        Point( // turn 45 degrees counterclockwise and move 65.1" forward
+          Inches(-55.393),
+          Inches(111.993)
         ),
-        Point(
-          Inches(19.75) * math.sin(57.61),
-          Inches(90.5) + Inches(19.75) * math.sin(57.61)
+        Point( // turn 45 degrees clockwise and move 32" forward
+          Inches(-55.393),
+          Inches(143.993)
         )
       ),
       tolerance = Inches(6),
-      targetTicksWithTolerance = 100,
-      steadyOutput = Percent(50),
+      10,
+      steadyOutput = Percent(40),
+      maxTurnOutput = Percent(50)
+    )(drivetrain)
+  }
+
+  def sameSideScaleAuto(drivetrain: Drivetrain): FiniteTask = {
+    val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
+      curr - init
+    })
+
+    val xyPosition = XYPosition(
+      relativeTurn,
+      drivetrainHardware.forwardPosition
+    )
+    new FollowWayPoints(
+      Seq(
+        Point.origin,
+        Point( // turn 45 degrees counterclockwise and move 65.1" forward
+          Inches(0),
+          Inches(200) - Feet(5)
+        ),
+        Point(
+          Inches(50) - Inches(20),
+          Inches(200)
+        ),
+        Point( // turn 45 degrees clockwise and move 32" forward
+          Inches(50),
+          Inches(200)
+        )
+      ),
+      tolerance = Inches(6),
+      10,
+      steadyOutput = Percent(40),
       maxTurnOutput = Percent(50)
     )(drivetrain)
   }

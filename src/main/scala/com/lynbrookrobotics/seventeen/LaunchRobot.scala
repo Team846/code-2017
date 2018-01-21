@@ -95,7 +95,7 @@ class LaunchRobot extends RobotBase {
 
     while (true) {
       ds.waitForData()
-      eventPollingSource.fire()
+        eventPollingSource.fire()
       coreRobot.driverHardware.driverStationUpdate.apply()
     }
   }
