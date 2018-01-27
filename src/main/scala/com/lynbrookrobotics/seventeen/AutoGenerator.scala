@@ -111,13 +111,94 @@ class AutoGenerator(r: CoreRobot) {
       relativeTurn,
       drivetrainHardware.forwardPosition
     )
+
+    val tolerance = Inches(6),
+    val targetTicksWithingTolerance = 10,
+    val steadyOutput = Percent(40),
+    val maxTurnOutput = Percent(50)
     new FollowWayPoints(
       Seq(
         Point.origin,
-//        Point( // go forward 12 inches
-//          Inches(0),
-//          Inches(6.6)
-//        ),
+        Point(
+          Inches(-55.393),
+          Inches(111.993)
+        ),
+        Point(
+          Inches(-55.393),
+          Inches(143.993)
+        )
+      ),
+      tolerance,
+      targetTicksWithingTolerance,
+      steadyOutput,
+      maxTurnOutput
+    )(drivetrain)
+
+    new FollowWayPoints(
+      Seq(
+        Point.origin,
+        Point(
+          Inches(0),
+          Inches(-18)
+        ),
+        Point(
+          Inches(-30),
+          Inches(-18)
+        ),
+        Point(
+          Inches(-30),
+          Inches(82)
+        )
+      ),
+      tolerance,
+      targetTicksWithingTolerance,
+      steadyOutput,
+      maxTurnOutput
+    )
+    new FollowWayPoints(
+      Seq(
+        Point.origin,
+        Point(
+          Inches(20.553),
+          Inches(-14.165)
+        )
+      ),
+      tolerance,
+      targetTicksWithingTolerance,
+      steadyOutput,
+      maxTurnOutput
+    )
+    new FollowWayPoints(
+      Seq(
+        Point.origin,
+        Point(
+          Inches(-9.235),
+          Inches(91.119)
+        )
+      ),
+      tolerance,
+      targetTicksWithingTolerance,
+      steadyOutput,
+      maxTurnOutput
+    )
+  }
+
+  def twoCubeAuto(drivetrain: Drivetrain): FiniteTask = {
+    val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
+      curr - init
+    })
+
+    val xyPosition = XYPosition(
+      relativeTurn,
+      drivetrainHardware.forwardPosition
+    )
+    new FollowWayPoints(
+      Seq(
+        Point.origin,
+        //        Point( // go forward 12 inches
+        //          Inches(0),
+        //          Inches(6.6)
+        //        ),
         Point( // turn 45 degrees counterclockwise and move 65.1" forward
           Inches(-55.393),
           Inches(111.993)
