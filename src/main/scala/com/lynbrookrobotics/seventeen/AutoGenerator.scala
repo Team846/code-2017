@@ -102,38 +102,7 @@ class AutoGenerator(r: CoreRobot) {
     )
   }
 
-  def centerSwitch(drivetrain: Drivetrain): FiniteTask = {
-    val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
-      curr - init
-    })
-
-    val xyPosition = XYPosition(
-      relativeTurn,
-      drivetrainHardware.forwardPosition
-    )
-
-    val tolerance = Inches(6),
-    val targetTicksWithingTolerance = 10,
-    val steadyOutput = Percent(40),
-    val maxTurnOutput = Percent(50)
-    new FollowWayPoints(
-      Seq(
-        Point.origin,
-        Point(
-          Inches(-55.393),
-          Inches(111.993)
-        ),
-        Point(
-          Inches(-55.393),
-          Inches(143.993)
-        )
-      ),
-      tolerance,
-      targetTicksWithingTolerance,
-      steadyOutput,
-      maxTurnOutput
-    )(drivetrain)
-
+  def postSwitchDelivery(drivetrain: Drivetrain): FiniteTask = {
     new FollowWayPoints(
       Seq(
         Point.origin,
@@ -150,12 +119,10 @@ class AutoGenerator(r: CoreRobot) {
           Inches(82)
         )
       ),
-      tolerance,
-      targetTicksWithingTolerance,
-      steadyOutput,
-      maxTurnOutput
-    )
-    new FollowWayPoints(
+      tolerance = Inches(6),
+      targetTicksWithingTolerance = 10,
+      maxTurnOutput = Percent(50)
+    ).then(new FollowWayPoints(
       Seq(
         Point.origin,
         Point(
@@ -163,12 +130,10 @@ class AutoGenerator(r: CoreRobot) {
           Inches(-14.165)
         )
       ),
-      tolerance,
-      targetTicksWithingTolerance,
-      steadyOutput,
-      maxTurnOutput
-    )
-    new FollowWayPoints(
+      tolerance = Inches(6),
+      targetTicksWithingTolerance = 10,
+      maxTurnOutput = Percent(50)
+    )).then(new FollowWayPoints(
       Seq(
         Point.origin,
         Point(
@@ -176,11 +141,29 @@ class AutoGenerator(r: CoreRobot) {
           Inches(91.119)
         )
       ),
-      tolerance,
-      targetTicksWithingTolerance,
-      steadyOutput,
-      maxTurnOutput
-    )
+      tolerance = Inches(6),
+      targetTicksWithingTolerance = 10,
+      maxTurnOutput = Percent(50)
+    ))
+  }
+
+  def centerSwitch(drivetrain: Drivetrain): FiniteTask = {
+    new FollowWayPoints(
+      Seq(
+        Point.origin,
+        Point(
+          Inches(-55.393),
+          Inches(111.993)
+        ),
+        Point(
+          Inches(-55.393),
+          Inches(143.993)
+        )
+      ),
+      tolerance = Inches(6),
+      targetTicksWithingTolerance = 10,
+      maxTurnOutput = Percent(50)
+    )(drivetrain).then(postSwitchDelivery(drivetrain))
   }
 
   def twoCubeAuto(drivetrain: Drivetrain): FiniteTask = {
@@ -210,20 +193,11 @@ class AutoGenerator(r: CoreRobot) {
       ),
       tolerance = Inches(6),
       10,
-      steadyOutput = Percent(40),
       maxTurnOutput = Percent(50)
     )(drivetrain)
   }
 
   def sameSideScaleAuto(drivetrain: Drivetrain): FiniteTask = {
-    val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
-      curr - init
-    })
-
-    val xyPosition = XYPosition(
-      relativeTurn,
-      drivetrainHardware.forwardPosition
-    )
     new FollowWayPoints(
       Seq(
         Point.origin,
@@ -242,7 +216,6 @@ class AutoGenerator(r: CoreRobot) {
       ),
       tolerance = Inches(6),
       10,
-      steadyOutput = Percent(40),
       maxTurnOutput = Percent(50)
     )(drivetrain)
   }
