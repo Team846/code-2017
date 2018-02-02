@@ -33,6 +33,6 @@ libraryDependencies += "edu.wpi.first" % "cscore" % Versions.wpiVersion
 libraryDependencies += "edu.wpi.first" % "ntcore" % Versions.wpiVersion
 libraryDependencies += "edu.wpi.first" % "wpiutil" % Versions.wpiVersion
 libraryDependencies += "com.ctre" % "phoenix" % "5.1.3.1"
-libraryDependencies += "org.opencv" % "opencv-java" % "3.2.0"
+libraryDependencies += "org.opencv" % "opencv-java" % "3.1.0"
 
 libraryDependencies += "com.google.guava" % "guava" % "21.0"

@@ -1,6 +1,6 @@
 package com.lynbrookrobotics.seventeen.climber.puller
 
-import com.ctre.CANTalon
+import com.ctre.phoenix.motorcontrol.{ControlMode, NeutralMode}
 import com.lynbrookrobotics.potassium.Component
 import com.lynbrookrobotics.potassium.commons.electronics.CurrentLimiting
 import com.lynbrookrobotics.potassium.streams.Stream
@@ -20,17 +20,13 @@ class ClimberPuller(val coreTicks: Stream[Unit])(implicit hardware: ClimberPulle
   override def applySignal(signal: ClimberControlMode): Unit = {
     signal match {
       case CurrentMode(current) =>
-        hardware.motorA.changeControlMode(CANTalon.TalonControlMode.Current)
-        hardware.motorB.changeControlMode(CANTalon.TalonControlMode.Current)
-        hardware.motorA.set(current.toAmperes)
-        hardware.motorB.set(current.toAmperes)
+        hardware.motorA.set(ControlMode.Current, current.toAmperes)
+        hardware.motorB.set(ControlMode.Current, current.toAmperes)
       case PWMMode(value) =>
-        hardware.motorA.changeControlMode(CANTalon.TalonControlMode.PercentVbus)
-        hardware.motorB.changeControlMode(CANTalon.TalonControlMode.PercentVbus)
-        hardware.motorA.enableBrakeMode(false)
-        hardware.motorB.enableBrakeMode(false)
-        hardware.motorA.set(value.toEach)
-        hardware.motorB.set(value.toEach)
+        hardware.motorA.setNeutralMode(NeutralMode.Brake)
+        hardware.motorB.setNeutralMode(NeutralMode.Brake)
+        hardware.motorA.set(ControlMode.PercentOutput, value.toEach)
+        hardware.motorB.set(ControlMode.PercentOutput, value.toEach)
     }
   }
 

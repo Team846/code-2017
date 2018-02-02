@@ -5,7 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.commons.drivetrain.twoSided.TwoSidedDriveHardware
 import com.lynbrookrobotics.potassium.frc.Implicits._
-import com.lynbrookrobotics.potassium.frc.{TalonController, TalonEncoder}
+import com.lynbrookrobotics.potassium.frc.{LazyTalon, TalonEncoder}
 import com.lynbrookrobotics.potassium.sensors.imu.{ADIS16448, DigitalGyro}
 import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.units._
@@ -22,15 +22,15 @@ case class DrivetrainData(leftEncoderVelocity: AngularVelocity,
                           rightEncoderRotation: Angle,
                           gyroVelocities: Value3D[AngularVelocity])
 
-case class DrivetrainHardware(leftBack: TalonController, leftFront: TalonController,
-                              rightBack: TalonController, rightFront: TalonController,
+case class DrivetrainHardware(leftBack: LazyTalon, leftFront: LazyTalon,
+                              rightBack: LazyTalon, rightFront: LazyTalon,
                               gyro: DigitalGyro,
                               props: DrivetrainProperties,
                               driverHardware: DriverHardware,
                               period: Time)(implicit clock: Clock)
   extends TwoSidedDriveHardware {
-  val leftEncoder = new TalonEncoder(leftBack, Degrees(360) / Each(8192))
-  val rightEncoder = new TalonEncoder(rightBack, -Degrees(360) / Each(8192))
+  val leftEncoder = new TalonEncoder(leftBack.t, Degrees(360) / Each(8192))
+  val rightEncoder = new TalonEncoder(rightBack.t, -Degrees(360) / Each(8192))
 
   val wheelRadius: Length = props.wheelDiameter / 2
   val track: Length = props.track
@@ -64,10 +64,10 @@ case class DrivetrainHardware(leftBack: TalonController, leftFront: TalonControl
 object DrivetrainHardware {
   def apply(config: DrivetrainConfig, driverHardware: DriverHardware)(implicit clock: Clock): DrivetrainHardware = {
     DrivetrainHardware(
-      new TalonController(config.ports.leftBack),
-      new TalonController(config.ports.leftFront),
-      new TalonController(config.ports.rightBack),
-      new TalonController(config.ports.rightFront),
+      new TalonSRX(config.ports.leftBack),
+      new TalonSRX(config.ports.leftFront),
+      new TalonSRX(config.ports.rightBack),
+      new TalonSRX(config.ports.rightFront),
       new ADIS16448(new SPI(SPI.Port.kMXP), null),
       config.properties,
       driverHardware,

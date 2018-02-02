@@ -8,7 +8,11 @@ import squants.Dimensionless
 case class JoystickState(x: Dimensionless, y: Dimensionless)
 case class JoystickValues(driver: JoystickState, driverWheel: JoystickState, operator: JoystickState)
 
-case class DriverHardware(driverJoystick: Joystick, operatorJoystick: Joystick, driverWheel: Joystick, launchpad: Joystick, station: DriverStation) {
+case class DriverHardware(driverJoystick: Joystick,
+                          operatorJoystick: Joystick,
+                          driverWheel: Joystick,
+                          launchpad: Joystick,
+                          station: DriverStation) {
   val (driverStationTicks, driverStationUpdate) = Stream.manual[Unit]
   val joystickStream = driverStationTicks.map { _ =>
     JoystickValues(
@@ -17,6 +21,8 @@ case class DriverHardware(driverJoystick: Joystick, operatorJoystick: Joystick, 
       operator = JoystickState(operatorJoystick.x, operatorJoystick.y)
     )
   }
+  val enabledState = driverStationTicks.map(_ => station.isEnabled)
+  val autonomousState = driverStationTicks.map(_ => station.isAutonomous)
 }
 
 object DriverHardware {

@@ -23,8 +23,6 @@ import squants.time.{RevolutionsPerMinute, Seconds}
 import squants.{Each, Percent}
 import upickle.default._
 
-import com.lynbrookrobotics.potassium.config.SquantsPickling._
-
 object ConfigGenerator extends App {
   val config = RobotConfig(
     driver = DriverConfig(
@@ -47,34 +45,35 @@ object ConfigGenerator extends App {
         wheelDiameter = Inches(0),
         track = Inches(0),
         gearRatio = 0,
-        turnControlGains = PIDConfig(
+        turnVelocityGains = PIDConfig(
           Percent(0) / DegreesPerSecond(1),
           Percent(0) / Degrees(1),
           Percent(0) / (DegreesPerSecond(1).toGeneric / Seconds(1))
         ),
-        forwardPositionControlGains = PIDConfig(
+        forwardPositionGains = PIDConfig(
           Percent(0) / Feet(3.5),
           Percent(0) / (Feet(1).toGeneric * Seconds(1)),
           Percent(0) / FeetPerSecond(1)
         ),
-        turnPositionControlGains = PIDConfig(
+        turnPositionGains = PIDConfig(
           Percent(0) / Degrees(90),
           Percent(0) / (Degrees(1).toGeneric * Seconds(1)),
           Percent(0) / DegreesPerSecond(1)
         ),
-        leftControlGains = PIDConfig(
+        leftVelocityGains = PIDConfig(
           Percent(0) / FeetPerSecond(5),
           Percent(0) / Meters(1),
           Percent(0) / MetersPerSecondSquared(1)
         ),
-        rightControlGains = PIDConfig(
+        rightVelocityGains = PIDConfig(
           Percent(0) / FeetPerSecond(5),
           Percent(0) / Meters(1),
           Percent(0) / MetersPerSecondSquared(1)
         ),
         currentLimit = Percent(0),
         defaultLookAheadDistance = Feet(0.5),
-        blendExponent = 1
+        blendExponent = 1,
+        robotLength = Feet(0)
       )
     ),
     agitator = AgitatorConfig(

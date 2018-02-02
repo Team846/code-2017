@@ -29,7 +29,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.Try
 
-class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Unit, val coreTicks: Stream[Unit])
+class CoreRobot(configFileValue: Signal[String],
+                updateConfigFile: String => Unit,
+                val coreTicks: Stream[Unit])
                (implicit val config: Signal[RobotConfig], hardware: RobotHardware,
                 val clock: Clock, val polling: ImpulseEvent) {
   println("starting core robot")
@@ -128,7 +130,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     */
   val lightingStatus: () => Int = () => {
     val gearState = gearGrabber.isDefined && gearGrabberHardware.proximitySensor.getVoltage > gearGrabberProps.get.detectingDistance.value
-    if (climberPuller.isDefined && climberPullerHardware.motorA.get() > 0) {
+    if (climberPuller.isDefined && climberPullerHardware.motorA.getMotorOutputPercent > 0) {
       9
     }
     else if (gearState) {
@@ -172,7 +174,14 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
 
   private val mappings = new ButtonMappings(this)
 
-  private val inAutonomous = Signal(ds.isEnabled && ds.isAutonomous).filter(identity)
+  private val inAutonomous = driverHardware.enabledState.zip(driverHardware.autonomousState).map {
+    case (isEnabled, isAutonomous) => isEnabled && isAutonomous
+  }
+
+  private val isEnabled = driverHardware.enabledState.eventWhen(identity)
+  private val isAutonomous = driverHardware.autonomousState.eventWhen(identity)
+
+  private val isAutonomousEnabled = isEnabled && isAutonomous
 
   val generator = new AutoGenerator(this)
 
@@ -266,55 +275,55 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   //    )
   //  }
 
-  //  for {
-  //    drivetrain <- drivetrain
-  //    collectorElevator <- collectorElevator
-  //    collectorRollers <- collectorRollers
-  //    agitator <- agitator
-  //    shooterFlywheel <- shooterFlywheel
-  //    shooterShifter <- shooterShifter
-  //    collectorExtender <- collectorExtender
-  //    loadTray <- loadTray
-  //  } {
-  //    addAutonomousRoutine(6)(
-  //      generator.leftHopperAndShoot(
-  //        drivetrain,
-  //        collectorElevator, collectorRollers, agitator,
-  //        shooterFlywheel, shooterShifter, collectorExtender, loadTray
-  //      )
-  //    )
-  //
-  //    addAutonomousRoutine(7)(
-  //      generator.rightHopperAndShoot(
-  //        drivetrain,
-  //        collectorElevator, collectorRollers, agitator,
-  //        shooterFlywheel, shooterShifter, collectorExtender, loadTray
-  //      )
-  //    )
-  //
-  //    addAutonomousRoutine(10)(
-  //      generator.shootLeftAndDriveBack(
-  //        drivetrain,
-  //        collectorElevator, collectorRollers, agitator,
-  //        shooterFlywheel, shooterShifter, collectorExtender, loadTray
-  //      ).toContinuous
-  //    )
-  //  }
+    for {
+      drivetrain <- drivetrain
+      collectorElevator <- collectorElevator
+      collectorRollers <- collectorRollers
+      agitator <- agitator
+      shooterFlywheel <- shooterFlywheel
+      shooterShifter <- shooterShifter
+      collectorExtender <- collectorExtender
+      loadTray <- loadTray
+    } {
+      addAutonomousRoutine(6)(
+        generator.leftHopperAndShoot(
+          drivetrain,
+          collectorElevator, collectorRollers, agitator,
+          shooterFlywheel, shooterShifter, collectorExtender, loadTray
+        )
+      )
 
-  //  for {
-  //    drivetrain <- drivetrain
-  //  } {
-  //    addAutonomousRoutine(8)(
-  //      generator.slowCrossLine(drivetrain).toContinuous
-  //    )
-  //
-  //    addAutonomousRoutine(9)(
-  //      generator.smallTestShot(drivetrain)
-  //    )
-  //  }
+      addAutonomousRoutine(7)(
+        generator.rightHopperAndShoot(
+          drivetrain,
+          collectorElevator, collectorRollers, agitator,
+          shooterFlywheel, shooterShifter, collectorExtender, loadTray
+        )
+      )
 
-  inAutonomous.foreach(Signal {
-    val autoID = Math.round(SmartDashboard.getNumber("DB/Slider 0")).toInt
+      addAutonomousRoutine(10)(
+        generator.shootLeftAndDriveBack(
+          drivetrain,
+          collectorElevator, collectorRollers, agitator,
+          shooterFlywheel, shooterShifter, collectorExtender, loadTray
+        ).toContinuous
+      )
+    }
+
+    for {
+      drivetrain <- drivetrain
+    } {
+      addAutonomousRoutine(8)(
+        generator.slowCrossLine(drivetrain).toContinuous
+      )
+
+      addAutonomousRoutine(9)(
+        generator.smallTestShot(drivetrain)
+      )
+    }
+
+  isAutonomousEnabled.foreach(Signal {
+    val autoID = Math.round(SmartDashboard.getNumber("DB/Slider 0", 0)).toInt
 
     autonomousRoutines.getOrElse(autoID, {
       println(s"ERROR: autonomous routine $autoID not found")
@@ -323,8 +332,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
   })
 
   // Needs to go last because component resets have highest priority
-  private val enabled = Signal(ds.isEnabled).filter(identity)
-  enabled.onStart.foreach { () =>
+  isEnabled.onStart.foreach { () =>
     if (drivetrain.isDefined) {
       drivetrainHardware.gyro.endCalibration()
     }
@@ -332,7 +340,7 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
     components.foreach(_.resetToDefault())
   }
 
-  enabled.onEnd.foreach { () =>
+  isEnabled.onEnd.foreach { () =>
     components.foreach(_.resetToDefault())
   }
 
@@ -370,10 +378,10 @@ class CoreRobot(configFileValue: Signal[String], updateConfigFile: String => Uni
       board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.leftVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Left Ground Velocity"))
       board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.rightVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Right Ground Velocity"))
 
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Encoder Ticks/s")(drivetrainHardware.leftBack.getSpeed * 10))
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Encoder Ticks/s")(drivetrainHardware.rightBack.getSpeed * 10))
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Out")(drivetrainHardware.leftBack.rawVelocity)
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Out")(drivetrainHardware.rightBack.rawVelocity)
+      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Encoder Ticks/s")(drivetrainHardware.leftBack.getSensorCollection.getQuadratureVelocity * 10))
+      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Encoder Ticks/s")(drivetrainHardware.rightBack.getSensorCollection.getQuadratureVelocity * 10))
+      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Out")(drivetrainHardware.leftBack.getMotorOutputPercent))
+      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Out")(drivetrainHardware.rightBack.getMotorOutputPercent))
 
       board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.leftPosition.map(_.toFeet).toTimeSeriesNumeric("Left Ground"))
       board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rightPosition.map(_.toFeet).toTimeSeriesNumeric("Right Ground"))

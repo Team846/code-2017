@@ -11,14 +11,15 @@ import squants.{Dimensionless, Each, Length, Percent}
 case class DrivetrainProperties(maxLeftVelocity: Velocity, maxRightVelocity: Velocity,
                                 maxAcceleration: Acceleration,
                                 wheelDiameter: Length, track: Length, gearRatio: Double,
-                                turnControlGains: TurnVelocityGains,
-                                forwardPositionControlGains: ForwardPositionGains,
-                                turnPositionControlGains: TurnPositionGains,
-                                leftControlGains: ForwardVelocityGains,
-                                rightControlGains: ForwardVelocityGains,
+                                turnVelocityGains: TurnVelocityGains,
+                                forwardPositionGains: ForwardPositionGains,
+                                turnPositionGains: TurnPositionGains,
+                                leftVelocityGains: ForwardVelocityGains,
+                                rightVelocityGains: ForwardVelocityGains,
                                 currentLimit: Dimensionless,
                                 defaultLookAheadDistance: Length,
-                                blendExponent: Double) extends TwoSidedDriveProperties {
+                                blendExponent: Double,
+                                robotLength: Length) extends TwoSidedDriveProperties {
   override val maxTurnVelocity = RadiansPerSecond((((maxLeftVelocity + maxRightVelocity) * Seconds(1)) / Inches(21.75)) / 2)
 
   val maxCurvature = Ratio(
