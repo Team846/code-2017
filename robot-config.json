@@ -34,7 +34,7 @@
         "Inches$"
       ],
       "gearRatio": 0.4,
-      "turnControlGains": {
+      "turnVelocityGains": {
         "kp": {
           "num": [
             50,
@@ -66,7 +66,7 @@
           ]
         }
       },
-      "forwardPositionControlGains": {
+      "forwardPositionGains": {
         "kp": {
           "num": [
             17.5,
@@ -98,7 +98,7 @@
           ]
         }
       },
-      "turnPositionControlGains": {
+      "turnPositionGains": {
         "kp": {
           "num": [
             60,
@@ -130,7 +130,7 @@
           ]
         }
       },
-      "leftControlGains": {
+      "leftVelocityGains": {
         "kp": {
           "num": [
             60,
@@ -162,7 +162,7 @@
           ]
         }
       },
-      "rightControlGains": {
+      "rightVelocityGains": {
         "kp": {
           "num": [
             60,
@@ -202,8 +202,13 @@
         2.5,
         "Feet$"
       ],
-      "blendExponent": 1
-    }
+      "blendExponent": 1,
+      "robotLength": [
+        0,
+        "Feet$"
+      ]
+    },
+    "idx": 0
   },
   "agitator": {
     "ports": {

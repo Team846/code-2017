@@ -15,7 +15,7 @@ lazy val vision = project.dependsOn(commons).enablePlugins(AssemblyPlugin)
 
 resolvers += "Funky-Repo" at "http://team846.github.io/repo"
 resolvers += "WPILib-Maven" at "http://team846.github.io/wpilib-maven"
-resolvers += "opencv-maven" at "https://github.com/WPIRoboticsProjects/opencv-maven/raw/mvn-repo"
+resolvers += "opencv-maven" at "http://first.wpi.edu/FRC/roborio/maven/development"
 
 libraryDependencies += "com.lynbrookrobotics" %% "potassium-core" % Versions.potassiumVersion
 libraryDependencies += "com.lynbrookrobotics" %% "potassium-control" % Versions.potassiumVersion
@@ -33,6 +33,6 @@ libraryDependencies += "edu.wpi.first" % "cscore" % Versions.wpiVersion
 libraryDependencies += "edu.wpi.first" % "ntcore" % Versions.wpiVersion
 libraryDependencies += "edu.wpi.first" % "wpiutil" % Versions.wpiVersion
 libraryDependencies += "com.ctre" % "phoenix" % "5.1.3.1"
-libraryDependencies += "org.opencv" % "opencv-java" % "3.1.0"
+libraryDependencies += "org.opencv" % "opencv-java" % "3.2.0"
 
 libraryDependencies += "com.google.guava" % "guava" % "21.0"

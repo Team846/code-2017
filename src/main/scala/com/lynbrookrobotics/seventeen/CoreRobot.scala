@@ -7,9 +7,9 @@ import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, FiniteTask, Task}
 import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.seventeen.agitator.{Agitator, AgitatorHardware, AgitatorProperties}
-import com.lynbrookrobotics.seventeen.camselect.CamSelect
-import com.lynbrookrobotics.seventeen.climber.puller.ClimberPuller
-import com.lynbrookrobotics.seventeen.collector.elevator.CollectorElevator
+import com.lynbrookrobotics.seventeen.camselect.{CamSelect, CamSelectHardware, CamSelectProperties}
+import com.lynbrookrobotics.seventeen.climber.puller.{ClimberPuller, ClimberPullerHardware, ClimberPullerProperties}
+import com.lynbrookrobotics.seventeen.collector.elevator.{CollectorElevator, CollectorElevatorHardware}
 import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
 import com.lynbrookrobotics.seventeen.collector.rollers.CollectorRollers
 import com.lynbrookrobotics.seventeen.driver.DriverHardware
@@ -55,20 +55,20 @@ class CoreRobot(configFileValue: Signal[String],
 
   println("line 53")
   // CamSelect
-  implicit val camSelectHardware = hardware.camSelect
-  implicit val camselectProps = config.map(_.camSelect.properties)
+  implicit val camSelectHardware: CamSelectHardware = hardware.camSelect
+  implicit val camselectProps: Signal[CamSelectProperties] = config.map(_.camSelect.properties)
   implicit val camSelect: CamSelect = new CamSelect(coreTicks)
 
   println("line 59")
   // Climber Puller
-  implicit val climberPullerHardware = hardware.climberPuller
-  implicit val climberPullerProps = config.map(_.climberPuller.props)
+  implicit val climberPullerHardware: ClimberPullerHardware = hardware.climberPuller
+  implicit val climberPullerProps: Signal[ClimberPullerProperties] = config.map(_.climberPuller.props)
   val climberPuller: Option[ClimberPuller] =
     if (config.get.climberPuller != null) Some(new ClimberPuller(coreTicks)) else None
 
   println("line 66")
   // Collector Elevator
-  implicit val collectorElevatorHardware = hardware.collectorElevator
+  implicit val collectorElevatorHardware: CollectorElevatorHardware = hardware.collectorElevator
   implicit val collectorElevatorProps = config.map(_.collectorElevator.properties)
   val collectorElevator: Option[CollectorElevator] =
   /*if (config.get.collectorElevator != null) Some(new CollectorElevator(coreTicks)) else */ None
@@ -186,12 +186,8 @@ class CoreRobot(configFileValue: Signal[String],
   val generator = new AutoGenerator(this)
 
   def prepTask(task: Task): Unit = {
-    println("before init")
-    Thread.currentThread().getStackTrace.foreach(println)
     task.init()
-    println("after init, before abort")
     task.abort()
-    println("after abort")
   }
 
   private var autonomousRoutines = mutable.Map.empty[Int, ContinuousTask]
@@ -378,10 +374,10 @@ class CoreRobot(configFileValue: Signal[String],
       board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.leftVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Left Ground Velocity"))
       board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.rightVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Right Ground Velocity"))
 
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Encoder Ticks/s")(drivetrainHardware.leftBack.getSensorCollection.getQuadratureVelocity * 10))
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Encoder Ticks/s")(drivetrainHardware.rightBack.getSensorCollection.getQuadratureVelocity * 10))
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Out")(drivetrainHardware.leftBack.getMotorOutputPercent))
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Out")(drivetrainHardware.rightBack.getMotorOutputPercent))
+      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Encoder Ticks/s")(drivetrainHardware.leftBack.t.getSensorCollection.getQuadratureVelocity * 10))
+      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Encoder Ticks/s")(drivetrainHardware.rightBack.t.getSensorCollection.getQuadratureVelocity * 10))
+      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Out")(drivetrainHardware.leftBack.t.getMotorOutputPercent))
+      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Out")(drivetrainHardware.rightBack.t.getMotorOutputPercent))
 
       board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.leftPosition.map(_.toFeet).toTimeSeriesNumeric("Left Ground"))
       board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rightPosition.map(_.toFeet).toTimeSeriesNumeric("Right Ground"))

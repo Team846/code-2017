@@ -16,6 +16,7 @@ import com.lynbrookrobotics.seventeen.gear.tilter.{GearTilterConfig, GearTilterP
 import com.lynbrookrobotics.seventeen.loadtray.{LoadTrayConfig, LoadTrayPorts}
 import com.lynbrookrobotics.seventeen.shooter.flywheel.{ShooterFlywheelConfig, ShooterFlywheelPorts, ShooterFlywheelProperties}
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShooterShifterConfig, ShooterShifterPorts}
+import com.lynbrookrobotics.potassium.config.SquantsPickling._
 import squants.electro.Volts
 import squants.motion.{DegreesPerSecond, FeetPerSecond, MetersPerSecondSquared}
 import squants.space._
@@ -74,7 +75,8 @@ object ConfigGenerator extends App {
         defaultLookAheadDistance = Feet(0.5),
         blendExponent = 1,
         robotLength = Feet(0)
-      )
+      ),
+      idx = 0
     ),
     agitator = AgitatorConfig(
       ports = AgitatorPorts(

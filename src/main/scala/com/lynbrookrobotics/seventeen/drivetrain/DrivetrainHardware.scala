@@ -64,10 +64,10 @@ case class DrivetrainHardware(leftBack: LazyTalon, leftFront: LazyTalon,
 object DrivetrainHardware {
   def apply(config: DrivetrainConfig, driverHardware: DriverHardware)(implicit clock: Clock): DrivetrainHardware = {
     DrivetrainHardware(
-      new TalonSRX(config.ports.leftBack),
-      new TalonSRX(config.ports.leftFront),
-      new TalonSRX(config.ports.rightBack),
-      new TalonSRX(config.ports.rightFront),
+      new LazyTalon(new TalonSRX(config.ports.leftBack), config.idx, 0),
+      new LazyTalon(new TalonSRX(config.ports.leftFront), config.idx, 0),
+      new LazyTalon(new TalonSRX(config.ports.rightBack), config.idx, 0),
+      new LazyTalon(new TalonSRX(config.ports.rightFront), config.idx, 0),
       new ADIS16448(new SPI(SPI.Port.kMXP), null),
       config.properties,
       driverHardware,
