@@ -29,6 +29,9 @@ case class DrivetrainHardware(leftBack: LazyTalon, leftFront: LazyTalon,
                               driverHardware: DriverHardware,
                               period: Time)(implicit clock: Clock)
   extends TwoSidedDriveHardware {
+  rightBack.t.setInverted(true)
+  rightFront.t.setInverted(true)
+
   val leftEncoder = new TalonEncoder(leftBack.t, Degrees(360) / Each(8192))
   val rightEncoder = new TalonEncoder(rightBack.t, -Degrees(360) / Each(8192))
 
@@ -45,20 +48,21 @@ case class DrivetrainHardware(leftBack: LazyTalon, leftFront: LazyTalon,
 
       gyro.getVelocities
     )
-  }
+  }.preserve
 
   override val leftVelocity: Stream[Velocity] = rootDataStream.map(_.leftEncoderVelocity).map(av =>
-    wheelRadius * (av.toRadiansPerSecond * props.gearRatio) / Seconds(1))
+    wheelRadius * (av.toRadiansPerSecond * props.gearRatio) / Seconds(1)).preserve
+
   override val rightVelocity: Stream[Velocity] = rootDataStream.map(_.rightEncoderVelocity).map(av =>
-    wheelRadius * (av.toRadiansPerSecond * props.gearRatio) / Seconds(1))
+    wheelRadius * (av.toRadiansPerSecond * props.gearRatio) / Seconds(1)).preserve
 
   val leftPosition: Stream[Length] = rootDataStream.map(_.leftEncoderRotation).map(a =>
-    a.toRadians * props.gearRatio * wheelRadius)
+    a.toRadians * props.gearRatio * wheelRadius).preserve
   val rightPosition: Stream[Length] = rootDataStream.map(_.rightEncoderRotation).map(a =>
-    a.toRadians * props.gearRatio * wheelRadius)
+    a.toRadians * props.gearRatio * wheelRadius).preserve
 
-  override lazy val turnVelocity: Stream[AngularVelocity] = rootDataStream.map(_.gyroVelocities).map(_.z)
-  override lazy val turnPosition: Stream[Angle] = turnVelocity.integral
+  override lazy val turnVelocity: Stream[AngularVelocity] = rootDataStream.map(_.gyroVelocities).map(_.z).preserve
+  override lazy val turnPosition: Stream[Angle] = turnVelocity.integral.preserve
 }
 
 object DrivetrainHardware {

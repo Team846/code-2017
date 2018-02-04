@@ -186,8 +186,17 @@ class CoreRobot(configFileValue: Signal[String],
   val generator = new AutoGenerator(this)
 
   def prepTask(task: Task): Unit = {
-    task.init()
-    task.abort()
+    try {
+      task.init()
+      task.abort()
+    } catch {
+      case e => {
+        e.printStackTrace()
+        println("failed")
+        Thread.sleep(1000)
+      }
+    }
+
   }
 
   private var autonomousRoutines = mutable.Map.empty[Int, ContinuousTask]
@@ -281,37 +290,48 @@ class CoreRobot(configFileValue: Signal[String],
       collectorExtender <- collectorExtender
       loadTray <- loadTray
     } {
-      addAutonomousRoutine(6)(
+      addAutonomousRoutine(6) {
+        println("add auto 6")
         generator.leftHopperAndShoot(
           drivetrain,
           collectorElevator, collectorRollers, agitator,
           shooterFlywheel, shooterShifter, collectorExtender, loadTray
         )
-      )
+      }
 
-      addAutonomousRoutine(7)(
+      addAutonomousRoutine(7) {
+        println("add auto 7")
         generator.rightHopperAndShoot(
           drivetrain,
           collectorElevator, collectorRollers, agitator,
           shooterFlywheel, shooterShifter, collectorExtender, loadTray
         )
-      )
+      }
 
-      addAutonomousRoutine(10)(
+      addAutonomousRoutine(10) {
+        println("adding auto 10")
         generator.shootLeftAndDriveBack(
           drivetrain,
           collectorElevator, collectorRollers, agitator,
           shooterFlywheel, shooterShifter, collectorExtender, loadTray
         ).toContinuous
-      )
+      }
     }
 
     for {
       drivetrain <- drivetrain
     } {
+      println("adding auto 1")
+      addAutonomousRoutine(1) {
+        generator.centerDriveBack(drivetrain).toContinuous
+      }
+
+      println("adding auto 8")
       addAutonomousRoutine(8)(
         generator.slowCrossLine(drivetrain).toContinuous
       )
+
+      println("auto 9")
 
       addAutonomousRoutine(9)(
         generator.smallTestShot(drivetrain)
@@ -340,94 +360,94 @@ class CoreRobot(configFileValue: Signal[String],
     components.foreach(_.resetToDefault())
   }
 
-  val dashboard = Future {
-    val dashboard = new FunkyDashboard(100, 8080)
-    dashboard.start()
-    dashboard
-  }
-
-  dashboard.failed.foreach(_.printStackTrace())
-
-  dashboard.foreach { board =>
-    import CoreRobot.ToTimeSeriesNumeric
-
-    println("Funky Dashboard is up!")
-    Runtime.getRuntime.addShutdownHook(new Thread(() => {
-      println("Shutting down Funky Dashboard")
-      board.stop()
-    }))
-
-    board.datasetGroup("Config").addDataset(new JsonEditor("Robot Config")(
-      configFileValue.get,
-      updateConfigFile
-    ))
-
-    board.datasetGroup("Power").addDataset(new TimeSeriesNumeric("Battery Voltage")(
-      ds.getBatteryVoltage
-    ))
-
-    board.datasetGroup("Joysticks").addDataset(new TimeSeriesNumeric("POV")(
-      driverHardware.operatorJoystick.getPOV()
-    ))
-
-    drivetrain.foreach { d =>
-      board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.leftVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Left Ground Velocity"))
-      board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.rightVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Right Ground Velocity"))
-
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Encoder Ticks/s")(drivetrainHardware.leftBack.t.getSensorCollection.getQuadratureVelocity * 10))
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Encoder Ticks/s")(drivetrainHardware.rightBack.t.getSensorCollection.getQuadratureVelocity * 10))
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Out")(drivetrainHardware.leftBack.t.getMotorOutputPercent))
-      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Out")(drivetrainHardware.rightBack.t.getMotorOutputPercent))
-
-      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.leftPosition.map(_.toFeet).toTimeSeriesNumeric("Left Ground"))
-      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rightPosition.map(_.toFeet).toTimeSeriesNumeric("Right Ground"))
-
-      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rootDataStream
-        .map(d => (d.leftEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Left Wheel Rotation"))
-
-      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rootDataStream
-        .map(d => (d.rightEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Right Wheel Rotation"))
-
-      board.datasetGroup("Drivetrain/Gyro").addDataset(drivetrainHardware.turnVelocity.map(_.toDegreesPerSecond).toTimeSeriesNumeric("Turn Velocity"))
-      board.datasetGroup("Drivetrain/Gyro").addDataset(drivetrainHardware.turnPosition.map(_.toDegrees).toTimeSeriesNumeric("Rotational Position"))
-    }
-
-    shooterFlywheel.foreach { d =>
-      board.datasetGroup("Flywheel").addDataset(
-        shooterFlywheelHardware.leftVelocity.map(_.toRevolutionsPerMinute).toTimeSeriesNumeric("Left Speed"))
-
-      board.datasetGroup("Flywheel").addDataset(
-        shooterFlywheelHardware.rightVelocity.map(_.toRevolutionsPerMinute).toTimeSeriesNumeric("Right Speed"))
-
-      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Left Out")(
-        shooterFlywheelHardware.leftMotor.get()
-      ))
-
-      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right Out")(
-        shooterFlywheelHardware.rightMotor.get()
-      ))
-
-      board.datasetGroup("Flywheel").addDataset(
-        shooterFlywheelHardware.rightVelocity.zip(shooterFlywheelHardware.leftVelocity)
-          .map(t => (t._1 - t._2).toRevolutionsPerMinute).toTimeSeriesNumeric("Right - Left"))
-    }
-
-    climberPuller.foreach { c =>
-      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor A")(
-        hardware.pdp.getCurrent(3)
-      ))
-
-      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor B")(
-        hardware.pdp.getCurrent(2)
-      ))
-    }
-
-    gearGrabber.foreach { g =>
-      board.datasetGroup("Grabber").addDataset(new TimeSeriesNumeric("IR Distance")(
-        hardware.gearGrabber.proximitySensor.getVoltage
-      ))
-    }
-  }
+//  val dashboard = Future {
+//    val dashboard = new FunkyDashboard(100, 8080)
+//    dashboard.start()
+//    dashboard
+//  }
+//
+//  dashboard.failed.foreach(_.printStackTrace())
+//
+//  dashboard.foreach { board =>
+//    import CoreRobot.ToTimeSeriesNumeric
+//
+//    println("Funky Dashboard is up!")
+//    Runtime.getRuntime.addShutdownHook(new Thread(() => {
+//      println("Shutting down Funky Dashboard")
+//      board.stop()
+//    }))
+//
+//    board.datasetGroup("Config").addDataset(new JsonEditor("Robot Config")(
+//      configFileValue.get,
+//      updateConfigFile
+//    ))
+//
+//    board.datasetGroup("Power").addDataset(new TimeSeriesNumeric("Battery Voltage")(
+//      ds.getBatteryVoltage
+//    ))
+//
+//    board.datasetGroup("Joysticks").addDataset(new TimeSeriesNumeric("POV")(
+//      driverHardware.operatorJoystick.getPOV()
+//    ))
+//
+//    drivetrain.foreach { d =>
+//      board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.leftVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Left Ground Velocity"))
+//      board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.rightVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Right Ground Velocity"))
+//
+//      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Encoder Ticks/s")(drivetrainHardware.leftBack.t.getSensorCollection.getQuadratureVelocity * 10))
+//      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Encoder Ticks/s")(drivetrainHardware.rightBack.t.getSensorCollection.getQuadratureVelocity * 10))
+//      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Left Out")(drivetrainHardware.leftBack.t.getMotorOutputPercent))
+//      board.datasetGroup("Drivetrain/Velocity").addDataset(new TimeSeriesNumeric("Right Out")(drivetrainHardware.rightBack.t.getMotorOutputPercent))
+//
+//      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.leftPosition.map(_.toFeet).toTimeSeriesNumeric("Left Ground"))
+//      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rightPosition.map(_.toFeet).toTimeSeriesNumeric("Right Ground"))
+//
+//      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rootDataStream
+//        .map(d => (d.leftEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Left Wheel Rotation"))
+//
+//      board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rootDataStream
+//        .map(d => (d.rightEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Right Wheel Rotation"))
+//
+//      board.datasetGroup("Drivetrain/Gyro").addDataset(drivetrainHardware.turnVelocity.map(_.toDegreesPerSecond).toTimeSeriesNumeric("Turn Velocity"))
+//      board.datasetGroup("Drivetrain/Gyro").addDataset(drivetrainHardware.turnPosition.map(_.toDegrees).toTimeSeriesNumeric("Rotational Position"))
+//    }
+//
+//    shooterFlywheel.foreach { d =>
+//      board.datasetGroup("Flywheel").addDataset(
+//        shooterFlywheelHardware.leftVelocity.map(_.toRevolutionsPerMinute).toTimeSeriesNumeric("Left Speed"))
+//
+//      board.datasetGroup("Flywheel").addDataset(
+//        shooterFlywheelHardware.rightVelocity.map(_.toRevolutionsPerMinute).toTimeSeriesNumeric("Right Speed"))
+//
+//      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Left Out")(
+//        shooterFlywheelHardware.leftMotor.get()
+//      ))
+//
+//      board.datasetGroup("Flywheel").addDataset(new TimeSeriesNumeric("Right Out")(
+//        shooterFlywheelHardware.rightMotor.get()
+//      ))
+//
+//      board.datasetGroup("Flywheel").addDataset(
+//        shooterFlywheelHardware.rightVelocity.zip(shooterFlywheelHardware.leftVelocity)
+//          .map(t => (t._1 - t._2).toRevolutionsPerMinute).toTimeSeriesNumeric("Right - Left"))
+//    }
+//
+//    climberPuller.foreach { c =>
+//      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor A")(
+//        hardware.pdp.getCurrent(3)
+//      ))
+//
+//      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor B")(
+//        hardware.pdp.getCurrent(2)
+//      ))
+//    }
+//
+//    gearGrabber.foreach { g =>
+//      board.datasetGroup("Grabber").addDataset(new TimeSeriesNumeric("IR Distance")(
+//        hardware.gearGrabber.proximitySensor.getVoltage
+//      ))
+//    }
+//  }
 }
 
 object CoreRobot {

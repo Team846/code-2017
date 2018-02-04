@@ -1,6 +1,7 @@
 package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.potassium.commons.cartesianPosition.XYPosition
+import com.lynbrookrobotics.potassium.commons.drivetrain.unicycle.control.purePursuit.{BackwardsOnly, ForwardsOnly}
 import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, FiniteTask, WaitTask}
 import com.lynbrookrobotics.potassium.units.Point
 import com.lynbrookrobotics.seventeen.agitator.Agitator
@@ -126,7 +127,6 @@ class AutoGenerator(r: CoreRobot) {
       tolerance = Inches(3),
       position = xyPosition,
       turnPosition = relativeTurn,
-      steadyOutput = Percent(50),
       maxTurnOutput = Percent(50)
     )(drivetrain)
   }
@@ -156,7 +156,6 @@ class AutoGenerator(r: CoreRobot) {
       tolerance = Inches(3),
       position = xyPosition,
       turnPosition = relativeTurn,
-      steadyOutput = Percent(50),
       maxTurnOutput = Percent(50)
     )(drivetrain).withTimeout(Seconds(5)).then(
       toGearAndDrop(drivetrain, gearGrabber, gearTilter)
@@ -188,7 +187,6 @@ class AutoGenerator(r: CoreRobot) {
       tolerance = Inches(3),
       position = xyPosition,
       turnPosition = relativeTurn,
-      steadyOutput = Percent(50),
       maxTurnOutput = Percent(50)
     )(drivetrain).withTimeout(Seconds(5)).then(
       toGearAndDrop(drivetrain, gearGrabber, gearTilter)
@@ -314,6 +312,34 @@ class AutoGenerator(r: CoreRobot) {
     ).toContinuous
   }
 
+  def centerDriveBack(drivetrain: Drivetrain): FiniteTask = {
+    println("in cneter back")
+    new FollowWayPoints(
+      Seq(
+        Point.origin,
+        Point(Feet(0), Feet(-1)),
+        Point(Feet(-3), Feet(-1)),
+        Point(Feet(-3), Feet(5))
+      ),
+      tolerance = Inches(6),
+      maxTurnOutput = Percent(50),
+      targetTicksWithingTolerance = 20,
+      forwardBackwardMode = ForwardsOnly
+    )(drivetrain)/*.then(
+      new FollowWayPoints(
+        Seq(
+          Point.origin,
+          Point(Feet(0), Feet(-1)),
+          Point(Feet(-3), Feet(-1)),
+          Point(Feet(-3), Feet(5))
+        ),
+        tolerance = Inches(6),
+        maxTurnOutput = Percent(50),
+        targetTicksWithingTolerance = 20,
+        forwardBackwardMode = BackwardsOnly
+    )*/
+  }
+
   def centerGearAndCrossLine(drivetrain: Drivetrain, gearGrabber: GearGrabber, gearTilter: GearTilter): FiniteTask = {
     val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
       curr - init
@@ -358,7 +384,6 @@ class AutoGenerator(r: CoreRobot) {
       Feet(0),
       xyPosition,
       relativeTurn,
-      Percent(50),
       maxTurnOutput = Percent(50)
     )(drivetrain).withTimeout(Seconds(10)))
   }

@@ -26,9 +26,10 @@ package object drivetrain extends OffloadedDrive {
   override type Hardware = DrivetrainHardware
 
   override protected def output(hardware: Hardware, signal: TwoSided[OffloadedSignal]): Unit = {
+    println(s"oflloaded command: $signal")
     hardware.leftFront.applyCommand(signal.left)
     hardware.leftBack.applyCommand(signal.left)
-    hardware.rightBack.applyCommand(signal.right) // TODO: Make right side negative
+    hardware.rightBack.applyCommand(signal.right)
     hardware.rightBack.applyCommand(signal.right)
   }
 
