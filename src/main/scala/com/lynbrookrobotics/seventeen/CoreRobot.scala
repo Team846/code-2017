@@ -174,14 +174,7 @@ class CoreRobot(configFileValue: Signal[String],
 
   private val mappings = new ButtonMappings(this)
 
-  private val inAutonomous = driverHardware.enabledState.zip(driverHardware.autonomousState).map {
-    case (isEnabled, isAutonomous) => isEnabled && isAutonomous
-  }
 
-  private val isEnabled = driverHardware.enabledState.eventWhen(identity)
-  private val isAutonomous = driverHardware.autonomousState.eventWhen(identity)
-
-  private val isAutonomousEnabled = isEnabled && isAutonomous
 
   val generator = new AutoGenerator(this)
 
@@ -193,7 +186,6 @@ class CoreRobot(configFileValue: Signal[String],
       case e => {
         e.printStackTrace()
         println("failed")
-        Thread.sleep(1000)
       }
     }
 
@@ -204,19 +196,16 @@ class CoreRobot(configFileValue: Signal[String],
   println("add auto")
 
   def addAutonomousRoutine(id: Int)(task: ContinuousTask): Unit = {
-    println("start add")
     if (autonomousRoutines.contains(id)) {
       println(s"WARNING, overriding autonomous routine $id")
     }
-    println("after check for contain, before prep")
+    println("Prepping auto task")
 
     prepTask(task)
 
-    println("after prep, before assign")
+    println("finished prepping auto")
 
     autonomousRoutines(id) = task
-
-    println("after add everything")
   }
 
   println("before adding drivetrain")
@@ -326,6 +315,16 @@ class CoreRobot(configFileValue: Signal[String],
         generator.centerDriveBack(drivetrain).toContinuous
       }
 
+      println("adding auto 2")
+      addAutonomousRoutine(2){
+        generator.driveForwardOpenLoop(drivetrain, coreTicks)
+      }
+
+      println("adding auto 3")
+      addAutonomousRoutine(3){
+        generator.driveForwardOpenLoop5seconds(drivetrain, coreTicks)
+      }
+
       println("adding auto 8")
       addAutonomousRoutine(8)(
         generator.slowCrossLine(drivetrain).toContinuous
@@ -337,6 +336,8 @@ class CoreRobot(configFileValue: Signal[String],
         generator.smallTestShot(drivetrain)
       )
     }
+
+  import driverHardware._
 
   isAutonomousEnabled.foreach(Signal {
     val autoID = Math.round(SmartDashboard.getNumber("DB/Slider 0", 0)).toInt
@@ -352,7 +353,10 @@ class CoreRobot(configFileValue: Signal[String],
     if (drivetrain.isDefined) {
       drivetrainHardware.gyro.endCalibration()
     }
+  }
 
+  isTelopEnabled.onStart.foreach { () =>
+    println("telop enabled starting")
     components.foreach(_.resetToDefault())
   }
 

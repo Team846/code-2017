@@ -23,6 +23,14 @@ case class DriverHardware(driverJoystick: Joystick,
   }
   val enabledState = driverStationTicks.map(_ => station.isEnabled)
   val autonomousState = driverStationTicks.map(_ => station.isAutonomous)
+  val telopState = driverStationTicks.map(_ => station.isOperatorControl)
+
+  val isEnabled = enabledState.eventWhen(identity)
+  val isAutonomous = autonomousState.eventWhen(identity)
+  val isTelop = telopState.eventWhen(identity)
+
+  val isAutonomousEnabled = isEnabled && isAutonomous
+  val isTelopEnabled = isEnabled && isTelop
 }
 
 object DriverHardware {

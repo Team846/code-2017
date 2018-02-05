@@ -1,6 +1,8 @@
 package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.potassium.commons.cartesianPosition.XYPosition
+import com.lynbrookrobotics.potassium.streams._
+import com.lynbrookrobotics.potassium.{Signal, streams}
 import com.lynbrookrobotics.potassium.commons.drivetrain.unicycle.control.purePursuit.{BackwardsOnly, ForwardsOnly}
 import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, FiniteTask, WaitTask}
 import com.lynbrookrobotics.potassium.units.Point
@@ -8,7 +10,6 @@ import com.lynbrookrobotics.seventeen.agitator.Agitator
 import com.lynbrookrobotics.seventeen.collector.elevator.CollectorElevator
 import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
 import com.lynbrookrobotics.seventeen.collector.rollers.CollectorRollers
-import com.lynbrookrobotics.seventeen.drivetrain.Drivetrain
 import com.lynbrookrobotics.seventeen.drivetrain.unicycleTasks._
 import com.lynbrookrobotics.seventeen.gear.grabber.{GearGrabber, OpenGrabber}
 import com.lynbrookrobotics.seventeen.gear.tilter.{ExtendTilter, GearTilter}
@@ -16,7 +17,7 @@ import com.lynbrookrobotics.seventeen.loadtray.LoadTray
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight, ShooterShifter}
-import squants.Percent
+import squants.{Dimensionless, Percent}
 import squants.space.{Degrees, Feet, Inches}
 import squants.time.Seconds
 
@@ -312,9 +313,29 @@ class AutoGenerator(r: CoreRobot) {
     ).toContinuous
   }
 
+  def printTask(message: String): FiniteTask = new FiniteTask {
+    override protected def onEnd(): Unit = {
+      println("end of print task")
+    }
+
+    override protected def onStart(): Unit = {
+      println(message)
+      finished()
+    }
+  }
+
   def centerDriveBack(drivetrain: Drivetrain): FiniteTask = {
-    println("in cneter back")
-    new FollowWayPoints(
+
+    val arcTurning = new DriveBeyondStraight(
+      Inches(18),
+      Inches(1),
+      Degrees(0),
+      Percent(50)
+    ).then(
+      new Dri
+    )
+
+    val driveTask = new FollowWayPoints(
       Seq(
         Point.origin,
         Point(Feet(0), Feet(-1)),
@@ -324,7 +345,7 @@ class AutoGenerator(r: CoreRobot) {
       tolerance = Inches(6),
       maxTurnOutput = Percent(50),
       targetTicksWithingTolerance = 20,
-      forwardBackwardMode = ForwardsOnly
+      forwardBackwardMode = BackwardsOnly
     )(drivetrain)/*.then(
       new FollowWayPoints(
         Seq(
@@ -338,9 +359,29 @@ class AutoGenerator(r: CoreRobot) {
         targetTicksWithingTolerance = 20,
         forwardBackwardMode = BackwardsOnly
     )*/
+
+    /*printTask("starting centerDriveBack").then*/(
+      driveTask
+    )/*.then(
+      printTask("ending centerDriveBack")
+    )*/
   }
 
-  def centerGearAndCrossLine(drivetrain: Drivetrain, gearGrabber: GearGrabber, gearTilter: GearTilter): FiniteTask = {
+    def driveForwardOpenLoop(drivetrain: Drivetrain, updateSource: Stream[_]): ContinuousTask = {
+      new DriveOpenLoop(
+        updateSource.mapToConstant(Percent(60)),
+        updateSource.mapToConstant(Percent(0)),
+        "forward open loop"
+      )(drivetrain)
+    }
+
+    def driveForwardOpenLoop5seconds(drivetrain: Drivetrain, updateSource: Stream[_]): ContinuousTask = {
+      driveForwardOpenLoop(drivetrain, updateSource).forDuration(Seconds(5)).toContinuous
+    }
+
+
+
+    def centerGearAndCrossLine(drivetrain: Drivetrain, gearGrabber: GearGrabber, gearTilter: GearTilter): FiniteTask = {
     val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
       curr - init
     })
