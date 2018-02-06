@@ -1,7 +1,7 @@
 package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.potassium.commons.drivetrain._
-import com.lynbrookrobotics.potassium.commons.drivetrain.offloaded.{OffloadedDrive, OffloadedProperties}
+import com.lynbrookrobotics.potassium.commons.drivetrain.offloaded.{OffloadedDrive, OffloadedDriveProperties}
 import com.lynbrookrobotics.potassium.commons.drivetrain.twoSided._
 import com.lynbrookrobotics.potassium.control.offload.OffloadedSignal
 import com.lynbrookrobotics.potassium.streams._
@@ -22,14 +22,19 @@ package object drivetrain extends OffloadedDrive {
     }
   }
 
-  override type Properties = OffloadedProperties
+  override type Properties = OffloadedDriveProperties
   override type Hardware = DrivetrainHardware
 
   override protected def output(hardware: Hardware, signal: TwoSided[OffloadedSignal]): Unit = {
-    hardware.leftFront.applyCommand(signal.left)
-    hardware.leftBack.applyCommand(signal.left)
-    hardware.rightBack.applyCommand(signal.right)
-    hardware.rightBack.applyCommand(signal.right)
+    if(Math.random()>0.999) {
+      println(s"rsig: ${signal.right}")
+      println(s"lsig: ${signal.left}")
+      println(s"lfee: ${hardware.leftEncoder.getAngularVelocity}")
+      println(s"lfee: ${hardware.rightEncoder.getAngularVelocity}")
+      println()
+    }
+    hardware.leftMaster.applyCommand(signal.left)
+    hardware.rightMaster.applyCommand(signal.right)
   }
 
   override protected def controlMode(implicit hardware: Hardware, props: Properties): UnicycleControlMode = {

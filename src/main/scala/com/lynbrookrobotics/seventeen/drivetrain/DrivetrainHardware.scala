@@ -2,6 +2,7 @@ package com.lynbrookrobotics.seventeen.drivetrain
 
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX
+import com.ctre.phoenix.motorcontrol.{FeedbackDevice, StatusFrame, VelocityMeasPeriod}
 import com.lynbrookrobotics.potassium.clock.Clock
 import com.lynbrookrobotics.potassium.commons.drivetrain.twoSided.TwoSidedDriveHardware
 import com.lynbrookrobotics.potassium.frc.Implicits._
@@ -22,18 +23,41 @@ case class DrivetrainData(leftEncoderVelocity: AngularVelocity,
                           rightEncoderRotation: Angle,
                           gyroVelocities: Value3D[AngularVelocity])
 
-case class DrivetrainHardware(leftBack: LazyTalon, leftFront: LazyTalon,
-                              rightBack: LazyTalon, rightFront: LazyTalon,
+case class DrivetrainHardware(leftMaster: LazyTalon, leftSlave: LazyTalon,
+                              rightMaster: LazyTalon, rightSlave: LazyTalon,
                               gyro: DigitalGyro,
                               props: DrivetrainProperties,
                               driverHardware: DriverHardware,
-                              period: Time)(implicit clock: Clock)
+                              period: Time,
+                              idx: Int)(implicit clock: Clock)
   extends TwoSidedDriveHardware {
-  rightBack.t.setInverted(true)
-  rightFront.t.setInverted(true)
+  rightMaster.t.setInverted(true)
+  rightSlave.t.setInverted(true)
 
-  val leftEncoder = new TalonEncoder(leftBack.t, Degrees(360) / Each(8192))
-  val rightEncoder = new TalonEncoder(rightBack.t, -Degrees(360) / Each(8192))
+  rightSlave.t.follow(rightMaster.t)
+  leftSlave.t.follow(leftMaster.t)
+  leftMaster.t.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, idx, 0)
+  rightMaster.t.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, idx, 0)
+
+  import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced._
+
+  StatusFrame.values().foreach { it =>
+    rightMaster.t.setStatusFramePeriod(it, 1000, 0)
+    leftMaster.t.setStatusFramePeriod(it, 1000, 0)
+    rightSlave.t.setStatusFramePeriod(it, 1000, 0)
+    leftSlave.t.setStatusFramePeriod(it, 1000, 0)
+  }
+
+  Set(leftMaster, rightMaster).foreach { it =>
+    it.t.setStatusFramePeriod(Status_1_General, 5, 0)
+    it.t.setStatusFramePeriod(Status_2_Feedback0, 10, 0)
+
+    it.t.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_5Ms, 0)
+    it.t.configVelocityMeasurementWindow(4, 0)
+  }
+
+  val leftEncoder = new TalonEncoder(leftMaster.t, Degrees(360) / Each(8192))
+  val rightEncoder = new TalonEncoder(rightMaster.t, Degrees(360) / Each(8192))
 
   val wheelRadius: Length = props.wheelDiameter / 2
   val track: Length = props.track
@@ -68,14 +92,23 @@ case class DrivetrainHardware(leftBack: LazyTalon, leftFront: LazyTalon,
 object DrivetrainHardware {
   def apply(config: DrivetrainConfig, driverHardware: DriverHardware)(implicit clock: Clock): DrivetrainHardware = {
     DrivetrainHardware(
-      new LazyTalon(new TalonSRX(config.ports.leftBack), config.idx, 0),
-      new LazyTalon(new TalonSRX(config.ports.leftFront), config.idx, 0),
-      new LazyTalon(new TalonSRX(config.ports.rightBack), config.idx, 0),
-      new LazyTalon(new TalonSRX(config.ports.rightFront), config.idx, 0),
+      new LazyTalon(new TalonSRX(config.ports.leftBack), config.idx, 0,
+        defaultPeakOutputReverse = -1, defaultPeakOutputForward = 1
+      ),
+      new LazyTalon(new TalonSRX(config.ports.leftFront), config.idx, 0,
+        defaultPeakOutputReverse = -1, defaultPeakOutputForward = 1
+      ),
+      new LazyTalon(new TalonSRX(config.ports.rightBack), config.idx, 0,
+        defaultPeakOutputReverse = -1, defaultPeakOutputForward = 1
+      ),
+      new LazyTalon(new TalonSRX(config.ports.rightFront), config.idx, 0,
+        defaultPeakOutputReverse = -1, defaultPeakOutputForward = 1
+      ),
       new ADIS16448(new SPI(SPI.Port.kMXP), null),
       config.properties,
       driverHardware,
-      Milliseconds(5)
+      Milliseconds(5),
+      idx = config.idx
     )
   }
 }

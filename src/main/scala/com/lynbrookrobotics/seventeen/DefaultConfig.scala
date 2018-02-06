@@ -10,10 +10,10 @@ object DefaultConfig {
                         |  },
                         |  "drivetrain": {
                         |    "ports": {
-                        |      "rightBack": 11,
-                        |      "rightFront": 12,
+                        |      "rightMaster": 11,
+                        |      "rightSlave": 12,
                         |      "leftBack": 14 ,
-                        |      "leftFront": 13
+                        |      "leftSlave": 13
                         |    },
                         |    "properties": {
                         |      "maxLeftVelocity": [
