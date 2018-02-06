@@ -1,136 +1,166 @@
-//package com.lynbrookrobotics.seventeen
-//
-//import com.lynbrookrobotics.potassium.commons.cartesianPosition.XYPosition
-//import com.lynbrookrobotics.potassium.streams._
-//import com.lynbrookrobotics.potassium.{Signal, streams}
-//import com.lynbrookrobotics.potassium.commons.drivetrain.unicycle.control.purePursuit.{BackwardsOnly, ForwardsOnly}
-//import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, FiniteTask, WaitTask}
-//import com.lynbrookrobotics.potassium.units.Point
-//import com.lynbrookrobotics.seventeen.agitator.Agitator
-//import com.lynbrookrobotics.seventeen.collector.elevator.CollectorElevator
-//import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
-//import com.lynbrookrobotics.seventeen.collector.rollers.CollectorRollers
-//import com.lynbrookrobotics.seventeen.drivetrain.unicycleTasks._
-//import com.lynbrookrobotics.seventeen.gear.grabber.{GearGrabber, OpenGrabber}
-//import com.lynbrookrobotics.seventeen.gear.tilter.{ExtendTilter, GearTilter}
-//import com.lynbrookrobotics.seventeen.loadtray.LoadTray
-//import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
-//import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
-//import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight, ShooterShifter}
-//import squants.{Dimensionless, Percent}
-//import squants.space.{Degrees, Feet, Inches}
-//import squants.time.Seconds
-//
-//class AutoGenerator(r: CoreRobot) {
-//  import r._
-//
-//  private val robotLength = Inches(35)
-//
-//  private val gearPegDistance = Inches(109)
-//
-//  private val midShootSpeedLeft = r.coreTicks.map(_ => shooterFlywheelProps.get.midShootSpeedLeft)
-//  private val midShootSpeedRight = r.coreTicks.map(_ => shooterFlywheelProps.get.midShootSpeedRight)
-//
-//  def slowCrossLine(drivetrain: Drivetrain): FiniteTask = {
-//    new DriveDistanceStraight(
-//      Inches(107) - robotLength,
-//      Inches(3),
-//      Degrees(10),
-//      Percent(20)
-//    )(drivetrain).withTimeout(Seconds(8))
-//  }
-//
-//  def toGearAndDrop(drivetrain: Drivetrain, gearGrabber: GearGrabber, gearTilter: GearTilter): FiniteTask = {
-//    val dropAndBack = new WaitTask(Seconds(1)).then(new DriveDistanceStraight(
-//      -Feet(2),
-//      Inches(3),
-//      Degrees(10),
-//      Percent(30)
-//    )(drivetrain)).withTimeout(Seconds(5)).andUntilDone(
-//      new OpenGrabber(gearGrabber) and new ExtendTilter(gearTilter)
-//    )
-//
-//    dropAndBack
-//  }
-//
-//  def centerGear(drivetrain: Drivetrain, gearGrabber: GearGrabber, gearTilter: GearTilter): FiniteTask = {
-//    new DriveDistanceStraight(
-//      gearPegDistance - robotLength,
-//      Inches(3),
-//      Degrees(10),
-//      Percent(30)
-//    )(drivetrain).withTimeout(Seconds(8)).then(
-//      toGearAndDrop(drivetrain, gearGrabber, gearTilter)
-//    )
-//  }
-//
-//  def rightGear(drivetrain: Drivetrain, gearGrabber: GearGrabber, gearTilter: GearTilter): FiniteTask = {
-//    new DriveDistanceStraight(
-//      Inches(90.5),
-//      Inches(3),
-//      Degrees(10),
-//      Percent(30)
-//    )(drivetrain).withTimeout(Seconds(8)).then(new RotateByAngle(
-//      Degrees(-57.61),
-//      Degrees(5),
-//      5
-//    )(drivetrain).withTimeout(Seconds(5))).then(new DriveDistanceStraight(
-//      Inches(19.75),
-//      Inches(3),
-//      Degrees(10),
-//      Percent(30)
-//    )(drivetrain).withTimeout(Seconds(5))).then(
-//      toGearAndDrop(drivetrain, gearGrabber, gearTilter)
-//    )
-//  }
-//
-//  def leftGear(drivetrain: Drivetrain, gearGrabber: GearGrabber, gearTilter: GearTilter): FiniteTask = {
-//    new DriveDistanceStraight(
-//      Inches(90.5),
-//      Inches(3),
-//      Degrees(10),
-//      Percent(30)
-//    )(drivetrain).withTimeout(Seconds(8)).then(new RotateByAngle(
-//      Degrees(57.61),
-//      Degrees(5),
-//      5
-//    )(drivetrain).withTimeout(Seconds(5))).then(new DriveDistanceStraight(
-//      Inches(19.75),
-//      Inches(3),
-//      Degrees(10),
-//      Percent(30)
-//    )(drivetrain).withTimeout(Seconds(5))).then(
-//      toGearAndDrop(drivetrain, gearGrabber, gearTilter)
-//    )
-//  }
-//
-//  def leftGearPurePursuitNoGear(drivetrain: Drivetrain): FiniteTask = {
-//    val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
-//      curr - init
-//    })
-//
-//    val xyPosition = XYPosition(
-//      relativeTurn,
-//      drivetrainHardware.forwardPosition
-//    )
-//    new FollowWayPointsWithPosition(
-//      Seq(
-//        Point.origin,
-//        Point(
-//          Inches(0),
-//          Inches(90.5)
-//        ),
-//        Point(
-//          Inches(19.75) * math.sin(57.61),
-//          Inches(90.5) + Inches(19.75) * math.sin(57.61)
-//        )
-//      ),
-//      tolerance = Inches(3),
-//      position = xyPosition,
-//      turnPosition = relativeTurn,
-//      maxTurnOutput = Percent(50)
-//    )(drivetrain)
-//  }
+package com.lynbrookrobotics.seventeen
+
+import com.lynbrookrobotics.potassium.commons.drivetrain.unicycle.control.purePursuit._
+import com.lynbrookrobotics.potassium.commons.cartesianPosition.XYPosition
+import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, FiniteTask, WaitTask}
+import com.lynbrookrobotics.potassium.units.Point
+import com.lynbrookrobotics.seventeen.agitator.Agitator
+import com.lynbrookrobotics.seventeen.collector.elevator.CollectorElevator
+import com.lynbrookrobotics.seventeen.collector.extender.CollectorExtender
+import com.lynbrookrobotics.seventeen.collector.rollers.CollectorRollers
+import com.lynbrookrobotics.seventeen.drivetrain.Drivetrain
+import com.lynbrookrobotics.seventeen.drivetrain.unicycleTasks._
+import com.lynbrookrobotics.seventeen.gear.grabber.{GearGrabber, OpenGrabber}
+import com.lynbrookrobotics.seventeen.gear.tilter.{ExtendTilter, GearTilter}
+import com.lynbrookrobotics.seventeen.loadtray.LoadTray
+import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
+import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
+import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight, ShooterShifter}
+import squants.Percent
+import squants.space.{Degrees, Feet, Inches}
+import squants.time.Seconds
+
+class AutoGenerator(r: CoreRobot) {
+  import r._
+
+  private val robotLength = Inches(35)
+
+  private val gearPegDistance = Inches(109)
+
+  private val midShootSpeedLeft = r.coreTicks.map(_ => shooterFlywheelProps.get.midShootSpeedLeft)
+  private val midShootSpeedRight = r.coreTicks.map(_ => shooterFlywheelProps.get.midShootSpeedRight)
+
+
+  def postSwitchDelivery(drivetrain: Drivetrain): FiniteTask = {
+    new FollowWayPoints(
+      Seq(
+        Point.origin,
+        Point(
+          Inches(0),
+          Inches(-18)
+        ),
+        Point(
+          Inches(-30),
+          Inches(-18)
+        ),
+        Point(
+          Inches(-30),
+          Inches(82)
+        )
+      ),
+      tolerance = Inches(6),
+      maxTurnOutput = Percent(50),
+      targetTicksWithingTolerance = 10,
+      forwardBackwardMode = BackwardsOnly
+    )(drivetrain).then(new FollowWayPoints(
+      Seq(
+        Point.origin,
+        Point(
+          Inches(20.553),
+          Inches(-14.165)
+        )
+      ),
+      tolerance = Inches(6),
+      maxTurnOutput = Percent(50),
+      targetTicksWithingTolerance = 10,
+      forwardBackwardMode = ForwardsOnly
+    )(drivetrain)).then(new RotateByAngle(
+      Degrees(180),
+      Degrees(30),
+      1
+    )(drivetrain)).then(new FollowWayPoints(
+      Seq(
+        Point.origin,
+        Point(
+          Inches(-9.235),
+          Inches(91.119)
+        )
+      ),
+      tolerance = Inches(6),
+      maxTurnOutput = Percent(50),
+      targetTicksWithingTolerance = 10,
+      forwardBackwardMode = ForwardsOnly
+    )(drivetrain))
+  }
+
+  def centerSwitch(drivetrain: Drivetrain): FiniteTask = {
+    new FollowWayPoints(
+      Seq(
+        Point.origin,
+        Point(
+          Inches(-55.393),
+          Inches(111.993)
+        ),
+        Point(
+          Inches(-55.393),
+          Inches(143.993)
+        )
+      ),
+      tolerance = Inches(6),
+      maxTurnOutput = Percent(50),
+      targetTicksWithingTolerance = 10,
+      forwardBackwardMode = ForwardsOnly
+    )(drivetrain).then(postSwitchDelivery(drivetrain))
+  }
+
+  def twoCubeAuto(drivetrain: Drivetrain): FiniteTask = {
+    val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
+      curr - init
+    })
+
+    val xyPosition = XYPosition(
+      relativeTurn,
+      drivetrainHardware.forwardPosition
+    )
+
+    new FollowWayPoints(
+      Seq(
+        Point.origin,
+        //        Point( // go forward 12 inches
+        //          Inches(0),
+        //          Inches(6.6)
+        //        ),
+        Point( // turn 45 degrees counterclockwise and move 65.1" forward
+          Inches(-55.393),
+          Inches(30)
+        ),
+        Point( // become straight and move 32" forward
+          Inches(-55.393),
+          Inches(40)
+        )
+      ),
+      tolerance = Inches(6),
+      maxTurnOutput = Percent(50),
+      targetTicksWithingTolerance = 10,
+      forwardBackwardMode = ForwardsOnly
+    )(drivetrain).then(
+      postSwitchDelivery(drivetrain)
+    )
+  }
+
+  def sameSideScaleAuto(drivetrain: Drivetrain): FiniteTask = {
+    new FollowWayPoints(
+      Seq(
+        Point.origin,
+        Point( // turn 45 degrees counterclockwise and move 65.1" forward
+          Inches(0),
+          Inches(200) - Feet(5)
+        ),
+        Point(
+          Inches(50) - Inches(20),
+          Inches(200)
+        ),
+        Point( // turn 45 degrees clockwise and move 32" forward
+          Inches(50),
+          Inches(200)
+        )
+      ),
+      tolerance = Inches(6),
+      maxTurnOutput = Percent(50),
+      targetTicksWithingTolerance = 10,
+      forwardBackwardMode = ForwardsOnly
+    )(drivetrain)
+  }
 //  def leftGearPurePursuit(drivetrain: Drivetrain,
 //                          gearGrabber: GearGrabber,
 //                          gearTilter: GearTilter): FiniteTask = {
@@ -157,6 +187,7 @@
 //      tolerance = Inches(3),
 //      position = xyPosition,
 //      turnPosition = relativeTurn,
+
 //      maxTurnOutput = Percent(50)
 //    )(drivetrain).withTimeout(Seconds(5)).then(
 //      toGearAndDrop(drivetrain, gearGrabber, gearTilter)
@@ -446,3 +477,4 @@
 //    ).then(centerGear(drivetrain, gearGrabber, gearTilter))
 //  }
 //}
+}

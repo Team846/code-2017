@@ -300,36 +300,14 @@ class CoreRobot(configFileValue: Signal[String],
 //        ).toContinuous
 //      }
 //    }
-//
-//    for {
-//      drivetrain <- drivetrain
-//    } {
-//      println("adding auto 1")
-//      addAutonomousRoutine(1) {
-//        generator.centerDriveBack(drivetrain).toContinuous
-//      }
-//
-//      println("adding auto 2")
-//      addAutonomousRoutine(2){
-//        generator.driveForwardOpenLoop(drivetrain, coreTicks)
-//      }
-//
-//      println("adding auto 3")
-//      addAutonomousRoutine(3){
-//        generator.driveForwardOpenLoop5seconds(drivetrain, coreTicks)
-//      }
-//
-//      println("adding auto 8")
-//      addAutonomousRoutine(8)(
-//        generator.slowCrossLine(drivetrain).toContinuous
-//      )
-//
-//      println("auto 9")
-//
-//      addAutonomousRoutine(9)(
-//        generator.smallTestShot(drivetrain)
-//      )
-//    }
+
+    for {
+      drivetrain <- drivetrain
+    } {
+      addAutonomousRoutine(1) {
+        generator.twoCubeAuto(drivetrain).toContinuous
+      }
+    }
 
   import driverHardware._
 
