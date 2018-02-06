@@ -2,6 +2,8 @@ package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.potassium.commons.drivetrain.unicycle.control.purePursuit._
 import com.lynbrookrobotics.potassium.commons.cartesianPosition.XYPosition
+import com.lynbrookrobotics.potassium.streams._
+import com.lynbrookrobotics.potassium.streams
 import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, FiniteTask, WaitTask}
 import com.lynbrookrobotics.potassium.units.Point
 import com.lynbrookrobotics.seventeen.agitator.Agitator
@@ -31,56 +33,86 @@ class AutoGenerator(r: CoreRobot) {
   private val midShootSpeedRight = r.coreTicks.map(_ => shooterFlywheelProps.get.midShootSpeedRight)
 
 
-  def postSwitchDelivery(drivetrain: Drivetrain): FiniteTask = {
-    new FollowWayPoints(
+  def postSwitchDelivery(drivetrain: Drivetrain, pose: Stream[Point]): FiniteTask = {
+    new FollowWayPointsWithPosition(
       Seq(
-        Point.origin,
+        Point( // become straight and move 32" forward
+          Inches(72.313),
+          Inches(110.456)
+        ),
+        Point(
+          Inches(42.464),
+          Inches(110.456)
+        ),
+        Point(
+          Inches(42.464),
+          Inches(220.300)
+        )
+      ),
+      tolerance = Inches(6),
+      maxTurnOutput = Percent(50),
+      targetTicksWithingTolerance = 10,
+      forwardBackwardMode = BackwardsOnly,
+      position = pose,
+      turnPosition = drivetrainHardware.turnPosition
+    )(drivetrain).then(new FollowWayPointsWithPosition(
+      Seq(
+        Point(
+          Inches(42.464),
+          Inches(220.300)
+        ),
+        Point(
+          Inches(55.813),
+          Inches(208.688)
+        )
+      ),
+      tolerance = Inches(6),
+      maxTurnOutput = Percent(50),
+      targetTicksWithingTolerance = 10,
+      forwardBackwardMode = ForwardsOnly,
+      position = pose,
+      turnPosition = drivetrainHardware.turnPosition
+    )(drivetrain)).then(new FollowWayPointsWithPosition(
+      Seq(
+        Point(
+          Inches(55.813),
+          Inches(208.688)
+        ),
+        Point(
+          Inches(42.464),
+          Inches(220.300)
+        ),
         Point(
           Inches(0),
-          Inches(-18)
+          Inches(220.300)
+        )
+      ),
+      tolerance = Inches(6),
+      maxTurnOutput = Percent(50),
+      targetTicksWithingTolerance = 10,
+      forwardBackwardMode = BackwardsOnly,
+      position = pose,
+      turnPosition = drivetrainHardware.turnPosition
+    )(drivetrain)).then(
+      new FollowWayPointsWithPosition(
+        Seq(
+          Point(
+            Inches(0),
+            Inches(220.300)
+          ),
+          Point(
+            Inches(50.291),
+            Inches(299.590),
+          )
         ),
-        Point(
-          Inches(-30),
-          Inches(-18)
-        ),
-        Point(
-          Inches(-30),
-          Inches(82)
-        )
-      ),
-      tolerance = Inches(6),
-      maxTurnOutput = Percent(50),
-      targetTicksWithingTolerance = 10,
-      forwardBackwardMode = BackwardsOnly
-    )(drivetrain).then(new FollowWayPoints(
-      Seq(
-        Point.origin,
-        Point(
-          Inches(20.553),
-          Inches(-14.165)
-        )
-      ),
-      tolerance = Inches(6),
-      maxTurnOutput = Percent(50),
-      targetTicksWithingTolerance = 10,
-      forwardBackwardMode = ForwardsOnly
-    )(drivetrain)).then(new RotateByAngle(
-      Degrees(180),
-      Degrees(30),
-      1
-    )(drivetrain)).then(new FollowWayPoints(
-      Seq(
-        Point.origin,
-        Point(
-          Inches(-9.235),
-          Inches(91.119)
-        )
-      ),
-      tolerance = Inches(6),
-      maxTurnOutput = Percent(50),
-      targetTicksWithingTolerance = 10,
-      forwardBackwardMode = ForwardsOnly
-    )(drivetrain))
+        tolerance = Inches(6),
+        maxTurnOutput = Percent(50),
+        targetTicksWithingTolerance = 10,
+        forwardBackwardMode = ForwardsOnly,
+        position = pose,
+        turnPosition = drivetrainHardware.turnPosition
+      )(drivetrain)
+    )
   }
 
   def centerSwitch(drivetrain: Drivetrain): FiniteTask = {
@@ -100,9 +132,10 @@ class AutoGenerator(r: CoreRobot) {
       maxTurnOutput = Percent(50),
       targetTicksWithingTolerance = 10,
       forwardBackwardMode = ForwardsOnly
-    )(drivetrain).then(postSwitchDelivery(drivetrain))
+    )(drivetrain)
   }
 
+  val startingPose = Point(Inches(139.473), Inches(0))
   def twoCubeAuto(drivetrain: Drivetrain): FiniteTask = {
     val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
       curr - init
@@ -111,30 +144,37 @@ class AutoGenerator(r: CoreRobot) {
     val xyPosition = XYPosition(
       relativeTurn,
       drivetrainHardware.forwardPosition
+    ).map(p =>
+      Point(
+        p.x + startingPose.x,
+        p.y + startingPose.y
+      )
     )
 
-    new FollowWayPoints(
+    new FollowWayPointsWithPosition(
       Seq(
-        Point.origin,
+        startingPose,
         //        Point( // go forward 12 inches
         //          Inches(0),
-        //          Inches(6.6)
+        //          Inches(30.5)
         //        ),
-        Point( // turn 45 degrees counterclockwise and move 65.1" forward
-          Inches(-55.393),
-          Inches(30)
+        Point(
+          Inches(72.313),
+          Inches(97.786)
         ),
         Point( // become straight and move 32" forward
-          Inches(-55.393),
+          Inches(140.188),
           Inches(40)
         )
       ),
       tolerance = Inches(6),
       maxTurnOutput = Percent(50),
       targetTicksWithingTolerance = 10,
-      forwardBackwardMode = ForwardsOnly
+      forwardBackwardMode = ForwardsOnly,
+      position = xyPosition,
+      turnPosition = drivetrainHardware.turnPosition
     )(drivetrain).then(
-      postSwitchDelivery(drivetrain)
+      postSwitchDelivery(drivetrain, xyPosition)
     )
   }
 

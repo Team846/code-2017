@@ -409,13 +409,13 @@ class CoreRobot(configFileValue: Signal[String],
     }
 
     climberPuller.foreach { c =>
-      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor A")(
-        hardware.pdp.getCurrent(3)
-      ))
-
-      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor B")(
-        hardware.pdp.getCurrent(2)
-      ))
+//      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor A")(
+//        hardware.pdp.getCurrent(3)
+//      ))
+//
+//      board.datasetGroup("Climber").addDataset(new TimeSeriesNumeric("Motor B")(
+//        hardware.pdp.getCurrent(2)
+//      ))
     }
 
     gearGrabber.foreach { g =>
