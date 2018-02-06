@@ -14,11 +14,11 @@
     },
     "properties": {
       "maxLeftVelocity": [
-        17.05,
+        19.39,
         "FeetPerSecond$"
       ],
       "maxRightVelocity": [
-        17.23,
+        19.83,
         "FeetPerSecond$"
       ],
       "maxAcceleration": [
@@ -37,7 +37,7 @@
       "turnVelocityGains": {
         "kp": {
           "num": [
-            50,
+            100,
             "Percent$"
           ],
           "den": [
@@ -133,11 +133,11 @@
       "leftVelocityGains": {
         "kp": {
           "num": [
-            60,
+            10,
             "Percent$"
           ],
           "den": [
-            5,
+            1,
             "FeetPerSecond$"
           ]
         },
@@ -165,11 +165,11 @@
       "rightVelocityGains": {
         "kp": {
           "num": [
-            60,
+            10,
             "Percent$"
           ],
           "den": [
-            5,
+            1,
             "FeetPerSecond$"
           ]
         },
