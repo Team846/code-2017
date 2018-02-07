@@ -136,20 +136,44 @@ class AutoGenerator(r: CoreRobot) {
   }
 
   val startingPose = Point(Inches(139.473), Inches(0))
+
+  def driveDistanceStraight(drivetrain: Drivetrain): FiniteTask = {
+    new DriveDistanceStraight(
+      Feet(5),
+      Inches(2),
+      Degrees(5),
+      Percent(50)
+    )(drivetrain)
+  }
+
+
+  def twoCubeAutoRelative(drivetrain: Drivetrain): FiniteTask = {
+    new FollowWayPoints(
+      Seq(
+        startingPose,
+        startingPose + Point(Feet(0), Feet(5))
+      ),
+      tolerance = Inches(6),
+      maxTurnOutput = Percent(50),
+      targetTicksWithingTolerance = 10,
+      forwardBackwardMode = ForwardsOnly
+    )(drivetrain)
+  }
+
   def twoCubeAuto(drivetrain: Drivetrain): FiniteTask = {
     val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
       curr - init
     })
 
     val xyPosition = XYPosition(
-      relativeTurn,
+      relativeTurn.map(compassToTrigonometric),
       drivetrainHardware.forwardPosition
     ).map(p =>
       Point(
         p.x + startingPose.x,
         p.y + startingPose.y
       )
-    )
+    ).preserve
 
     new FollowWayPointsWithPosition(
       Seq(
@@ -163,8 +187,34 @@ class AutoGenerator(r: CoreRobot) {
           Inches(97.786)
         ),
         Point( // become straight and move 32" forward
-          Inches(140.188),
-          Inches(40)
+          Inches(72.313),
+          Inches(140.188)
+        )
+      ),
+      tolerance = Feet(2)/*Inches(12)*/,
+      maxTurnOutput = Percent(50),
+      targetTicksWithingTolerance = 10,
+      forwardBackwardMode = ForwardsOnly,
+      position = xyPosition,
+      turnPosition = relativeTurn
+    )(drivetrain).then(
+      postSwitchDelivery(drivetrain, xyPosition)
+    )
+
+/*    new FollowWayPointsWithPosition(
+      Seq(
+        startingPose,
+        //        Point( // go forward 12 inches
+        //          Inches(0),
+        //          Inches(30.5)
+        //        ),
+        Point(
+          Inches(72.313),
+          Inches(97.786)
+        ),
+        Point( // become straight and move 32" forward
+          Inches(72.313),
+          Inches(140.188)
         )
       ),
       tolerance = Inches(6),
@@ -173,9 +223,9 @@ class AutoGenerator(r: CoreRobot) {
       forwardBackwardMode = ForwardsOnly,
       position = xyPosition,
       turnPosition = drivetrainHardware.turnPosition
-    )(drivetrain).then(
+    )(drivetrain)*//*.then(
       postSwitchDelivery(drivetrain, xyPosition)
-    )
+    )*/
   }
 
   def sameSideScaleAuto(drivetrain: Drivetrain): FiniteTask = {

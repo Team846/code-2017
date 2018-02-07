@@ -2,9 +2,11 @@ package com.lynbrookrobotics.seventeen
 
 import com.lynbrookrobotics.funkydashboard.{FunkyDashboard, JsonEditor, TimeSeriesNumeric}
 import com.lynbrookrobotics.potassium.clock.Clock
+import com.lynbrookrobotics.potassium.commons.cartesianPosition.XYPosition
 import com.lynbrookrobotics.potassium.events.ImpulseEvent
 import com.lynbrookrobotics.potassium.streams.Stream
 import com.lynbrookrobotics.potassium.tasks.{ContinuousTask, FiniteTask, Task}
+import com.lynbrookrobotics.potassium.units.Point
 import com.lynbrookrobotics.potassium.{Component, Signal}
 import com.lynbrookrobotics.seventeen.agitator.{Agitator, AgitatorHardware, AgitatorProperties}
 import com.lynbrookrobotics.seventeen.camselect.{CamSelect, CamSelectHardware, CamSelectProperties}
@@ -185,11 +187,11 @@ class CoreRobot(configFileValue: Signal[String],
 
   }
 
-  private var autonomousRoutines = mutable.Map.empty[Int, ContinuousTask]
+  private var autonomousRoutines = mutable.Map.empty[Int, () => ContinuousTask]
 
   println("add auto")
 
-  def addAutonomousRoutine(id: Int)(task: ContinuousTask): Unit = {
+  def addAutonomousRoutine(id: Int)(task:  => ContinuousTask): Unit = {
     if (autonomousRoutines.contains(id)) {
       println(s"WARNING, overriding autonomous routine $id")
     }
@@ -199,7 +201,7 @@ class CoreRobot(configFileValue: Signal[String],
 
     println("finished prepping auto")
 
-    autonomousRoutines(id) = task
+    autonomousRoutines(id) = () => task
   }
 
   println("before adding drivetrain")
@@ -300,12 +302,20 @@ class CoreRobot(configFileValue: Signal[String],
 //        ).toContinuous
 //      }
 //    }
+    val generator = new AutoGenerator(this)
 
     for {
       drivetrain <- drivetrain
     } {
       addAutonomousRoutine(1) {
         generator.twoCubeAuto(drivetrain).toContinuous
+      }
+
+      addAutonomousRoutine(2) {
+        generator.driveDistanceStraight(drivetrain).toContinuous
+      }
+      addAutonomousRoutine(3) {
+        generator.twoCubeAutoRelative(drivetrain).toContinuous
       }
     }
 
@@ -316,8 +326,8 @@ class CoreRobot(configFileValue: Signal[String],
 
     autonomousRoutines.getOrElse(autoID, {
       println(s"ERROR: autonomous routine $autoID not found")
-      FiniteTask.empty.toContinuous
-    })
+      () => FiniteTask.empty.toContinuous
+    }).apply()
   })
 
   // Needs to go last because component resets have highest priority
@@ -366,6 +376,19 @@ class CoreRobot(configFileValue: Signal[String],
       driverHardware.operatorJoystick.getPOV()
     ))
 
+    val xyPosition = XYPosition(
+      drivetrainHardware.turnPosition,
+      drivetrainHardware.forwardPosition
+    ).map(p =>
+      Point(
+        p.x + generator.startingPose.x,
+        p.y + generator.startingPose.y
+      )
+    )
+
+    val xPose = xyPosition.map(_.x.toFeet).toTimeSeriesNumeric("x pose")
+    val yPose = xyPosition.map(_.y.toFeet).toTimeSeriesNumeric("y pose")
+
     drivetrain.foreach { d =>
       board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.leftVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Left Ground Velocity"))
       board.datasetGroup("Drivetrain/Velocity").addDataset(drivetrainHardware.rightVelocity.map(_.toFeetPerSecond).toTimeSeriesNumeric("Right Ground Velocity"))
@@ -383,6 +406,9 @@ class CoreRobot(configFileValue: Signal[String],
 
       board.datasetGroup("Drivetrain/Position").addDataset(drivetrainHardware.rootDataStream
         .map(d => (d.rightEncoderRotation * drivetrainProps.get.gearRatio).toDegrees).toTimeSeriesNumeric("Right Wheel Rotation"))
+
+      board.datasetGroup("Drivetrain/Position").addDataset(xPose)
+      board.datasetGroup("Drivetrain/Position").addDataset(yPose)
 
       board.datasetGroup("Drivetrain/Gyro").addDataset(drivetrainHardware.turnVelocity.map(_.toDegreesPerSecond).toTimeSeriesNumeric("Turn Velocity"))
       board.datasetGroup("Drivetrain/Gyro").addDataset(drivetrainHardware.turnPosition.map(_.toDegrees).toTimeSeriesNumeric("Rotational Position"))

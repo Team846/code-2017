@@ -80,9 +80,9 @@ class LaunchRobot extends RobotBase {
     )
 
     println("Preloading")
-//    preload("com.lynbrookrobotics")
-//    preload("squants")
-//    preload("edu.wpi.first.wpilibj")
+    preload("com.lynbrookrobotics")
+    preload("squants")
+    preload("edu.wpi.first.wpilibj")
     preload("com.ctre")
 
     coreRobot.comms.foreach(_.connect())

@@ -41,6 +41,15 @@ case class DrivetrainHardware(leftMaster: LazyTalon, leftSlave: LazyTalon,
 
   import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced._
 
+  Set(rightMaster, leftMaster, rightSlave, leftSlave)
+      .map(_.t)
+    .foreach { it =>
+      it.configContinuousCurrentLimit(10, 0)
+      it.configPeakCurrentLimit(10, 0)
+      it.configPeakCurrentDuration(0, 0)
+      it.enableCurrentLimit(true)
+    }
+
   StatusFrame.values().foreach { it =>
     rightMaster.t.setStatusFramePeriod(it, 1000, 0)
     leftMaster.t.setStatusFramePeriod(it, 1000, 0)
