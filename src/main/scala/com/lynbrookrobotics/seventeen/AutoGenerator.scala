@@ -18,7 +18,7 @@ import com.lynbrookrobotics.seventeen.loadtray.LoadTray
 import com.lynbrookrobotics.seventeen.shooter.ShooterTasks
 import com.lynbrookrobotics.seventeen.shooter.flywheel.ShooterFlywheel
 import com.lynbrookrobotics.seventeen.shooter.shifter.{ShiftShooter, ShooterShiftLeft, ShooterShiftRight, ShooterShifter}
-import squants.Percent
+import squants.{Angle, Percent}
 import squants.space.{Degrees, Feet, Inches}
 import squants.time.Seconds
 
@@ -32,10 +32,22 @@ class AutoGenerator(r: CoreRobot) {
   private val midShootSpeedLeft = r.coreTicks.map(_ => shooterFlywheelProps.get.midShootSpeedLeft)
   private val midShootSpeedRight = r.coreTicks.map(_ => shooterFlywheelProps.get.midShootSpeedRight)
 
+  def printTask(message: String): FiniteTask = {
+    new FiniteTask {
+      override protected def onEnd(): Unit = {}
 
-  def postSwitchDelivery(drivetrain: Drivetrain, pose: Stream[Point]): FiniteTask = {
+      override protected def onStart(): Unit = {
+        finished()
+        println(message)
+      }
+    }
+  }
+
+  def driveBackPostSwitch(drivetrain: Drivetrain,
+                          pose: Stream[Point],
+                          relativeAngle: Stream[Angle]): FiniteTask = {
     new FollowWayPointsWithPosition(
-      Seq(
+      /*Seq(
         Point( // become straight and move 32" forward
           Inches(72.313),
           Inches(110.456)
@@ -48,14 +60,17 @@ class AutoGenerator(r: CoreRobot) {
           Inches(42.464),
           Inches(220.300)
         )
-      ),
+      )*/
+      postSwitchPoints,
       tolerance = Inches(6),
       maxTurnOutput = Percent(50),
       targetTicksWithingTolerance = 10,
       forwardBackwardMode = BackwardsOnly,
       position = pose,
-      turnPosition = drivetrainHardware.turnPosition
-    )(drivetrain).then(new FollowWayPointsWithPosition(
+      turnPosition = relativeAngle
+    )(drivetrain)
+
+    /*.then(new FollowWayPointsWithPosition(
       Seq(
         Point(
           Inches(42.464),
@@ -112,8 +127,34 @@ class AutoGenerator(r: CoreRobot) {
         position = pose,
         turnPosition = drivetrainHardware.turnPosition
       )(drivetrain)
-    )
+    )*/
   }
+
+  def pickupCube(drivetrain: Drivetrain, position: Stream[Point], relativeAngle: Stream[Angle]): FiniteTask = {
+    new FollowWayPointsWithPosition(
+      cubePickupPoints,
+      tolerance = Inches(6),
+      maxTurnOutput = Percent(50),
+      targetTicksWithingTolerance = 10,
+      forwardBackwardMode = ForwardsOnly,
+      position = position,
+      turnPosition = relativeAngle
+    )(drivetrain)
+  }
+
+  def driveBackPostCube(drivetrain: Drivetrain, pose: Stream[Point], relativeAngle: Stream[Angle]): FiniteTask = {
+    new FollowWayPointsWithPosition(
+      driveBackToScalePoints,
+      tolerance = Inches(6),
+      maxTurnOutput = Percent(50),
+      targetTicksWithingTolerance = 10,
+      forwardBackwardMode = BackwardsOnly,
+      position = pose,
+      turnPosition = relativeAngle
+    )(drivetrain)
+  }
+
+
 
   def centerSwitch(drivetrain: Drivetrain): FiniteTask = {
     new FollowWayPoints(
@@ -135,7 +176,7 @@ class AutoGenerator(r: CoreRobot) {
     )(drivetrain)
   }
 
-  val startingPose = Point(Inches(139.473), Inches(0))
+  val startingPose = Point.origin//Point(Inches(139.473), Inches(0))
 
   def driveDistanceStraight(drivetrain: Drivetrain): FiniteTask = {
     new DriveDistanceStraight(
@@ -160,6 +201,40 @@ class AutoGenerator(r: CoreRobot) {
     )(drivetrain)
   }
 
+  val switchWayPoints = Seq(
+    startingPose,
+    startingPose + Point(-Feet(2), Feet(6)),
+    startingPose + Point(-Feet(2), Feet(10))
+  )
+
+  val switchEnd = startingPose + Point(-Feet(2), Feet(10))
+  val postSwitchPoints = Seq(
+    switchEnd,
+    switchEnd + Point(Feet(0), -Feet(4)),
+    switchEnd + Point(-Feet(4), -Feet(4)),
+    switchEnd + Point(-Feet(4), Feet(1))
+  )
+
+  val driveBackEnd = switchEnd + Point(-Feet(4), Feet(1))
+  val cubePickupPoints = Seq(
+    driveBackEnd,
+    driveBackEnd + Point(Feet(2), -Feet(2))
+  )
+
+  val cubePickupEnd = driveBackEnd + Point(Feet(2), -Feet(2))
+  val driveBackToScalePoints = Seq(
+    cubePickupEnd,
+    cubePickupEnd + Point(-Feet(2), Feet(1)),
+    cubePickupEnd + Point(-Feet(4), Feet(1))
+  )
+
+  val driveBackToScaleEnd = cubePickupEnd + Point(-Feet(4), Feet(1))
+  val driveToScalePoints = Seq(
+    driveBackToScaleEnd,
+    driveBackToScaleEnd + Point(Feet(2), Feet(6))
+
+  )
+
   def twoCubeAuto(drivetrain: Drivetrain): FiniteTask = {
     val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
       curr - init
@@ -176,29 +251,34 @@ class AutoGenerator(r: CoreRobot) {
     ).preserve
 
     new FollowWayPointsWithPosition(
-      Seq(
-        startingPose,
-        //        Point( // go forward 12 inches
-        //          Inches(0),
-        //          Inches(30.5)
-        //        ),
-        Point(
-          Inches(72.313),
-          Inches(97.786)
-        ),
-        Point( // become straight and move 32" forward
-          Inches(72.313),
-          Inches(140.188)
-        )
-      ),
-      tolerance = Feet(2)/*Inches(12)*/,
+//      Seq(
+//        startingPose,
+//        //        Point( // go forward 12 inches
+//        //          Inches(0),
+//        //          Inches(30.5)
+//        //        ),
+//        Point(
+//          Inches(72.313),
+//          Inches(97.786)
+//        ),
+//        Point( // become straight and move 32" forward
+//          Inches(72.313),
+//          Inches(140.188)
+//        )
+//      ),
+      switchWayPoints,
+      tolerance = Inches(6),
       maxTurnOutput = Percent(50),
       targetTicksWithingTolerance = 10,
       forwardBackwardMode = ForwardsOnly,
       position = xyPosition,
       turnPosition = relativeTurn
-    )(drivetrain).then(
-      postSwitchDelivery(drivetrain, xyPosition)
+    )(drivetrain).then(printTask("ended switch")).then(
+      driveBackPostSwitch(drivetrain, xyPosition, relativeTurn).then(printTask("ended post switch"))
+    ).then(
+      pickupCube(drivetrain, xyPosition, relativeTurn).then(printTask("end cube pickup"))
+    ).then(
+      driveBackPostCube(drivetrain, xyPosition, relativeTurn).then(printTask("end back driving"))
     )
 
 /*    new FollowWayPointsWithPosition(

@@ -26,13 +26,6 @@ package object drivetrain extends OffloadedDrive {
   override type Hardware = DrivetrainHardware
 
   override protected def output(hardware: Hardware, signal: TwoSided[OffloadedSignal]): Unit = {
-    if(Math.random()>0.999) {
-      println(s"rsig: ${signal.right}")
-      println(s"lsig: ${signal.left}")
-      println(s"lfee: ${hardware.leftEncoder.getAngularVelocity}")
-      println(s"lfee: ${hardware.rightEncoder.getAngularVelocity}")
-      println()
-    }
     hardware.leftMaster.applyCommand(signal.left)
     hardware.rightMaster.applyCommand(signal.right)
   }
