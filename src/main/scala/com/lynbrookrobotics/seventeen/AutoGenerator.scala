@@ -47,7 +47,11 @@ class AutoGenerator(r: CoreRobot) {
                           pose: Stream[Point],
                           relativeAngle: Stream[Angle]): FiniteTask = {
     new FollowWayPointsWithPosition(
-      /*Seq(
+      Seq(
+        Point(
+          Inches(72),
+          Inches(140)
+        ),
         Point( // become straight and move 32" forward
           Inches(72.313),
           Inches(110.456)
@@ -60,11 +64,11 @@ class AutoGenerator(r: CoreRobot) {
           Inches(42.464),
           Inches(220.300)
         )
-      )*/
-      postSwitchPoints,
-      tolerance = Inches(6),
+      ),
+      //postSwitchPoints,
+      tolerance = Feet(1),
       maxTurnOutput = Percent(50),
-      targetTicksWithingTolerance = 10,
+      targetTicksWithingTolerance = 1,
       forwardBackwardMode = BackwardsOnly,
       position = pose,
       turnPosition = relativeAngle
@@ -132,7 +136,17 @@ class AutoGenerator(r: CoreRobot) {
 
   def pickupCube(drivetrain: Drivetrain, position: Stream[Point], relativeAngle: Stream[Angle]): FiniteTask = {
     new FollowWayPointsWithPosition(
-      cubePickupPoints,
+      //cubePickupPoints,
+      Seq(
+        Point(
+          Inches(42.5),
+          Inches(220.3)
+        ),
+        Point(
+          Inches(55.8),
+          Inches(208.7)
+        )
+      ),
       tolerance = Inches(6),
       maxTurnOutput = Percent(50),
       targetTicksWithingTolerance = 10,
@@ -144,16 +158,51 @@ class AutoGenerator(r: CoreRobot) {
 
   def driveBackPostCube(drivetrain: Drivetrain, pose: Stream[Point], relativeAngle: Stream[Angle]): FiniteTask = {
     new FollowWayPointsWithPosition(
-      driveBackToScalePoints,
-      tolerance = Inches(6),
+      //driveBackToScalePoints,
+      Seq(
+        Point(
+          Inches(55.8),
+          Inches(208.7)
+        ),
+        Point(
+          Inches(42.5),
+          Inches(220.8)
+        ),
+        Point(
+          Inches(0),
+          Inches(220.8)
+        )
+      ),
+      tolerance = Feet(1),
       maxTurnOutput = Percent(50),
-      targetTicksWithingTolerance = 10,
+      targetTicksWithingTolerance = 1,
       forwardBackwardMode = BackwardsOnly,
       position = pose,
       turnPosition = relativeAngle
     )(drivetrain)
   }
 
+  def driveToScaleForward(drivetrain: Drivetrain, pose: Stream[Point], relativeAngle: Stream[Angle]): FiniteTask = {
+    new FollowWayPointsWithPosition(
+      //driveForwardToScalePoints,
+      Seq(
+        Point(
+          Inches(0),
+          Inches(220.8)
+        ),
+        Point(
+          Inches(50.3),
+          Inches(299.6)
+        )
+      ),
+      tolerance = Inches(6),
+      maxTurnOutput = Percent(50),
+      targetTicksWithingTolerance = 10,
+      forwardBackwardMode = ForwardsOnly,
+      position = pose,
+      turnPosition = relativeAngle
+    )(drivetrain)
+  }
 
 
   def centerSwitch(drivetrain: Drivetrain): FiniteTask = {
@@ -176,7 +225,7 @@ class AutoGenerator(r: CoreRobot) {
     )(drivetrain)
   }
 
-  val startingPose = Point.origin//Point(Inches(139.473), Inches(0))
+  val startingPose = Point(Inches(139.473), Inches(0))
 
   def driveDistanceStraight(drivetrain: Drivetrain): FiniteTask = {
     new DriveDistanceStraight(
@@ -229,11 +278,11 @@ class AutoGenerator(r: CoreRobot) {
   )
 
   val driveBackToScaleEnd = cubePickupEnd + Point(-Feet(4), Feet(1))
-  val driveToScalePoints = Seq(
+  val driveForwardToScalePoints = Seq(
     driveBackToScaleEnd,
     driveBackToScaleEnd + Point(Feet(2), Feet(6))
-
   )
+
 
   def twoCubeAuto(drivetrain: Drivetrain): FiniteTask = {
     val relativeTurn = drivetrainHardware.turnPosition.relativize((init, curr) => {
@@ -251,22 +300,22 @@ class AutoGenerator(r: CoreRobot) {
     ).preserve
 
     new FollowWayPointsWithPosition(
-//      Seq(
-//        startingPose,
-//        //        Point( // go forward 12 inches
-//        //          Inches(0),
-//        //          Inches(30.5)
-//        //        ),
-//        Point(
-//          Inches(72.313),
-//          Inches(97.786)
-//        ),
-//        Point( // become straight and move 32" forward
-//          Inches(72.313),
-//          Inches(140.188)
-//        )
-//      ),
-      switchWayPoints,
+      Seq(
+        startingPose,
+        //        Point( // go forward 12 inches
+        //          Inches(0),
+        //          Inches(30.5)
+        //        ),
+        Point(
+          Inches(72.313),
+          Inches(97.786)
+        ),
+        Point( // become straight and move 32" forward
+          Inches(72.313),
+          Inches(140.188)
+        )
+      ),
+//      switchWayPoints,
       tolerance = Inches(6),
       maxTurnOutput = Percent(50),
       targetTicksWithingTolerance = 10,
@@ -279,6 +328,8 @@ class AutoGenerator(r: CoreRobot) {
       pickupCube(drivetrain, xyPosition, relativeTurn).then(printTask("end cube pickup"))
     ).then(
       driveBackPostCube(drivetrain, xyPosition, relativeTurn).then(printTask("end back driving"))
+    ).then(
+      driveToScaleForward(drivetrain, xyPosition, relativeTurn).then(printTask("ended everything!"))
     )
 
 /*    new FollowWayPointsWithPosition(

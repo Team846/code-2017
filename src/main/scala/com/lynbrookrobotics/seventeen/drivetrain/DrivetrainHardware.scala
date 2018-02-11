@@ -44,8 +44,8 @@ case class DrivetrainHardware(leftMaster: LazyTalon, leftSlave: LazyTalon,
   Set(rightMaster, leftMaster, rightSlave, leftSlave)
       .map(_.t)
     .foreach { it =>
-      it.configContinuousCurrentLimit(10, 0)
-      it.configPeakCurrentLimit(10, 0)
+      it.configContinuousCurrentLimit(25, 0)
+      it.configPeakCurrentLimit(25, 0)
       it.configPeakCurrentDuration(0, 0)
       it.enableCurrentLimit(true)
     }

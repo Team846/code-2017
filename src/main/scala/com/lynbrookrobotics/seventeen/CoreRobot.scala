@@ -304,6 +304,8 @@ class CoreRobot(configFileValue: Signal[String],
 //    }
     val generator = new AutoGenerator(this)
 
+
+
     for {
       drivetrain <- drivetrain
     } {
